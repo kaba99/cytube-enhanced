@@ -1,0 +1,1368 @@
+function AnimachEnhancedApp(settings) {
+    this.modules = {};
+    this.settings = settings;
+
+    this.addModule = function (moduleName, module) {
+        this.modules[moduleName] = module;
+
+        this.triggerModule(moduleName);
+    };
+
+    this.triggerModule = function (moduleName) {
+        if (this.settings[moduleName] === true && this.modules[moduleName] !== undefined) {
+            this.modules[moduleName](this);
+        }
+    };
+}
+
+var animachEnhancedApp = new AnimachEnhancedApp({
+    utils: true,
+    chatHelp: true,
+    favouritePictures: true,
+    smiles: true,
+    videoControls: true,
+    progressBar: true,
+    chatCommands: true,
+    chatControls: true,
+    uiTranslate: true,
+    navMenuTabs: true
+});
+
+/*!
+ * jQuery Mousewheel 3.1.12
+ *
+ * Copyright 2014 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ */
+
+(function (factory) {
+    if ( typeof define === 'function' && define.amd ) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS style for Browserify
+        module.exports = factory;
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
+
+    var toFix  = ['wheel', 'mousewheel', 'DOMMouseScroll', 'MozMousePixelScroll'],
+        toBind = ( 'onwheel' in document || document.documentMode >= 9 ) ?
+                    ['wheel'] : ['mousewheel', 'DomMouseScroll', 'MozMousePixelScroll'],
+        slice  = Array.prototype.slice,
+        nullLowestDeltaTimeout, lowestDelta;
+
+    if ( $.event.fixHooks ) {
+        for ( var i = toFix.length; i; ) {
+            $.event.fixHooks[ toFix[--i] ] = $.event.mouseHooks;
+        }
+    }
+
+    var special = $.event.special.mousewheel = {
+        version: '3.1.12',
+
+        setup: function() {
+            if ( this.addEventListener ) {
+                for ( var i = toBind.length; i; ) {
+                    this.addEventListener( toBind[--i], handler, false );
+                }
+            } else {
+                this.onmousewheel = handler;
+            }
+            // Store the line height and page height for this particular element
+            $.data(this, 'mousewheel-line-height', special.getLineHeight(this));
+            $.data(this, 'mousewheel-page-height', special.getPageHeight(this));
+        },
+
+        teardown: function() {
+            if ( this.removeEventListener ) {
+                for ( var i = toBind.length; i; ) {
+                    this.removeEventListener( toBind[--i], handler, false );
+                }
+            } else {
+                this.onmousewheel = null;
+            }
+            // Clean up the data we added to the element
+            $.removeData(this, 'mousewheel-line-height');
+            $.removeData(this, 'mousewheel-page-height');
+        },
+
+        getLineHeight: function(elem) {
+            var $elem = $(elem),
+                $parent = $elem['offsetParent' in $.fn ? 'offsetParent' : 'parent']();
+            if (!$parent.length) {
+                $parent = $('body');
+            }
+            return parseInt($parent.css('fontSize'), 10) || parseInt($elem.css('fontSize'), 10) || 16;
+        },
+
+        getPageHeight: function(elem) {
+            return $(elem).height();
+        },
+
+        settings: {
+            adjustOldDeltas: true, // see shouldAdjustOldDeltas() below
+            normalizeOffset: true  // calls getBoundingClientRect for each event
+        }
+    };
+
+    $.fn.extend({
+        mousewheel: function(fn) {
+            return fn ? this.bind('mousewheel', fn) : this.trigger('mousewheel');
+        },
+
+        unmousewheel: function(fn) {
+            return this.unbind('mousewheel', fn);
+        }
+    });
+
+
+    function handler(event) {
+        var orgEvent   = event || window.event,
+            args       = slice.call(arguments, 1),
+            delta      = 0,
+            deltaX     = 0,
+            deltaY     = 0,
+            absDelta   = 0,
+            offsetX    = 0,
+            offsetY    = 0;
+        event = $.event.fix(orgEvent);
+        event.type = 'mousewheel';
+
+        // Old school scrollwheel delta
+        if ( 'detail'      in orgEvent ) { deltaY = orgEvent.detail * -1;      }
+        if ( 'wheelDelta'  in orgEvent ) { deltaY = orgEvent.wheelDelta;       }
+        if ( 'wheelDeltaY' in orgEvent ) { deltaY = orgEvent.wheelDeltaY;      }
+        if ( 'wheelDeltaX' in orgEvent ) { deltaX = orgEvent.wheelDeltaX * -1; }
+
+        // Firefox < 17 horizontal scrolling related to DOMMouseScroll event
+        if ( 'axis' in orgEvent && orgEvent.axis === orgEvent.HORIZONTAL_AXIS ) {
+            deltaX = deltaY * -1;
+            deltaY = 0;
+        }
+
+        // Set delta to be deltaY or deltaX if deltaY is 0 for backwards compatabilitiy
+        delta = deltaY === 0 ? deltaX : deltaY;
+
+        // New school wheel delta (wheel event)
+        if ( 'deltaY' in orgEvent ) {
+            deltaY = orgEvent.deltaY * -1;
+            delta  = deltaY;
+        }
+        if ( 'deltaX' in orgEvent ) {
+            deltaX = orgEvent.deltaX;
+            if ( deltaY === 0 ) { delta  = deltaX * -1; }
+        }
+
+        // No change actually happened, no reason to go any further
+        if ( deltaY === 0 && deltaX === 0 ) { return; }
+
+        // Need to convert lines and pages to pixels if we aren't already in pixels
+        // There are three delta modes:
+        //   * deltaMode 0 is by pixels, nothing to do
+        //   * deltaMode 1 is by lines
+        //   * deltaMode 2 is by pages
+        if ( orgEvent.deltaMode === 1 ) {
+            var lineHeight = $.data(this, 'mousewheel-line-height');
+            delta  *= lineHeight;
+            deltaY *= lineHeight;
+            deltaX *= lineHeight;
+        } else if ( orgEvent.deltaMode === 2 ) {
+            var pageHeight = $.data(this, 'mousewheel-page-height');
+            delta  *= pageHeight;
+            deltaY *= pageHeight;
+            deltaX *= pageHeight;
+        }
+
+        // Store lowest absolute delta to normalize the delta values
+        absDelta = Math.max( Math.abs(deltaY), Math.abs(deltaX) );
+
+        if ( !lowestDelta || absDelta < lowestDelta ) {
+            lowestDelta = absDelta;
+
+            // Adjust older deltas if necessary
+            if ( shouldAdjustOldDeltas(orgEvent, absDelta) ) {
+                lowestDelta /= 40;
+            }
+        }
+
+        // Adjust older deltas if necessary
+        if ( shouldAdjustOldDeltas(orgEvent, absDelta) ) {
+            // Divide all the things by 40!
+            delta  /= 40;
+            deltaX /= 40;
+            deltaY /= 40;
+        }
+
+        // Get a whole, normalized value for the deltas
+        delta  = Math[ delta  >= 1 ? 'floor' : 'ceil' ](delta  / lowestDelta);
+        deltaX = Math[ deltaX >= 1 ? 'floor' : 'ceil' ](deltaX / lowestDelta);
+        deltaY = Math[ deltaY >= 1 ? 'floor' : 'ceil' ](deltaY / lowestDelta);
+
+        // Normalise offsetX and offsetY properties
+        if ( special.settings.normalizeOffset && this.getBoundingClientRect ) {
+            var boundingRect = this.getBoundingClientRect();
+            offsetX = event.clientX - boundingRect.left;
+            offsetY = event.clientY - boundingRect.top;
+        }
+
+        // Add information to the event object
+        event.deltaX = deltaX;
+        event.deltaY = deltaY;
+        event.deltaFactor = lowestDelta;
+        event.offsetX = offsetX;
+        event.offsetY = offsetY;
+        // Go ahead and set deltaMode to 0 since we converted to pixels
+        // Although this is a little odd since we overwrite the deltaX/Y
+        // properties with normalized deltas.
+        event.deltaMode = 0;
+
+        // Add event and delta to the front of the arguments
+        args.unshift(event, delta, deltaX, deltaY);
+
+        // Clearout lowestDelta after sometime to better
+        // handle multiple device types that give different
+        // a different lowestDelta
+        // Ex: trackpad = 3 and mouse wheel = 120
+        if (nullLowestDeltaTimeout) { clearTimeout(nullLowestDeltaTimeout); }
+        nullLowestDeltaTimeout = setTimeout(nullLowestDelta, 200);
+
+        return ($.event.dispatch || $.event.handle).apply(this, args);
+    }
+
+    function nullLowestDelta() {
+        lowestDelta = null;
+    }
+
+    function shouldAdjustOldDeltas(orgEvent, absDelta) {
+        // If this is an older event and the delta is divisable by 120,
+        // then we are assuming that the browser is treating this as an
+        // older mouse wheel event and that we should divide the deltas
+        // by 40 to try and get a more usable deltaFactor.
+        // Side note, this actually impacts the reported scroll distance
+        // in older browsers and can cause scrolling to be slower than native.
+        // Turn this off by setting $.event.special.mousewheel.settings.adjustOldDeltas to false.
+        return special.settings.adjustOldDeltas && orgEvent.type === 'mousewheel' && absDelta % 120 === 0;
+    }
+
+}));
+
+animachEnhancedApp.addModule('chatCommands', function () {
+    var IS_COMMAND = false;
+    var prepareMessage = function (msg) {
+        var askAnswers = ["100%", "Определенно да", "Да", "Вероятно", "Ни шанса", "Определенно нет", "Вероятность мала", "Нет", "50/50", "Фея устала и отвечать не будет", "Отказываюсь отвечать"];
+
+        var randomQuotes = [
+            'Не поддавайся сожалениям, о которых тебе напоминает прошлое.',
+            'Честно говоря, я всегда думал, что лучше умереть, чем жить в одиночестве...',
+            'Прошу прощения, но валите прочь.',
+            'По-настоящему силён лишь тот, кто знает свои слабости.',
+            'Быть умным и хорошо учиться — две разные вещи.',
+            'Когда я стану главнокомандующим, я заставлю всех девушек носить мини-юбки!',
+            'Тот кто правит временем, правит всем миром.',
+            'Я должен познакомить тебя с моими друзьями. Они еще те извращенцы, но они хорошие люди.',
+            'Победа не важна, если она лишь твоя.',
+            'Наркотики убивают в людях человечность.',
+            'Если бы меня волновало мнение других людей, то я давно бы уже покрасил волосы в другой цвет.',
+            'Слезы — кровотечение души....',
+            'Весело создавать что-то вместе.',
+            'Как ты не понимаешь, что есть люди, которые умрут от горя, если тебя не станет!',
+            'Я частенько слышал, что пары, которые внешне любят друг друга, частенько холодны внутри.',
+            'Если хочешь, что бы люди поверили в мечту, сначала поверь в нее сам.',
+            'Жизнь, в которой человек имеет всё, что желает, пуста и неинтересна.',
+            'Чтобы чего-то достичь, необходимо чем-то пожертвовать.',
+            'Я не одинока. Я просто люблю играть соло. Краситься, укорачивать юбку и заигрывать с парнями — это для потаскух.',
+            'Очень страшно, когда ты не помнишь, кто ты такая.',
+            'Больно помнить о своих слабостях.',
+            'Похоже, мудрость и алкоголь несовместимы.',
+            'Почему... Почему... Почему со мной вечно происходит какая-то херня?!',
+            'Красивое нельзя ненавидеть.',
+            'Если ты хочешь написать что-то плохое в комментариях в интернете, пиши, но это будет лишь выражением твоей зависти.',
+            'Хочешь сбежать от повседневности — не останавливайся в развитии.',
+            'Одинокие женщины ищут утешение в домашних животных.',
+            'В эпоху, когда информация правит миром, жить без компьютера совершенно непростительно!',
+            'Каждый человек одинок. Звезды в ночном небе тоже вроде бы все вместе, но на самом деле они разделены бездной. Холодной, тёмной, непреодолимой бездной.',
+            'Умные люди умны ещё до того, как начинают учиться.',
+            'Только те, у кого явные проблемы, говорят, что у них всё хорошо.',
+            'Не важно если меня победит другой, но... Себе я не проиграю!',
+            'Немногие способны на правильные поступки, когда это необходимо.',
+            'Я мечтаю о мире, где все смогут улыбаться и спать, когда им того захочется.',
+            'Девушке не обмануть меня… даже если она без трусиков!',
+            'Это не мир скучный, это я не выделяюсь.',
+            'С людьми без воображения одни проблемы.',
+            'Нечестно это — своей слабостью шантажировать.',
+            'То ли я уже не человек, то ли вы еще не люди.',
+            'Чего я действительно опасаюсь, так это не потери своей памяти, а исчезновения из памяти остальных.',
+            'Даже если небо погружено во тьму, и ничего не видно, где-то обязательно будет светиться звезда. Если она будет сиять ярче и ярче, её обязательно увидят...',
+            'Никто не может нырнуть в бездну и вынырнуть прежним.',
+            'Когда теряешь всё разом, мир начинает казаться довольно хреновым местечком.',
+            'Не хочу видеть, что будет, когда Маяка узнает, что её шоколад украли. Не люблю ужастики.',
+            'В мире есть добро потому, что есть кошки.',
+            'Девчата, пойте! Зажигайте свет вашей души!',
+            'И что ты собираешься делать, рождённый неизвестно зачем, и умирающий неизвестно за что?',
+            'А давай станем с тобой чудовищами, и поставим весь мир на уши?',
+            'Не забывай только, что и доброта может причинить боль.',
+            'Тяжело признать плохим то, за что отдал 20 баксов.',
+            'Говорят, в вере спасение… Но мне что-то никогда в это не верилось.',
+            'Клубничка — это сердце тортика!',
+            'Бабушка мне всегда говорила: «Юи-тян, ты запомнишь всё что угодно, но при этом ты забудешь всё остальное».',
+            'Как жаль, что люди начинают ценить что-то только тогда, когда теряют это.',
+            'У людей с холодными руками тёплое сердце.',
+            'Я всегда думала, что это здорово: Посмеяться перед серьёзным делом.',
+            'Мир не так жесток, как ты думаешь.',
+            'Даже отдав все свои силы, не каждый способен стать победителем.',
+            'Наше общество — просто стадо баранов.',
+            'Пока сами чего-то не сделаете, это ваше «однажды» никогда не наступит.',
+            'Чтобы что-то выбрать, нужно что-то потерять.',
+            'За каждой улыбкой, что ты увидишь, будут скрываться чьи-то слёзы.',
+            'Приключения — мечта настоящего мужчины!',
+            'Твоя хитрость всегда будет оценена по достоинству.',
+            'Я гораздо лучше орудую мечами, нежели словами.',
+            'Прошлое всегда сияет ярче настоящего.',
+            'Становиться взрослой так грустно...',
+            'Романтические чувства — всего лишь химическая реакция',
+            'Говорят, что в море ты или плывёшь, или тонешь.',
+            'Не важно как ты осторожен, всегда есть опасность споткнуться.',
+            'Я насилие не люблю, оно у меня само получается.',
+            'Когда я смотрю аниме от КёАни, Господь подымает меня над полом и приближает к себе.',
+            'Бака, бака, бака!',
+            'Ты так говоришь, будто это что-то плохое.',
+            'Мне вас жаль.',
+            'Ваше мнение очень важно для нас.',
+            'А в глубине души я всех вас ненавижу, как и весь этот мир.',
+            'А разгадка одна — безблагодатность.',
+            'Умерьте пыл.',
+            'Меня трудно найти, легко потерять и невозможно забыть....',
+            'Не твоя, вот ты и бесишься.',
+            'Ваш ребенок - аниме.',
+            'Здесь все твои друзья.',
+            'Мне 20 и я бородат',
+            'Ребята не стоит вскрывать эту тему. Вы молодые, шутливые, вам все легко. Это не то. Это не Чикатило и даже не архивы спецслужб. Сюда лучше не лезть. Серьезно, любой из вас будет жалеть. Лучше закройте тему и забудьте что тут писалось.',
+            'Ты понимаешь, что ты няшка? Уже всё. Не я, блин, няшка… не он, блин, а ты!', 'Меня твои истории просто невероятно заинтересовали уже, я уже могу их слушать часами, блин! Одна история няшней другой просто!', 'НАЧАЛЬНИК, БЛИН, ЭТОТ НЯША ОБКАВАИЛСЯ! ИДИТЕ МОЙТЕ ЕГО, Я С НИМ ЗДЕСЬ НЯШИТСЯ БУДУ!', 'ЧЕГО ВЫ МЕНЯ С НЯШЕЙ ПОСЕЛИЛИ, БЛИН, ОН ЖЕ КАВАЙ ПОЛНЫЙ, БЛИН!!!',
+            'Ну… Чаю выпил, блин, ну, бутылку, с одной тян. Ну, а потом под пледиком поняшились.',
+            'Хочешь я на одной ноге понякаю, а ты мне погону отдашь? Как нека, хочешь?',
+            'ЭТО ЗНАТЬ НАДО! ЭТО ЗОЛОТОЙ ФОНД, БЛИН!',
+            'Как п… как поспал, онии-чан? Проголодался, наверное! Онии-чан…',
+            'Ты что, обняшился что ли, няшка, блин?!',
+            'Не, я не обняшился. Я тебе покушать принёс, Онии-чан!'
+        ];
+
+        IS_COMMAND = true;
+
+        if (msg.indexOf("!pick ") === 0) {
+            var variants = msg.split("!pick ")[1].split(",");
+            msg = variants[Math.floor(Math.random() * (variants.length - 1))];
+        } else if (msg.indexOf("!ask ") === 0) {
+            msg = askAnswers[Math.floor(Math.random() * (askAnswers.length - 1))];
+        } else if (msg.indexOf("!time") === 0) {
+            var h = new Date().getHours();
+            if (h < 10) {
+                h = '0' + h;
+            }
+
+            var m = new Date().getMinutes();
+            if (m < 10) {
+                m = '0' + m;
+            }
+
+            msg = 'текущее время: ' + h + ':' + m;
+        } else if (msg.indexOf("!dice") === 0) {
+            msg= '' + (Math.floor(Math.random() * 5) + 1);
+        } else if (msg.indexOf("!roll") === 0) {
+            var randomNumber = Math.floor(Math.random() * 999);
+
+            if (randomNumber < 100) {
+                randomNumber = '0' + randomNumber;
+            } else if (randomNumber < 10) {
+                randomNumber= '00' + randomNumber;
+            }
+
+            msg = '' + randomNumber;
+        } else if (msg.indexOf("!q") === 0) {
+            if (randomQuotes.length === 0) {
+                msg = 'цитаты отсутствуют';
+            } else {
+                msg = randomQuotes[Math.floor(Math.random() * (randomQuotes.length - 1))];
+            }
+        } else if (msg.indexOf("!skip") === 0 && hasPermission("voteskip")) {
+            socket.emit("voteskip");
+            msg = 'отдан голос за пропуск текущего видео';
+        } else if (msg.indexOf("!next") === 0 && hasPermission("playlistjump")) {
+            socket.emit("playNext");
+            msg = 'начато проигрывание следующего видео';
+        } else if (msg.indexOf("!bump") === 0 && hasPermission("playlistmove")) {
+            var last = $("#queue").children().length;
+            var uid = $("#queue .queue_entry:nth-child("+last+")").data("uid");
+            var title = $("#queue .queue_entry:nth-child("+last+") .qe_title").html();
+            socket.emit("moveMedia", {from: uid, after: PL_CURRENT});
+
+            msg = 'поднято последнее видео: ' + title;
+        } else if (msg.indexOf("!add ") === 0 && hasPermission("playlistadd")) {
+            var parsed = parseMediaLink(msg.split("!add ")[1]);
+            if (parsed.id === null) {
+                msg = 'ошибка: неверная ссылка';
+            } else {
+                socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
+                msg = 'видео было добавлено';
+            }
+        } else if (msg.indexOf("!now") === 0) {
+            msg = 'сейчас играет: ' + $(".queue_active a").html();
+        } else if (msg.indexOf("!sm") === 0) {
+            var smilesArray = CHANNEL.emotes.map(function (smile) {
+                return smile.name;
+            });
+
+            msg = smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
+        } else if (msg.indexOf("!yoba") === 0) {
+            var $yoba = $('<div class="yoba">').appendTo($(document.body));
+            $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
+
+            var IMBA=new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
+            IMBA.volume=0.6;
+            IMBA.play();
+            var BGCHANGE = 0;
+            var inbix = setInterval(function() {
+                $("body").css('background-image', 'none');
+                BGCHANGE++;
+
+                if (BGCHANGE % 2 === 0) {
+                    $("body").css('background-color', 'red');
+                } else {
+                    $("body").css('background-color', 'blue');
+                }
+            }, 200);
+
+            setTimeout(function() {
+                var BGCHANGE=0;
+                clearInterval(inbix);
+                $("body").css({'background-image':'', 'background-color':''});
+                $yoba.remove();
+            }, 12000);
+
+
+            msg = 'YOBA';
+        } else {
+            IS_COMMAND = false;
+        }
+
+        return msg;
+    };
+
+    var sendUserChatMessage = function (e) {
+        if(e.keyCode === 13) {
+            if (CHATTHROTTLE) {
+                return;
+            }
+
+            var msg = $("#chatline").val().trim();
+
+            if(msg !== '') {
+                var meta = {};
+
+                if (USEROPTS.adminhat && CLIENT.rank >= 255) {
+                    msg = "/a " + msg;
+                } else if (USEROPTS.modhat && CLIENT.rank >= Rank.Moderator) {
+                    meta.modflair = CLIENT.rank;
+                }
+
+                // The /m command no longer exists, so emulate it clientside
+                if (CLIENT.rank >= 2 && msg.indexOf("/m ") === 0) {
+                    meta.modflair = CLIENT.rank;
+                    msg = msg.substring(3);
+                }
+
+
+                var msgForCommand = prepareMessage(msg);
+
+                if (IS_COMMAND) {
+                    socket.emit("chatMsg", {msg: msg, meta: meta});
+                    socket.emit("chatMsg", {msg: 'Сырно: ' + msgForCommand});
+
+                    IS_COMMAND = false;
+                } else {
+                    socket.emit("chatMsg", {msg: msg, meta: meta});
+                }
+
+
+                CHATHIST.push($("#chatline").val());
+                CHATHISTIDX = CHATHIST.length;
+                $("#chatline").val('');
+            }
+
+            return;
+        }
+        else if(e.keyCode === 9) { // Tab completion
+            chatTabComplete();
+            e.preventDefault();
+            return false;
+        }
+        else if(e.keyCode === 38) { // Up arrow (input history)
+            if(CHATHISTIDX == CHATHIST.length) {
+                CHATHIST.push($("#chatline").val());
+            }
+            if(CHATHISTIDX > 0) {
+                CHATHISTIDX--;
+                $("#chatline").val(CHATHIST[CHATHISTIDX]);
+            }
+
+            e.preventDefault();
+            return false;
+        }
+        else if(e.keyCode === 40) { // Down arrow (input history)
+            if(CHATHISTIDX < CHATHIST.length - 1) {
+                CHATHISTIDX++;
+                $("#chatline").val(CHATHIST[CHATHISTIDX]);
+            }
+
+            e.preventDefault();
+            return false;
+        }
+    };
+
+    $('#chatline, #chatbtn').unbind();
+
+    $('#chatline').on('keydown', sendUserChatMessage);
+    $('#chatbtn').on('click', sendUserChatMessage);
+});
+
+animachEnhancedApp.addModule('chatControls', function () {
+    var $afkButton = $('<span id="afk-btn" class="label label-default pull-right pointer">АФК</span>')
+        .appendTo($('#chatheader'))
+        .on('click', function () {
+            socket.emit('chatMsg', {msg: '/afk'});
+        });
+
+    socket.on('setAFK', function (data) {
+        if (data.name === CLIENT.name) {
+            if (data.afk) {
+                $afkButton.removeClass('label-default');
+                $afkButton.addClass('label-success');
+            } else {
+                $afkButton.addClass('label-default');
+                $afkButton.removeClass('label-success');
+            }
+        }
+    });
+
+
+    if (hasPermission("chatclear")) {
+        var $clearChatButton = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">Очистить чат</span>')
+            .insertAfter($afkButton)
+            .on('click', function () {
+                if (confirm('Вы уверены, что хотите очистить чат?')) {
+    				socket.emit("chatMsg", {msg: '/clear'});
+    			}
+            });
+    }
+});
+
+animachEnhancedApp.addModule('chatHelp', function (app) {
+    if ($('#chat-controls').length === 0) {
+        $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
+    }
+
+    $('<button id="chat-help-btn" class="btn btn-sm btn-default">Список команд</button>').appendTo($('#chat-controls'))
+        .on('click', function () {
+            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
+            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+            var $content = $('<div class="modal-content">').appendTo($modal);
+
+            var $header = $('<div class="modal-header">').appendTo($content);
+            $('<button class="close" data-dismiss="modal" aria-hidden="true">').html('x').appendTo($header);
+            $('<h3 class="modal-title">').text('Список команд').appendTo($header);
+
+            var $body = $('<div class="modal-body">').appendTo($content);
+
+            $outer.on("hidden", function() {
+                $outer.remove();
+            });
+            $outer.modal();
+
+            var $ul;
+
+            if (app.settings.chatCommands === true) {
+                var commands = {
+                    'pick':'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick japan,korea,china</i>)',
+                    'ask':'задать вопрос с вариантами ответа да/нет (Например: <i>!ask Сегодня пойдет дождь?</i>)',
+                    'q':'показать случайную цитату',
+                    'sm': 'показать случайный смайлик',
+                    'dice':'кинуть кубики',
+                    'roll':'случайное трехзначное число',
+                    'time':'показать текущее время',
+                    'now':'displaying current playing title (<i>!now</i>)',
+                    'skip':'проголосовать за пропуск текущего видео (<i>!skip</i>)',
+                    'add':'добавляет видео в конец плейлиста (Например: <i>!add https://www.youtube.com/watch?v=29FFHC2D12Q</i>)',
+                    'stat': 'показать статистику за данную сессию (<i>!stat</i>)',
+                    'yoba': 'секретная команда'
+                };
+
+                $body.append('<strong>Новые команды чата</strong><br><br>');
+                $ul = $('<ul>').appendTo($body);
+                for (var command in commands) {
+                    $ul.append('<li><code>!'+command+'</code> - '+commands[command]+'</li>');
+                }
+            }
+
+
+            commands = {
+                'me':'%username% что-то сделал. Например: <i>/me танцует</i>',
+                'sp':'Спойлер',
+                'afk':'Устанавливает статус "Отошёл".',
+            };
+
+            $body.append('<br /><strong>Стандартные команды</strong><br /><br />');
+            $ul = $('<ul>').appendTo($body);
+            for (command in commands) {
+                $ul.append('<li><code>/'+command+'</code> - '+commands[command]+'</li>');
+            }
+        });
+});
+
+animachEnhancedApp.addModule('favouritePictures', function () {
+    if ($('#chat-panel').length === 0) {
+        $('<div id="chat-panel" class="row">').insertAfter("#main");
+    }
+
+    if ($('#chat-controls').length === 0) {
+        $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
+    }
+
+    var $favouritePicturesBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="Показать избранные картинки">')
+        .html('<i class="glyphicon glyphicon-th"></i>');
+    if ($('#smiles-btn').length !== 0) {
+        $('#smiles-btn').after($favouritePicturesBtn);
+    } else {
+        $favouritePicturesBtn.prependTo($('#chat-controls'));
+    }
+
+    var $favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
+        .appendTo($('#chat-panel'))
+        .hide();
+    var $favouritePicturesBodyPanel = $('<div id="pictures-body-panel" class="row">')
+        .appendTo($favouritePicturesPanel);
+    var $favouritePicturesControlPanel = $('<div id="pictures-control-panel" class="row">')
+        .appendTo($favouritePicturesPanel);
+
+    var $favouritePicturesControlPanelForm = $('<div class="col-md-12">')
+        .html('<div class="input-group">' +
+            '<span class="input-group-btn">' +
+                '<button id="pictures-export" class="btn btn-default" style="border-radius: 0;" type="button">Экспорт картинок</button>' +
+            '</span>' +
+             '<span class="input-group-btn">' +
+                '<label for="pictures-import" class="btn btn-default" style="border-radius: 0;">Импорт картинок</label>' +
+                '<input type="file" style="display: none" id="pictures-import" name="pictures-import">' +
+            '</span>' +
+            '<input type="text" id="add-picture-address" class="form-control" placeholder="Адрес картинки">' +
+            '<span class="input-group-btn">' +
+                '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">Добавить</button>' +
+            '</span>' +
+            '<span class="input-group-btn">' +
+                '<button id="remove-picture-btn" class="btn btn-default" type="button">Удалить</button>' +
+            '</span>' +
+        '</div>')
+        .appendTo($favouritePicturesControlPanel);
+
+
+    var renderFavouritePictures = function () {
+        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+        $favouritePicturesBodyPanel.empty();
+
+        var escapedAddress;
+        var entityMap = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        for (var n = 0, favouritePicturesLen = favouritePictures.length; n < favouritePicturesLen; n++) {
+            escapedAddress = favouritePictures[n].replace(/[&<>"']/g, function (s) {
+                return entityMap[s];
+            });
+
+		    $('<img onclick="insertText(\' ' + escapedAddress + ' \')">')
+		 	    .attr({src: escapedAddress})
+		  	    .appendTo($favouritePicturesBodyPanel);
+		}
+    };
+    renderFavouritePictures();
+
+
+	$favouritePicturesBtn.on('click', function() {
+        if ($('#smiles-panel').length !== 0) {
+            $('#smiles-panel').hide();
+        }
+
+		$favouritePicturesPanel.toggle();
+	});
+
+    $('#messagebuffer').on('click', '.chat-picture', function () {
+        $picture = $('<img src="' + $(this).prop('src') + '">');
+
+        $picture.ready(function () {
+            var $modalPictureOverlay = $('<div id="modal-picture-overlay">').appendTo($(document.body));
+            var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
+
+            var pictureWidth = $picture.prop('width');
+            var pictureHeight = $picture.prop('height');
+
+
+            var $modalPictureOptions = $('<div id="modal-picture-options">');
+            $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
+
+            var $openImageBtn = $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
+                .appendTo($modalPictureOptions);
+
+            var $searchByPictureBtn = $('<a href="https://www.google.nl/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+                .appendTo($modalPictureOptions);
+
+
+            if (pictureWidth > document.documentElement.clientWidth || pictureHeight > document.documentElement.clientHeight) {
+                if (pictureWidth > pictureHeight) {
+                    pictureWidth = document.documentElement.clientWidth * 0.9;
+                } else {
+                    pictureHeight = document.documentElement.clientHeight * 0.9;
+                }
+            }
+
+            $modalPicture.css({
+                width: pictureWidth,
+                height: pictureHeight,
+                marginLeft: -(pictureWidth / 2),
+                marginTop: -(pictureHeight / 2),
+            });
+
+
+            $picture.appendTo($modalPicture);
+        });
+
+        return false;
+    });
+
+    $(document.body).on('mousewheel', '#modal-picture', function (e) {
+        var ZOOM_CONST = 0.15;
+        var pictureWidth = parseInt($('#modal-picture').css('width'), 10);
+        var pictureHeight = parseInt($('#modal-picture').css('height'), 10);
+        var pictureMarginLeft = parseInt($('#modal-picture').css('marginLeft'), 10);
+        var pictureMarginTop = parseInt($('#modal-picture').css('marginTop'), 10);
+
+        if (e.deltaY > 0) { //up
+            $('#modal-picture').css({
+                width: pictureWidth * (1 + ZOOM_CONST),
+                height: pictureHeight * (1 + ZOOM_CONST),
+                marginLeft: pictureMarginLeft + (-pictureWidth * ZOOM_CONST / 2),
+                marginTop: pictureMarginTop + (-pictureHeight * ZOOM_CONST / 2),
+            });
+        } else { //down
+            $('#modal-picture').css({
+                width: pictureWidth * (1 - ZOOM_CONST),
+                height: pictureHeight * (1 - ZOOM_CONST),
+                marginLeft: pictureMarginLeft + (pictureWidth * ZOOM_CONST / 2),
+                marginTop: pictureMarginTop + (pictureHeight * ZOOM_CONST / 2),
+            });
+        }
+
+        return false;
+    });
+
+    $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
+        $('#modal-picture-overlay').remove();
+        $('#modal-picture').remove();
+    });
+
+    $('#add-picture-btn').on('click', function () {
+        favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+        if (favouritePictures.indexOf($('#add-picture-address').val()) === -1) {
+            if ($('#add-picture-address').val() !== '') {
+                favouritePictures.push($('#add-picture-address').val());
+            }
+        } else {
+            makeAlert("Такая картинка уже была добавлена").prependTo($favouritePicturesBodyPanel);
+            $('#add-picture-address').val('');
+
+            return false;
+        }
+        $('#add-picture-address').val('');
+
+        window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+
+        renderFavouritePictures();
+
+        return false;
+    });
+
+    $('#remove-picture-btn').on('click', function () {
+        favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+        var removePosition = favouritePictures.indexOf($('#add-picture-address').val());
+        if (removePosition !== -1) {
+            favouritePictures.splice(removePosition, 1);
+
+            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+
+            renderFavouritePictures();
+        }
+
+        $('#add-picture-address').val('');
+
+        return false;
+    });
+
+    $('#pictures-export').on('click', function () {
+        var $downloadLink = $('<a>')
+            .attr({
+                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(window.localStorage.getItem('favouritePictures') || JSON.stringify([])),
+                download: 'animach_images.txt'
+            })
+            .hide()
+            .appendTo($(document.body));
+
+        $downloadLink[0].click();
+
+        $downloadLink.remove();
+    });
+
+    $('#pictures-import').on('change', function (e) {
+        var importFile = e.target.files[0];
+        var favouritePicturesAdressesReader = new FileReader();
+
+        favouritePicturesAdressesReader.addEventListener('load', function(e) {
+            window.localStorage.setItem('favouritePictures', e.target.result);
+
+            renderFavouritePictures();
+        });
+
+        favouritePicturesAdressesReader.readAsText(importFile);
+
+        return false;
+    });
+});
+
+animachEnhancedApp.addModule('navMenuTabs', function () {
+    var tabsCSS = {
+        'padding':		'20px',
+        'color':		'white',
+        'background-color':	'black'
+    };
+    
+    
+    var $channelDescription = $('<h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1>');
+    
+    //если ключ начинается с подстроки !dropdown!, то создаётся кнопка с выпадающим меню, в котором содержатся ссылки из массива значения ключа
+    var tabsArray = [
+    ['Расписание', '<center><img src="https://i.imgur.com/AC567UV.png" style="width: 950px;">'],
+    ['FAQ и правила', '<strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br/>Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png">.<br/><br/><strong>Страница загружается, но не происходит подключение</strong><br/>Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br/><br/><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br/>Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br/><br/><strong>Как отправлять смайлики</strong><br/>Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br/><br/><strong>Как пользоваться личными сообщениями?</strong><br/>Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br/><br/<strong>Как добавить свое видео в плейлист?</strong><br/>Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br/><br/><strong>Как проголосовать за пропуск видео?</strong><br/>Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png">. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br/><br/><strong>Почему я не могу проголосовать за пропуск?</strong><br/>Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br/><br/><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br/>Наводим курсор на название видео в плейлисте.<br/><br/><strong>Как пользоваться поиском видео?</strong><br/>Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png"> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br/><br/><strong>Список поддерживаемых URL:</strong><br/>* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br/>* Vimeo - <code>http://vimeo.com/(videoid)</code><br/>* Soundcloud - <code>http://soundcloud.com/(songname)</code><br/>* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br/>* TwitchTV - <code>http://twitch.tv/(stream)</code><br/>* JustinTV - <code>http://justin.tv/(stream)</code><br/>* Livestream - <code>http://livestream.com/(stream)</code><br/>* UStream - <code>http://ustream.tv/(channel)</code><br/>* RTMP Livestreams - <code>rtmp://(stream server)</code><br/>* JWPlayer - <code>jw:(stream url)</code><br/><br/><strong>Ранговая система:</strong><br/>* Администратор сайта - Красный, розовый, фиолетовый<br/>* Администратор канала - Голубой<br/>* Модератор канала - Зеленый<br/>* Пользователь - Белый<br/>* Гость - Серый<br/><br/><strong>Правила:</strong><br/>Не злоупотреблять смайлами<br/>Не вайпать чат и плейлист<br/>Не спамить ссылками<br/>Не спойлерить<br/>Обсуждение политики - /po<br/>'],
+    ['Список реквестов', '<center><iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"></iframe></center>'],
+    ['Реквестировать аниме', '<center><iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма &quot;Таблица Google&quot;" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"></iframe></center>'],
+    ['!dropdown!Наши ссылки', {
+        'MAL': 'http://myanimelist.net/animelist/animachtv',
+        'Наша доска': 'https://2ch.hk/tvch/',
+        'Твиттер': 'https://twitter.com/2ch_tv',
+        'ВК': 'http://vk.com/tv2ch'
+    }]
+];
+    
+     var changeMOTD = function () {
+        if (tabsArray.length > 0) {
+            $channelDescription.appendTo('#motd');
+            
+            var $motdTabsWrap = $('<div id="motd-tabs-wrap">').appendTo("#motd");
+            
+            var $motdTabsContent = $('<div id="motdtabscontent"></div>')
+                .css(tabsCSS)
+                .appendTo("#motd")
+                .hide();
+            
+            var dropdownBtn;
+            var dropdownList;
+            for (var tabNumber = 0, tabsArrayLen = tabsArray.length; tabNumber < tabsArrayLen; tabNumber++) {
+                if (tabsArray[tabNumber][0].indexOf('!dropdown!') === 0) {
+                    dropdownBtn = $('<div class="btn-group">').appendTo($motdTabsWrap)
+                        .html('<button type="button" class="btn btn-default motdtabs-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + tabsArray[tabNumber][0].replace(/^!dropdown!/, '') + ' <span class="caret"></span></button>');
+                        
+                    dropdownList = $('<ul class="dropdown-menu">').appendTo(dropdownBtn);
+                    
+                    for (var element in tabsArray[tabNumber][1]) {
+                        $('<li>').appendTo(dropdownList)
+                            .append($('<a href="' + tabsArray[tabNumber][1][element] + '" target="_blank">' + element + '</a>'));
+                    }
+                } else {
+                    $('<button class="btn btn-default motdtabs-btn" tab="' + tabNumber + '">')
+                        .text(tabsArray[tabNumber][0])
+                        .appendTo($motdTabsWrap)
+                        .on('click', function() {
+                            if ($(this).hasClass('btn-success')) {
+                                $('.motdtabs-btn').removeClass('btn-success');
+                                
+                                $motdTabsContent.hide();
+                                $motdTabsContent.html('');
+                            } else {
+                                $('.motdtabs-btn').removeClass('btn-success');
+                                $(this).addClass('btn-success');
+                                
+                                $motdTabsContent.show();
+                                $motdTabsContent.html(tabsArray[$(this).attr('tab')][1]);
+                            }
+                        });
+                }
+            }
+        }
+    }
+    
+    socket.on('setMotd', changeMOTD);
+	changeMOTD();
+});
+animachEnhancedApp.addModule('progressBar', function () {
+    var $titlerow = $('<div id="titlerow" class="row" />').insertBefore("#main");
+	var $titlerowouter = $('<div id="titlerow-outer" class="col-md-12" />')
+        .html($("#currenttitle").text($(".queue_active a").text() !== '' ? $("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:') : '').detach())
+        .appendTo($titlerow);
+	var $mediainfo = $('<p id="mediainfo">').prependTo("#videowrap");
+
+    var showPlaylistInfo = function () {
+//        $("#currenttitle").text($("#currenttitle").text().replace('Currently Playing:', 'Сейчас: '));
+//
+//        var infoString = 'СЛЕДУЩЕЕ:';
+//
+//        var $currentItem = $(".queue_active");
+//        for (var position = 1; position <= 3; position++) {
+//            $currentItem = $currentItem.next();
+//            if ($currentItem.length !== 0) {
+//                infoString += ' ' + position + ' ▸ ' + $currentItem.children('a').html() + ' (' + $currentItem.prop('title').replace('Added by: ', '') + ')';
+//            }
+//        }
+//
+//        if ($currentItem.length === 0) {
+//            infoString += ' // КОНЕЦ ПЛЕЙЛИСТА //';
+//        }
+//
+//		$mediainfo.html('<marquee scrollamount="5">' + infoString + '</marquee>');
+        if ($(".queue_active").length !== 0) {
+            $("#currenttitle").text($("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:'));
+
+            $mediainfo.text($('.queue_active').attr('title').replace('Added by', 'Добавлено'));
+        } else {
+            $("#currenttitle").text('');
+
+            $mediainfo.text('Ничего не воспроизводится');
+        }
+    };
+    showPlaylistInfo();
+
+    socket.on("changeMedia", showPlaylistInfo);
+});
+
+animachEnhancedApp.addModule('smiles', function () {
+    if ($('#chat-panel').length === 0) {
+        $('<div id="chat-panel" class="row">').insertAfter("#main");
+    }
+
+    if ($('#chat-controls').length === 0) {
+        $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
+    }
+
+    $('#emotelistbtn').hide();
+
+    var $smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="Показать смайлики">')
+        .html('<i class="glyphicon glyphicon-picture"></i>')
+        .prependTo($('#chat-controls'));
+
+    var $smilesPanel = $('<div id="smiles-panel">')
+        .appendTo($('#chat-panel'))
+        .hide();
+
+    var rendersmiles = function () {
+        var smiles = CHANNEL.emotes;
+
+        for (var n = 0, smilesLen = smiles.length; n < smilesLen; n++) {
+		    $('<img onclick="insertText(\' ' + smiles[n].name + ' \')">')
+		 	    .attr({src: smiles[n].image})
+		  	    .appendTo($smilesPanel);
+		}
+    };
+    rendersmiles();
+
+    $smilesBtn.on('click', function() {
+        if ($('#favourite-pictures-panel').length !== 0) {
+            $('#favourite-pictures-panel').hide();
+        }
+
+		$smilesPanel.toggle();
+	});
+});
+
+animachEnhancedApp.addModule('uiTranslate', function () {
+    if ($('#newpollbtn').length !== 0) {
+        $('#newpollbtn').text('Создать опрос');
+    }
+
+    if ($('#showmediaurl').length !== 0) {
+        $('#showmediaurl').html('Добавить видео')
+            .attr({title: 'Добавить видео по ссылке'})
+            .detach()
+            .insertBefore($('#showsearch'));
+    }
+
+    if ($('.navbar-brand').length !== 0) {
+        $('.navbar-brand').text('Анимач ТВ');
+    }
+
+    if ($('#usercount').length !== 0) {
+        $('#usercount').text($('#usercount').text().replace('connected users', 'пользователей').replace('connected user', 'пользователь'));
+        socket.on('usercount', function () {
+            $('#usercount').text($('#usercount').text().replace('connected users', 'пользователей').replace('connected user', 'пользователь'));
+        });
+    }
+    calcUserBreakdown = (function (oldCalcUserBreakdown) {
+        return function () {
+            var chatInfo = oldCalcUserBreakdown();
+            var translatedChatInfo = {};
+
+            var chatInfoTranslateMap = {
+                AFK: 'АФК',
+                Anonymous: 'Анонимных',
+                'Channel Admins': 'Администраторов канала',
+                Guests: 'Гостей',
+                Moderators: 'Модераторов',
+                'Regular Users': 'Обычных пользователей',
+                'Site Admins': 'Администраторов сайта'
+            };
+
+            for (var chatInfoElement in chatInfo) {
+                translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+            }
+
+            return translatedChatInfo;
+        };
+    })(calcUserBreakdown);
+
+    if ($('#welcome').length !== 0) {
+        $('#welcome').text('Добро пожаловать, ' + CLIENT.name);
+    }
+    if ($('#logout').length !== 0) {
+        $('#logout').text('Выйти');
+    }
+    if ($('#username').length !== 0) {
+        $('#username').attr({placeholder: 'Логин'});
+    }
+    if ($('#password').length !== 0) {
+        $('#password').attr({placeholder: 'Пароль'});
+    }
+    if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
+        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text('Запомнить');
+    }
+    if ($('#login')) {
+        $('#login').text('Вход');
+    }
+
+    var menuTranslateMap = {
+        Home: 'Домой',
+        Account: 'Аккаунт',
+        Logout: 'Выход',
+        Channels: 'Каналы',
+        Profile: 'Профиль',
+        'Change Password/Email': 'Изменить пароль/почту',
+        Login: 'Вход',
+        Register: 'Регистрация',
+        Options: 'Настройки',
+        'Channel Settings': 'Настройки канала',
+        Layout: 'Сетка',
+        'Chat Only': 'Только чат',
+        'Remove Video': 'Удалить видео'
+    };
+    $('.navbar').find('.navbar-nav').children().each(function () {
+        $(this).find('a').each(function () {
+            for (var elementToTranslate in menuTranslateMap) {
+                $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+            }
+        });
+    });
+
+    if ($('#mediaurl').length !== 0) {
+        $('#mediaurl').attr('placeholder', 'Адрес видео');
+    }
+    if ($('.add-temp').closest('label').length !== 0) {
+        $('.add-temp').closest('label').html($('.add-temp').closest('label').html().replace('Add as temporary', 'Добавить как временное'));
+    }
+    if ($('#queue_next').length !== 0) {
+        $('#queue_next').text('Следующим');
+    }
+    if ($('#queue_end').length !== 0) {
+        $('#queue_end').text('В конец');
+    }
+
+    $('.qbtn-play').each(function () {
+        $(this).html($(this).html().replace('Play', ' Проиграть'));
+    });
+    $('.qbtn-next').each(function () {
+        $(this).html($(this).html().replace('Queue Next', ' Поставить следующим'));
+    });
+    $('.qbtn-tmp').each(function () {
+        $(this).html($(this).html().replace('Make Temporary', ' Сделать временным').replace('Make Permanent', 'Сделать постоянным'));
+    });
+    $('.qbtn-delete').each(function () {
+        $(this).html($(this).html().replace('Delete', ' Удалить'));
+    });
+    addQueueButtons = (function (oldAddQueueButtons) {
+        return function (li) {
+            var result = oldAddQueueButtons(li);
+
+            if (li.find('.qbtn-play').length !== 0) {
+                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace('Play', ' Проиграть'));
+            }
+            if (li.find('.qbtn-next').length !== 0) {
+                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace('Queue Next', ' Поставить следующим'));
+            }
+            if (li.find('.qbtn-tmp').length !== 0) {
+                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace('Make Temporary', ' Сделать временным').replace('Make Permanent', 'Сделать постоянным'));
+            }
+            if (li.find('.qbtn-delete').length !== 0) {
+                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace('Delete', ' Удалить'));
+            }
+
+            return result;
+        };
+    })(addQueueButtons);
+
+    // $('#queue').find('.queue_entry').each(function () {
+    //     $(this).attr('title', $(this).attr('title').replace('Added by', 'Добавлено'));
+    // });
+    // socket.on('queue', function () {
+    //     $('#queue').find('.queue_entry').last().attr('title', $('.queue_entry').last().attr('title').replace('Added by', 'Добавлено'));
+    // });
+
+    if ($('#guestname').length !== 0) {
+        $('#guestname').attr('placeholder', 'Имя');
+    }
+    if ($('#guestlogin')) {
+        $('#guestlogin').find('.input-group-addon').text('Гостевой вход');
+    }
+});
+
+animachEnhancedApp.addModule('utils', function () {
+    $('#wrap').find('.navbar-fixed-top').removeClass('navbar-fixed-top');
+    $('#mainpage').css({paddingTop: 0});
+    
+    $('#messagebuffer').on('click', '.username', function() {
+        $('#chatline').val($(this).text() + $("#chatline").val()).focus();
+    });
+
+    insertText = function (str) {
+        $("#chatline").val($("#chatline").val()+str).focus();
+    };
+});
+
+animachEnhancedApp.addModule('videoControls', function () {
+    $('#mediarefresh').hide();
+
+
+    var $videoControls = $('<div id="video-controls" class="btn-group">').appendTo("#videowrap");
+
+
+    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default">Обновить видео</button>').appendTo($videoControls);
+    $refreshVideoBtn.on('click', function () {
+        PLAYER.type = '';
+        PLAYER.id = '';
+        socket.emit('playerReady');
+    });
+
+
+    var qualityLabelsTranslate = {
+        auto: 'авто',
+        small: '240p',
+        medium: '380p',
+        large: '480p',
+        hd720: '720p',
+        hd1080: '1080p',
+        highres: 'наивысшее'
+    };
+    var $videoQualityBtn = $('<div class="btn-group">').appendTo($videoControls)
+        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Качество: ' + qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>' +
+            '<ul class="dropdown-menu">' +
+                '<li><a href="#" data-quality="auto">авто</a></li>' +
+                '<li><a href="#" data-quality="small">240p</a></li>' +
+                '<li><a href="#" data-quality="medium">360p</a></li>' +
+                '<li><a href="#" data-quality="large">480p</a></li>' +
+                '<li><a href="#" data-quality="hd720">720p</a></li>' +
+                '<li><a href="#" data-quality="hd1080">1080p</a></li>' +
+                '<li><a href="#" data-quality="highres">наивысшее</a></li>' +
+            '</ul>')
+        .on('click', 'a', function () {
+            settingsFix();
+
+            $("#us-default-quality").val($(this).data('quality'));
+            saveUserOptions();
+
+            $('#refresh-video').click();
+
+            $videoQualityBtn.find('button').html('Качество: ' + $(this).text() + ' <span class="caret"></span>');
+            $('.video-dropdown-toggle').dropdown();
+
+            return false;
+        });
+
+    var settingsFix = function () {
+        $("#us-theme").val(USEROPTS.theme);
+        $("#us-layout").val(USEROPTS.layout);
+        $("#us-no-channelcss").prop("checked", USEROPTS.ignore_channelcss);
+        $("#us-no-channeljs").prop("checked", USEROPTS.ignore_channeljs);
+        var conninfo = "<strong>Информация о соединении: </strong>" +
+                       "Connected to <code>" + IO_URL + "</code> (";
+        if (IO_V6) {
+            conninfo += "IPv6, ";
+        } else {
+            conninfo += "IPv4, ";
+        }
+
+        if (IO_URL === IO_URLS["ipv4-ssl"] || IO_URL === IO_URLS["ipv6-ssl"]) {
+            conninfo += "SSL)";
+        } else {
+            conninfo += "no SSL)";
+        }
+
+        conninfo += ".  SSL включено по умолчанию если оно поддерживается сервером.";
+        $("#us-conninfo").html(conninfo);
+
+
+        $("#us-synch").prop("checked", USEROPTS.synch);
+        $("#us-synch-accuracy").val(USEROPTS.sync_accuracy);
+        $("#us-wmode-transparent").prop("checked", USEROPTS.wmode_transparent);
+        $("#us-hidevideo").prop("checked", USEROPTS.hidevid);
+        $("#us-playlistbuttons").prop("checked", USEROPTS.qbtn_hide);
+        $("#us-oldbtns").prop("checked", USEROPTS.qbtn_idontlikechange);
+        $("#us-default-quality").val(USEROPTS.default_quality || "auto");
+
+        $("#us-chat-timestamp").prop("checked", USEROPTS.show_timestamps);
+        $("#us-sort-rank").prop("checked", USEROPTS.sort_rank);
+        $("#us-sort-afk").prop("checked", USEROPTS.sort_afk);
+        $("#us-blink-title").val(USEROPTS.blink_title);
+        $("#us-ping-sound").val(USEROPTS.boop);
+        $("#us-sendbtn").prop("checked", USEROPTS.chatbtn);
+        $("#us-no-emotes").prop("checked", USEROPTS.no_emotes);
+
+        $("#us-modflair").prop("checked", USEROPTS.modhat);
+        $("#us-joinmessage").prop("checked", USEROPTS.joinmessage);
+        $("#us-shadowchat").prop("checked", USEROPTS.show_shadowchat);
+    };
+
+
+    var $hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" data-hidden="0">Скрыть видео</button>')
+        .appendTo($videoControls)
+        .on('click', function() {
+            if (+$(this).data('hidden') === 0) {
+                var $playerWindow = $('#videowrap').find('.embed-responsive');
+                $playerWindow.css({position: 'relative'});
+
+                $playerWindow.append($('<div id="hidden-player-overlay">'));
+
+                $(this).data('hidden', 1);
+                $(this).text('Показать видео');
+            } else {
+                $('#hidden-player-overlay').remove();
+
+                $(this).data('hidden', 0);
+                $(this).text('Скрыть видео');
+            }
+        });
+
+
+    var PLAYER_VOLUME;
+    var $muteVolumeBtn = $('<button id="mute-volume-btn" class="btn btn-sm btn-default" data-hidden="0">Выключить звук</button>')
+        .appendTo($videoControls)
+        .on('click', function() {
+            if (+$(this).data('hidden') === 0) {
+                PLAYER_VOLUME = PLAYER.player.volume;
+                if (PLAYER.player.mute !== undefined) {
+                    PLAYER.player.mute();
+                } else if (PLAYER.player.volume !== undefined) {
+                    PLAYER.player.volume = 0;
+                }
+
+                $(this).data('hidden', 1);
+                $(this).text('Включить звук');
+            } else {
+                if (PLAYER.player.unMute !== undefined) {
+                    PLAYER.player.unMute();
+                } else if (PLAYER.player.volume !== undefined) {
+                    PLAYER.player.volume = PLAYER_VOLUME;
+                }
+
+                $(this).data('hidden', 0);
+                $(this).text('Выключить звук');
+            }
+        });
+
+
+    var $expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="Развернуть плейлист">')
+        .append('<span class="glyphicon glyphicon-resize-full">')
+        .prependTo('#videocontrols')
+        .on('click', function() {
+            if (+$(this).data('expanded') === 1) {
+                $('#queue').css('max-height', '500px');
+                $(this).attr('title', 'Свернуть плейлист');
+
+                $(this).data('expanded', 0);
+
+        		scrollQueue();
+        	} else {
+                $('#queue').css('max-height', '100000px');
+                $(this).attr('title', 'Развернуть плейлист');
+
+                $(this).data('expanded', 1);
+        	}
+        });
+
+
+    var $scrollToCurrentBtn = $('<button id="scroll-to-current-btn" class="btn btn-sm btn-default" title="Прокрутить плейлист к текущему видео">')
+        .append('<span class="glyphicon glyphicon-hand-right">')
+        .prependTo('#videocontrols')
+        .on('click', function() {
+            scrollQueue();
+        });
+
+    var $contribBtn = $('<button id="contrib-btn" class="btn btn-sm btn-default" title="Contributors list" />')
+        .append('<span class="glyphicon glyphicon-user">')
+        .prependTo('#videocontrols')
+        .on('click', function() {
+            hidePlayer();
+            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
+            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+            var $content = $('<div class="modal-content">').appendTo($modal);
+
+            var $header = $('<div class="modal-header">').appendTo($content);
+            $('<button class="close" data-dismiss="modal" aria-hidden="true">').html('x').appendTo($header);
+            $('<h3 class="modal-title">').text('Список пользователей, добавивших видео').appendTo($header);
+
+            var $body = $('<div class="modal-body">').appendTo($content);
+
+            $outer.on("hidden", function() {
+                $outer.remove();
+                unhidePlayer();
+            });
+            $outer.modal();
+
+        	var contributorsList = {};
+            $("#queue .queue_entry").each(function () {
+                var username = $(this).attr('title').replace('Added by: ', '');
+                
+                if (contributorsList[username] === undefined) {
+                    contributorsList[username] = 1;
+                } else {
+                    contributorsList[username] += 1;
+                }
+            });
+            
+           $body.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
+            
+            var $contributorsListOl = $('<ol>');
+            for (var contributor in contributorsList) {
+                $contributorsListOl.append($('<li>' + contributor + ': ' + contributorsList[contributor] + '.</li>'));
+            }
+            $contributorsListOl.appendTo($body);
+        });
+});

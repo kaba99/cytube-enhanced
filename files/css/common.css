@@ -1,0 +1,117 @@
+#chat-controls {
+    margin-top: 4px;
+}
+
+#favourite-pictures-panel, #smiles-panel {
+    text-align: center;
+    margin: 4px 10px 0 10px;
+    border: solid 2px rgba(0, 10, 20, 0.75);
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+#favourite-pictures-panel {
+    border-bottom: none;
+}
+
+#favourite-pictures-panel img, #smiles-panel img {
+    margin: 5px;
+    max-height: 40px;
+    cursor: pointer;
+}
+
+.chat-picture {
+    max-height: 80px;
+}
+
+#modal-picture {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 10000;
+}
+
+#modal-picture img {
+    width: 100%;
+    height: 100%;
+}
+
+#modal-picture-overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+}
+
+#modal-picture-options-wrapper {
+    position: relative;
+}
+
+#modal-picture-options {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    left: 0;
+    top: 0;
+    margin-left: -40px;
+}
+
+@keyframes yoba-move {
+    0%   {
+        transform: rotate3d(1, 1, 1, 0deg);
+        transform: scale(1, 1);
+    }
+    50%  {
+        transform: rotate3d(1, 1, 1, 360deg);
+        transform: scale(10, 10);
+    }
+    100% {
+        transform: rotate3d(1, 1, 1, 0deg);
+        transform: scale(1, 1);
+    }
+}
+
+.yoba {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: 100px;
+    margin-top: 90px;
+    z-index: 99999;
+
+    animation: yoba-move 3s infinite ease-out;
+}
+
+#hidden-player-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+}
+
+.channel-description {
+    font-size: 1.7em;
+    margin: 5px 0 20px 0;
+}
+
+#currenttitle {
+    margin: 5px 0 10px 0;
+}
+
+.channel-emote {
+    max-height: 50px;
+}
+
+#chat-wrap {
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+#video-wrap {
+    padding-left: 2px;
+    padding-right: 2px;
+}
