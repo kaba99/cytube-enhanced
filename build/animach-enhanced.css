@@ -3421,6 +3421,7 @@ color: #C2C2C2;
     text-align: center;
     margin: 4px 10px 0 10px;
     border: solid 2px rgba(0, 10, 20, 0.75);
+    background-color: rgba(0, 10, 20, 0.6);
     margin-bottom: 10px;
     border-radius: 6px;
 }
@@ -3548,14 +3549,4 @@ color: #C2C2C2;
 
 .channel-emote {
     max-height: 50px;
-}
-
-#chat-wrap {
-    padding-left: 2px;
-    padding-right: 2px;
-}
-
-#video-wrap {
-    padding-left: 2px;
-    padding-right: 2px;
 }

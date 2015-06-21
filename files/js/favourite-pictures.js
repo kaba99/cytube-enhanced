@@ -1,4 +1,4 @@
-animachEnhancedApp.addModule('favouritePictures', function () {
+animachEnhancedApp.addModule('favouritePictures', function (app) {
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
     }
@@ -61,21 +61,39 @@ animachEnhancedApp.addModule('favouritePictures', function () {
                 return entityMap[s];
             });
 
-		    $('<img onclick="insertText(\' ' + escapedAddress + ' \')">')
-		 	    .attr({src: escapedAddress})
-		  	    .appendTo($favouritePicturesBodyPanel);
-		}
+            $('<img onclick="insertText(\' ' + escapedAddress + ' \')">')
+                 .attr({src: escapedAddress})
+                  .appendTo($favouritePicturesBodyPanel);
+        }
     };
     renderFavouritePictures();
 
 
-	$favouritePicturesBtn.on('click', function() {
-        if ($('#smiles-panel').length !== 0) {
+    $favouritePicturesBtn.on('click', function() {
+        var isSmilesAndPictures = app.modules.userConfig !== undefined && app.modules.userConfig.options.smilesAndPictures === true;
+
+        if ($('#smiles-panel').length !== 0 && !isSmilesAndPictures) {
             $('#smiles-panel').hide();
         }
 
-		$favouritePicturesPanel.toggle();
-	});
+        $favouritePicturesPanel.toggle();
+
+
+        if (!isSmilesAndPictures) {
+            if ($(this).hasClass('btn-default')) {
+                if ($('#smiles-btn').length !== 0 && $('#smiles-btn').hasClass('btn-success')) {
+                    $('#smiles-btn').removeClass('btn-success');
+                    $('#smiles-btn').addClass('btn-default');
+                }
+
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
+            } else {
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
+            }
+        }
+    });
 
     $('#messagebuffer').on('click', '.chat-picture', function () {
         $picture = $('<img src="' + $(this).prop('src') + '">');

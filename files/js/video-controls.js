@@ -102,12 +102,14 @@ animachEnhancedApp.addModule('videoControls', function () {
                 $playerWindow.append($('<div id="hidden-player-overlay">'));
 
                 $(this).data('hidden', 1);
-                $(this).text('Показать видео');
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
             } else {
                 $('#hidden-player-overlay').remove();
 
                 $(this).data('hidden', 0);
-                $(this).text('Скрыть видео');
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
             }
         });
 
@@ -125,7 +127,8 @@ animachEnhancedApp.addModule('videoControls', function () {
                 }
 
                 $(this).data('hidden', 1);
-                $(this).text('Включить звук');
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
             } else {
                 if (PLAYER.player.unMute !== undefined) {
                     PLAYER.player.unMute();
@@ -134,7 +137,8 @@ animachEnhancedApp.addModule('videoControls', function () {
                 }
 
                 $(this).data('hidden', 0);
-                $(this).text('Выключить звук');
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
             }
         });
 
@@ -148,14 +152,18 @@ animachEnhancedApp.addModule('videoControls', function () {
                 $(this).attr('title', 'Свернуть плейлист');
 
                 $(this).data('expanded', 0);
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
 
-        		scrollQueue();
-        	} else {
+                scrollQueue();
+            } else {
                 $('#queue').css('max-height', '100000px');
                 $(this).attr('title', 'Развернуть плейлист');
 
                 $(this).data('expanded', 1);
-        	}
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
+            }
         });
 
 
@@ -187,19 +195,19 @@ animachEnhancedApp.addModule('videoControls', function () {
             });
             $outer.modal();
 
-        	var contributorsList = {};
+            var contributorsList = {};
             $("#queue .queue_entry").each(function () {
                 var username = $(this).attr('title').replace('Added by: ', '');
-                
+
                 if (contributorsList[username] === undefined) {
                     contributorsList[username] = 1;
                 } else {
                     contributorsList[username] += 1;
                 }
             });
-            
+
            $body.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
-            
+
             var $contributorsListOl = $('<ol>');
             for (var contributor in contributorsList) {
                 $contributorsListOl.append($('<li>' + contributor + ': ' + contributorsList[contributor] + '.</li>'));

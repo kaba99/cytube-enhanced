@@ -1,16 +1,10 @@
-function AnimachEnhancedApp(settings) {
+function AnimachEnhancedApp(permittedModules) {
     this.modules = {};
-    this.settings = settings;
+    this.permittedModules = permittedModules;
 
-    this.addModule = function (moduleName, module) {
-        this.modules[moduleName] = module;
-
-        this.triggerModule(moduleName);
-    };
-
-    this.triggerModule = function (moduleName) {
-        if (this.settings[moduleName] === true && this.modules[moduleName] !== undefined) {
-            this.modules[moduleName](this);
+    this.addModule = function (moduleName, moduleCallback) {
+        if (this.permittedModules[moduleName] === true) {
+            this.modules[moduleName] = moduleCallback(this) || {};
         }
     };
 }
@@ -25,5 +19,6 @@ var animachEnhancedApp = new AnimachEnhancedApp({
     chatCommands: true,
     chatControls: true,
     uiTranslate: true,
-    navMenuTabs: true
+    navMenuTabs: true,
+    userConfig: true
 });
