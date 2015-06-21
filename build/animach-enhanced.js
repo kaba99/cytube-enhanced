@@ -713,7 +713,7 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
         }
     });
 
-    $('#messagebuffer').on('click', '.chat-picture', function () {
+    $(document.body).on('click', '.chat-picture', function () {
         $picture = $('<img src="' + $(this).prop('src') + '">');
 
         $picture.ready(function () {
@@ -1116,9 +1116,6 @@ animachEnhancedApp.addModule('uiTranslate', function () {
     if ($('#mediaurl').length !== 0) {
         $('#mediaurl').attr('placeholder', 'Адрес видео');
     }
-    if ($('.add-temp').closest('label').length !== 0) {
-        $('.add-temp').closest('label').html($('.add-temp').closest('label').html().replace('Add as temporary', 'Добавить как временное'));
-    }
     if ($('#queue_next').length !== 0) {
         $('#queue_next').text('Следующим');
     }
@@ -1158,6 +1155,18 @@ animachEnhancedApp.addModule('uiTranslate', function () {
             return result;
         };
     })(addQueueButtons);
+    socket.on('setTemp', function (data) {
+        var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
+
+        if(tmpBtn.length !== 0) {
+            if(data.temp) {
+                tmpBtn.html(tmpBtn.html().replace('Сделать временным', 'Сделать постоянным'));
+            }
+            else {
+                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', 'Сделать временным'));
+            }
+        }
+    });
 
     // $('#queue').find('.queue_entry').each(function () {
     //     $(this).attr('title', $(this).attr('title').replace('Added by', 'Добавлено'));

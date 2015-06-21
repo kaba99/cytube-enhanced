@@ -95,7 +95,7 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
         }
     });
 
-    $('#messagebuffer').on('click', '.chat-picture', function () {
+    $(document.body).on('click', '.chat-picture', function () {
         $picture = $('<img src="' + $(this).prop('src') + '">');
 
         $picture.ready(function () {
