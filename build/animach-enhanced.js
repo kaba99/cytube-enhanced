@@ -1311,7 +1311,7 @@ animachEnhancedApp.addModule('userConfig', function () {
     var $minBtn = $('<button id="layout-min-btn" class="btn btn-default">Минимизировать</button>')
         .appendTo($layoutBtnWrapper)
         .on('click', function() {
-            var isMinimized = userConfig.toggle('minimized');
+            var isMinimized = userConfig.toggle('minimize');
             userConfig.configFunctions.minimize(isMinimized);
         });
 
