@@ -3550,3 +3550,36 @@ color: #C2C2C2;
 .channel-emote {
     max-height: 50px;
 }
+
+
+.btn-success, .btn-success:focus, .label-success, .label-success:focus {
+    background-image: linear-gradient(#FFFFFF,#F3F5F3 90%,#CDCDCD);
+    background-color: #FFFFFF;
+    color: #0E151D;
+    -webkit-filter: none;
+    filter: none
+}
+
+.btn-success:hover, .label-success:hover {
+    background-image: linear-gradient(#FFFFFF,#F3F5F3 75%,#CDCDCD);
+    background-color: #FFFFFF;
+    color: #000;
+    -webkit-filter: none;
+    filter: none
+}
+
+.btn-success, .btn-success:focus, .btn-success:hover {
+    border: 1px solid white;
+}
+
+.spoiler .channel-emote,
+.spoiler a,
+.spoiler .chat-picture {
+    visibility: hidden;
+}
+
+.spoiler:hover .channel-emote,
+.spoiler:hover a,
+.spoiler:hover .chat-picture {
+    visibility: visible;
+}
