@@ -147,7 +147,7 @@ animachEnhancedApp.addModule('userConfig', function () {
 
     if ($('#smiles-btn').length !== 0 && $('#favourite-pictures-btn').length !== 0) {
         var $smilesAndPicturesBtn = $('<button id="common-config-smiles-and-pictures-btn" class="btn btn-default"></button>')
-            .html('Одновременно <i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
+            .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
             .appendTo($commonConfigBtnWrapper)
             .on('click', function() {
                 var isTurnedOn = userConfig.toggle('smilesAndPictures');

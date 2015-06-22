@@ -22,7 +22,7 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
 
             var $ul;
 
-            if (app.settings.chatCommands === true) {
+            if (app.permittedModules.chatCommands === true) {
                 var commands = {
                     'pick':'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick japan,korea,china</i>)',
                     'ask':'задать вопрос с вариантами ответа да/нет (Например: <i>!ask Сегодня пойдет дождь?</i>)',
