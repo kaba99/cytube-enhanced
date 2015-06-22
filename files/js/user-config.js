@@ -111,7 +111,7 @@ animachEnhancedApp.addModule('userConfig', function () {
     };
 
 
-    var $configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
+    var $configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner").hide();
     var $configBody = $('<div id="config-body" class="well form-horizontal">').appendTo($configWrapper);
     var $configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
         .html('<span class="glyphicon glyphicon-cog"></span> Настройки')

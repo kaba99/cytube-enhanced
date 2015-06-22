@@ -8,19 +8,19 @@ background:scroll #211F1A url('https://dl.dropboxusercontent.com/s/go0gt1gmhzc5n
 /* ----- CyTube Plus created elements CSS ----- */
 
 
-	/* -- channel avatar -- */
+    /* -- channel avatar -- */
 
 #chanavatar {margin-right:10px}
 
-	/* -- azuki row (user top logo) -- */
+    /* -- azuki row (user top logo) -- */
 
 #azukirow {
-	padding-left:5px; padding-right:5px; border-left:solid 2px transparent; border-right:solid 2px transparent;
-	background:transparent; background-repeat:no-repeat !important; background-position:center center !important;
-	margin:0px -8px; min-height:5px;
+    padding-left:5px; padding-right:5px; border-left:solid 2px transparent; border-right:solid 2px transparent;
+    background:transparent; background-repeat:no-repeat !important; background-position:center center !important;
+    margin:0px -8px; min-height:5px;
 }
 
-	/* -- MOTD elements -- */
+    /* -- MOTD elements -- */
 
 #motdlogo {margin-bottom:8px}
 #motdtabswrap {margin-top:8px}
@@ -30,38 +30,38 @@ padding: 10px 5px;
 background: none !important;
 }
 
-	/* -- rules button and panel -- */
+    /* -- rules button and panel -- */
 
 #rulesbtnwrap {text-align:center}
 #rules-btn {margin-top:10px; margin-bottom:5px}
 #rulespanel-outer {width:100%; padding:0px}
 #rulespanel {
-	max-width:700px; margin:0 auto; margin-top:0px; padding:4px; border:solid 2px #34352D; text-align:left;
-	border-radius:8px; -moz-border-radius:8px; -webkit-border-radius:8px;
+    max-width:700px; margin:0 auto; margin-top:0px; padding:4px; border:solid 2px #34352D; text-align:left;
+    border-radius:8px; -moz-border-radius:8px; -webkit-border-radius:8px;
 }
 
-	/* -- attention bar -- */
+    /* -- attention bar -- */
 
 #attbarrow-outer {padding:0px 5px}
 #attbar {height:22px; background-color:white}
 
-	/* -- full-sized title row -- */
+    /* -- full-sized title row -- */
 
 #titlerow {
-	background-color:transparent;
-	background-image:linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 141, 207, 0.7));
-	background-position:0px center;
-	background-size:0% 100%; background-repeat:no-repeat;
-	margin:-5px -8px 5px;
-	border-radius:4px;
+    background-color:transparent;
+    background-image:linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 141, 207, 0.7));
+    background-position:0px center;
+    background-size:0% 100%; background-repeat:no-repeat;
+    margin:-5px -8px 5px;
+    border-radius:4px;
 }
 #titlerow-outer {
-	padding:3px 5px; text-align:center; font-size:16pt; color:black;
-	text-shadow: 0px 0px 10px #666666, 0px 0px 10px #666666;
+    padding:3px 5px; text-align:center; font-size:16pt; color:black;
+    text-shadow: 0px 0px 10px #666666, 0px 0px 10px #666666;
 }
 #titlerow #currenttitle {border:none; background:transparent}
 
-	/* -- media info bar -- */
+    /* -- media info bar -- */
 
 #mediainfo {
 background: rgba(0,10,20,0.75);
@@ -69,30 +69,30 @@ margin-bottom: 0px;
 border: solid 1px #34352D;
 }
 
-	/* -- player alert (if hidden video after loading) -- */
+    /* -- player alert (if hidden video after loading) -- */
 
 #ytapiplayer .alert {text-align:left; margin:0px -15px}
 
-	/* -- player covering layer -- */
+    /* -- player covering layer -- */
 
 #coverpl {
-	position:absolute; left:5px; top:0px; background-color:white;
-	background-repeat:no-repeat; background-position:center center;
+    position:absolute; left:5px; top:0px; background-color:white;
+    background-repeat:no-repeat; background-position:center center;
 }
 
-	/* -- sounds and admin panels GUI layers -- */
+    /* -- sounds and admin panels GUI layers -- */
 
 #sounds-dropdown, #chatfunc-dropdown {
-	position:absolute; color: black !important; top:22px; display:block; z-index:10000; padding:5px;
-	overflow:auto; margin-right:5px;
+    position:absolute; color: black !important; top:22px; display:block; z-index:10000; padding:5px;
+    overflow:auto; margin-right:5px;
 }
 #muteall-btn, #spamclear-btn, #antiafk-btn {width:100%}
 
-	/* -- chat controls buttons group -- */
+    /* -- chat controls buttons group -- */
 
 #chatcontrols {margin-top:4px}
 
-	/* -- chat elements -- */
+    /* -- chat elements -- */
 
 .squavatar {width:24px; height:24px; margin-right:3px; border:solid 6px; vertical-align:middle; display:inline-block}
 .avatar {margin-right:3px}
@@ -101,24 +101,24 @@ border: solid 1px #34352D;
 .embedimg {max-width:200px; max-height:120px}
 .embedvid {max-width:200px; max-height:300px; border:0px; vertical-align:middle}
 
-	/* -- main fonts and emotes GUI layer -- */
+    /* -- main fonts and emotes GUI layer -- */
 
 #chatpanel {margin-top:0px; margin-bottom:0px}
 #fontspanel, #emotespanel {
-	text-align:center; max-width:700px; margin:0px auto 5px auto; border:solid 2px white; border-radius:6px
+    text-align:center; max-width:700px; margin:0px auto 5px auto; border:solid 2px white; border-radius:6px
 }
 .fluidpanel {max-width:1200px !important}
 
-	/* -- fonts panel -- */
+    /* -- fonts panel -- */
 
 #fontsbtnwrap {margin-top:5px; margin-bottom:5px}
 #unibtnwrap {margin:5px 45px 2px}
 @media (max-width:767px) {
-	#unibtnwrap {margin:5px 25px 2px}
+    #unibtnwrap {margin:5px 25px 2px}
 }
 #fontsbtnwrap .btn, #unibtnwrap .btn {margin:0px 3px 3px 3px}
 
-	/* -- emotes panel -- */
+    /* -- emotes panel -- */
 
 #emotespanel img {margin:5px; max-height:35px; cursor:pointer}
 #emotesbtnwrap {text-align:center; margin:5px}
@@ -132,30 +132,30 @@ border: solid 2px #34352D;
 border-radius: 6px;
 }
 
-	/* -- advanced playlist controls -- */
+    /* -- advanced playlist controls -- */
 
 #advplcontrols {width:100%; padding-top:10px}
 #advplcontrols button {width:25%}
 
-	/* -- database and galleries buttons gruoup -- */
+    /* -- database and galleries buttons gruoup -- */
 
 #leftpanecontrols {margin-right:5px}
 
-	/* -- layout configuration box toggling button -- */
+    /* -- layout configuration box toggling button -- */
 
 #layout-btn {margin-left:5px}
 
-	/* -- various configuration box elements -- */
+    /* -- various configuration box elements -- */
 
 #configbtnwrap, #modewrap, #themewrap, #funcbtnwrap, #cleardbwrap, #gallery-well, #hidewrap, #embedwrap {
-	text-align:center;
+    text-align:center;
 }
 .conf-cap {padding-top:9px}
 #mode-sel, #theme-sel, #gal-sel {width:80%; margin:0px auto}
 .theme-header {text-align:center; font-size:9pt; font-style:italic}
 #embed-help {cursor:pointer; margin-left:7px}
 
-	/* -- channel database -- */
+    /* -- channel database -- */
 
 .db-cat {overflow:auto; max-height:400px}
 .db-break {width:100%}
@@ -163,12 +163,12 @@ border-radius: 6px;
 .db-link {margin-left:5px}
 #previewFrame {margin:0 auto; display:block}
 
-	/* -- channel galleries -- */
+    /* -- channel galleries -- */
 
 #galleryFrame {margin-bottom:10px}
 #gal-sel {margin-bottom:20px}
 
-	/* -- custom footer -- */
+    /* -- custom footer -- */
 
 #leftfooter {font-size:10pt}
 div[id="leftfooter"] {text-align:center; margin-bottom:5px}
@@ -185,23 +185,23 @@ div[id="leftfooter"] {text-align:center; margin-bottom:5px}
 .dist {background-color:gold; color:red; font-size:12pt; font-family:times new roman; padding:3px}
 
 .mX {
-	-webkit-transform:scaleX(-1); transform:scaleX(-1);
-	-ms-transform:scaleX(-1); -o-transform:scaleX(-1);
+    -webkit-transform:scaleX(-1); transform:scaleX(-1);
+    -ms-transform:scaleX(-1); -o-transform:scaleX(-1);
 }
 
 .mY {
-	-webkit-transform:scaleY(-1); transform:scaleY(-1);
-	-ms-transform:scaleY(-1); -o-transform:scaleY(-1);
+    -webkit-transform:scaleY(-1); transform:scaleY(-1);
+    -ms-transform:scaleY(-1); -o-transform:scaleY(-1);
 }
 
 .rotate {
-	-webkit-transform:rotate(180deg); transform:rotate(180deg);
-	-ms-transform:rotate(180deg); -o-transform:rotate(180deg);
+    -webkit-transform:rotate(180deg); transform:rotate(180deg);
+    -ms-transform:rotate(180deg); -o-transform:rotate(180deg);
 }
 
 .vertical {
-	-webkit-transform:rotate(270deg); transform:rotate(270deg);
-	-ms-transform:rotate(270deg); -o-transform:rotate(270deg);
+    -webkit-transform:rotate(270deg); transform:rotate(270deg);
+    -ms-transform:rotate(270deg); -o-transform:rotate(270deg);
 }
 
 .action
@@ -3366,7 +3366,7 @@ color: #C2C2C2;
 }
 
 .queue_temp {
-	background-image: url('http://dl.dropboxusercontent.com/s/zkugw8p8wl21u5w/stripe-diagonal.png');
+    background-image: url('http://dl.dropboxusercontent.com/s/zkugw8p8wl21u5w/stripe-diagonal.png');
     color: #C2C2C2 !important;
 }
 
@@ -3434,10 +3434,6 @@ color: #C2C2C2;
     margin: 5px;
     max-height: 40px;
     cursor: pointer;
-}
-
-.chat-picture {
-    max-height: 80px;
 }
 
 #modal-picture {
@@ -3544,7 +3540,13 @@ color: #C2C2C2;
 }
 
 .channel-emote {
-    max-height: 50px;
+    max-height: 80px;
+    max-width: 80px;
+}
+
+.chat-picture {
+    max-height: 100px;
+    max-width: 100px;
 }
 
 .spoiler .channel-emote,
@@ -3640,4 +3642,30 @@ color: #C2C2C2;
 
 #footer {
     margin-top: 5px;
+}
+
+#mainpage {
+    padding-top: 0;
+}
+
+#qlockbtn.btn-success {
+    box-shadow: none;
+    background-color: #5cb85c;
+}
+#qlockbtn.btn-success:hover {
+    box-shadow: none;
+    background-color: #449d44;
+}
+
+.queue_entry .btn {
+    box-shadow:none;
+}
+
+.queue_active {
+    background: linear-gradient(rgba(0, 10, 20, 0.8), rgba(0, 141, 207, 0.7)) !important;
+}
+
+.queue_active.queue_temp {
+    background: linear-gradient(rgba(0,10,20,.6),rgba(0,141,207,.5)),
+    url(http://dl.dropboxusercontent.com/s/zkugw8p8wl21u5w/stripe-diagonal.png) !important;
 }

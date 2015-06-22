@@ -21,10 +21,6 @@
     cursor: pointer;
 }
 
-.chat-picture {
-    max-height: 80px;
-}
-
 #modal-picture {
     position: fixed;
     left: 50%;
@@ -100,7 +96,13 @@
 }
 
 .channel-emote {
-    max-height: 50px;
+    max-height: 80px;
+    max-width: 80px;
+}
+
+.chat-picture {
+    max-height: 100px;
+    max-width: 100px;
 }
 
 .spoiler .channel-emote,
@@ -196,4 +198,30 @@
 
 #footer {
     margin-top: 5px;
+}
+
+#mainpage {
+    padding-top: 0;
+}
+
+#qlockbtn.btn-success {
+    box-shadow: none;
+    background-color: #5cb85c;
+}
+#qlockbtn.btn-success:hover {
+    box-shadow: none;
+    background-color: #449d44;
+}
+
+.queue_entry .btn {
+    box-shadow:none;
+}
+
+.queue_active {
+    background: linear-gradient(rgba(0, 10, 20, 0.8), rgba(0, 141, 207, 0.7)) !important;
+}
+
+.queue_active.queue_temp {
+    background: linear-gradient(rgba(0,10,20,.6),rgba(0,141,207,.5)),
+    url(http://dl.dropboxusercontent.com/s/zkugw8p8wl21u5w/stripe-diagonal.png) !important;
 }
