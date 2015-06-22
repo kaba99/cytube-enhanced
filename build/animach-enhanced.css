@@ -3543,10 +3543,6 @@ color: #C2C2C2;
     margin: 5px 0 20px 0;
 }
 
-#currenttitle {
-    margin: 5px 0 10px 0;
-}
-
 .channel-emote {
     max-height: 50px;
 }
@@ -3602,11 +3598,12 @@ color: #C2C2C2;
     margin: 0 0 10px -5px;
 }
 
-.currenttitle {
-    margin-bottom: 5px;
+#currenttitle {
+    margin: 15px 0 10px 0;
+    font-size: 1.2em;
 }
 
-#currenttitle  {
+/*#currenttitle  {
    color: white;
    font: bold 20pt Helvetica, Arial, Sans-Serif;
    text-shadow: 1px 1px #091018,
@@ -3617,24 +3614,30 @@ color: #C2C2C2;
 
 #currenttitle:hover {
    position: relative;
-   top: -3px;
-   left: -3px;
    text-shadow: 1px 1px #E15017,
                 2px 2px #E15017,
                 3px 3px #E15017,
                 4px 4px #E15017,
                 5px 5px #E15017,
                 6px 6px #E15017;
-}
+}*/
 
 #chatwrap {
     padding: 0 0 0 10px;
 }
 
-#config-body {
-    margin-right: -10px;
+#leftpane {
+    padding-right: 0;
 }
 
 #leftcontrols {
     padding: 0 0 0 10px;
+}
+
+#leftcontrols .btn {
+  margin: 0;
+}
+
+#footer {
+    margin-top: 5px;
 }
