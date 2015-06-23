@@ -76,7 +76,7 @@ animachEnhancedApp.addModule('userConfig', function () {
         options.minimize = this.loadOption('minimize', false);
 
         if ($('#smiles-btn').length !== 0 && $('#favourite-pictures-btn').length !== 0) {
-            options.smilesAndPictures = this.loadOption('smiles-and-pictures', false);
+            options['smiles-and-pictures'] = this.loadOption('smiles-and-pictures', false);
         }
 
         for (var layoutOption in layoutOptions) {
@@ -134,6 +134,8 @@ animachEnhancedApp.addModule('userConfig', function () {
                         }
                     });
             } else {
+                $('#smiles-and-picture-btn').remove();
+
                 $smilesAndPicturesBtn.addClass('btn-default');
                 $smilesAndPicturesBtn.removeClass('btn-success');
 
@@ -155,7 +157,7 @@ animachEnhancedApp.addModule('userConfig', function () {
 
             var $header = $('<div class="modal-header">').appendTo($content);
             $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
-            $('<h3 class="modal-title">').text('Список команд').appendTo($header);
+            $('<h3 class="modal-title">').text('Настройки оформления').appendTo($header);
 
             var $body = $('<div class="modal-body">').appendTo($content);
 
@@ -190,7 +192,7 @@ animachEnhancedApp.addModule('userConfig', function () {
             var $userCssWrapper = $('<div class="form-group">').appendTo($settingsWrapper);
             var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">Пользовательское CSS</label>').appendTo($userCssWrapper);
             var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
-            var $userCssTextarea = $('<textarea id="user-css" class="form-control">')
+            var $userCssTextarea = $('<textarea id="user-css" class="form-control" rows="7">')
                 .appendTo($userCssTextareaWrapper)
                 .val(userConfig.get('user-css'));
 
@@ -241,7 +243,7 @@ animachEnhancedApp.addModule('userConfig', function () {
 
 
     var $layoutForm = $('<div id="layout-config-form" class="form-group">').appendTo($configBody)
-        .append($('<div class="col-lg-3 col-md-3 control-label">Сетка</div>'));
+        .append($('<div class="col-lg-3 col-md-3 control-label">Оформление</div>'));
     var $layoutWrapper = $('<div id="layout-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo($layoutForm);
     var $layoutBtnWrapper = $('<div id="layout-config-btn-wrapper" class="btn-group">').appendTo($layoutWrapper);
 
@@ -312,6 +314,8 @@ animachEnhancedApp.addModule('userConfig', function () {
 
         if (userConfig.get('user-css') !== '') {
             $("head").append('<style id="user-style" type="text/css">' + userConfig.get('user-css') + '</style>');
+        } else if ($('#user-style').length !== 0) {
+            $('#user-style').remove();
         }
     };
 

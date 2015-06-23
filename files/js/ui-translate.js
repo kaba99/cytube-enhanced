@@ -73,7 +73,7 @@ animachEnhancedApp.addModule('uiTranslate', function () {
         Register: 'Регистрация',
         Options: 'Настройки',
         'Channel Settings': 'Настройки канала',
-        Layout: 'Сетка',
+        Layout: 'Оформление',
         'Chat Only': 'Только чат',
         'Remove Video': 'Удалить видео'
     };

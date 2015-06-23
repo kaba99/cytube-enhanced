@@ -70,7 +70,7 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
 
 
     $favouritePicturesBtn.on('click', function() {
-        var isSmilesAndPictures = app.permittedModules.userConfig === true && app.modules.userConfig !== undefined && app.modules.userConfig.options.smilesAndPictures === true;
+        var isSmilesAndPictures = app.permittedModules.userConfig === true && app.modules.userConfig !== undefined && app.modules.userConfig.options['smiles-and-pictures'] === true;
 
         if ($('#smiles-panel').length !== 0 && !isSmilesAndPictures) {
             $('#smiles-panel').hide();
