@@ -21,9 +21,12 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
             $outer.modal();
 
             var $ul;
+            var commands;
+            var command;
 
             if (app.permittedModules.chatCommands === true) {
-                var commands = {
+                commands = {
+                    'r': 'показать расписание',
                     'pick':'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick japan,korea,china</i>)',
                     'ask':'задать вопрос с вариантами ответа да/нет (Например: <i>!ask Сегодня пойдет дождь?</i>)',
                     'q':'показать случайную цитату',
@@ -40,7 +43,7 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
 
                 $body.append('<strong>Новые команды чата</strong><br><br>');
                 $ul = $('<ul>').appendTo($body);
-                for (var command in commands) {
+                for (command in commands) {
                     $ul.append('<li><code>!'+command+'</code> - '+commands[command]+'</li>');
                 }
             }

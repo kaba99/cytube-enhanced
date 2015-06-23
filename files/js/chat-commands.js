@@ -100,7 +100,13 @@ animachEnhancedApp.addModule('chatCommands', function () {
 
         IS_COMMAND = true;
 
-        if (msg.indexOf("!pick ") === 0) {
+        if (msg.indexOf("!r") === 0) {
+            // if () {
+            //     msg =
+            // } else {
+            //     msg = 'Расписание отсутствует';
+            // }
+        } else if (msg.indexOf("!pick ") === 0) {
             var variants = msg.split("!pick ")[1].split(",");
             msg = variants[Math.floor(Math.random() * (variants.length - 1))];
         } else if (msg.indexOf("!ask ") === 0) {

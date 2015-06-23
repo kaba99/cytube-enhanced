@@ -20,5 +20,6 @@ var animachEnhancedApp = new AnimachEnhancedApp({
     chatControls: true,
     uiTranslate: true,
     navMenuTabs: true,
-    userConfig: true
+    userConfig: true,
+    schedule: true
 });
