@@ -117,10 +117,17 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
 
 
             if (pictureWidth > document.documentElement.clientWidth || pictureHeight > document.documentElement.clientHeight) {
+                var scaleFactor;
                 if (pictureWidth > pictureHeight) {
-                    pictureWidth = document.documentElement.clientWidth * 0.9;
+                    scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
+
+                    pictureHeight /= scaleFactor;
+                    pictureWidth /= scaleFactor;
                 } else {
-                    pictureHeight = document.documentElement.clientHeight * 0.9;
+                    scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+
+                    pictureHeight /= scaleFactor;
+                    pictureWidth /= scaleFactor;
                 }
             }
 
