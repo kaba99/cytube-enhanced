@@ -5066,7 +5066,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 
 /*New success button */
 #chat-controls .btn-success, #chat-controls .btn-success:focus,
-#video-controls .btn-success, #video-controls .btn-success:focus,
+#top-video-controls .btn-success, #top-video-controls .btn-success:focus,
 #motdrow .btn-success, #motdrow .btn-success:focus,
 #config-wrapper .btn-success, #config-wrapper .btn-success:focus {
     background: #090C0F;
@@ -5077,13 +5077,13 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 }
 
 #chat-controls .btn-success, #chat-controls .btn-success:focus, #chat-controls .btn-success:hover,
-#video-controls .btn-success, #video-controls .btn-success:focus, #video-controls .btn-success:hover,
+#top-video-controls .btn-success, #top-video-controls .btn-success:focus, #top-video-controls .btn-success:hover,
 #motdrow .btn-success, #motdrow .btn-success:focus, #motdrow .btn-success:hover,
 #config-wrapper .btn-success, #config-wrapper .btn-success:focus, #config-wrapper .btn-success:hover {
     border-color: #090C0F;
 }
 
-#chat-controls .btn-success:hover, #video-controls .btn-success:hover, #motdrow .btn-success:hover, #config-wrapper .btn-success:hover {
+#chat-controls .btn-success:hover, #top-video-controls .btn-success:hover, #motdrow .btn-success:hover, #config-wrapper .btn-success:hover {
     background: rgba(10, 10, 10, 1);
     color: #fff;
 }

@@ -2,15 +2,16 @@ animachEnhancedApp.addModule('videoControls', function () {
     $('#mediarefresh').hide();
 
 
-    var $videoControls = $('<div id="video-controls" class="btn-group">').appendTo("#videowrap");
+    var $topVideoControls = $('<div id="top-video-controls" class="btn-group">').appendTo("#videowrap");
 
 
-    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default">Обновить видео</button>').appendTo($videoControls);
-    $refreshVideoBtn.on('click', function () {
-        PLAYER.type = '';
-        PLAYER.id = '';
-        socket.emit('playerReady');
-    });
+    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default">Обновить видео</button>')
+        .appendTo($topVideoControls)
+        .on('click', function () {
+            PLAYER.type = '';
+            PLAYER.id = '';
+            socket.emit('playerReady');
+        });
 
 
     var qualityLabelsTranslate = {
@@ -22,7 +23,7 @@ animachEnhancedApp.addModule('videoControls', function () {
         hd1080: '1080p',
         highres: 'наивысшее'
     };
-    var $videoQualityBtn = $('<div class="btn-group">').appendTo($videoControls)
+    var $videoQualityBtn = $('<div class="btn-group">').appendTo($topVideoControls)
         .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Качество: ' + qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>' +
             '<ul class="dropdown-menu">' +
                 '<li><a href="#" data-quality="auto">авто</a></li>' +
@@ -93,7 +94,7 @@ animachEnhancedApp.addModule('videoControls', function () {
 
 
     var $hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" data-hidden="0">Скрыть видео</button>')
-        .appendTo($videoControls)
+        .appendTo($topVideoControls)
         .on('click', function() {
             if (+$(this).data('hidden') === 0) {
                 var $playerWindow = $('#videowrap').find('.embed-responsive');
@@ -116,7 +117,7 @@ animachEnhancedApp.addModule('videoControls', function () {
 
     var PLAYER_VOLUME;
     var $muteVolumeBtn = $('<button id="mute-volume-btn" class="btn btn-sm btn-default" data-hidden="0">Выключить звук</button>')
-        .appendTo($videoControls)
+        .appendTo($topVideoControls)
         .on('click', function() {
             if (+$(this).data('hidden') === 0) {
                 PLAYER_VOLUME = PLAYER.player.volume;
@@ -141,6 +142,39 @@ animachEnhancedApp.addModule('videoControls', function () {
                 $(this).addClass('btn-default');
             }
         });
+
+
+    var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
+    socket.on('changeMedia', function (data) {
+        if (YOUTUBE_JS_PLAYER && data.type === 'fi' && /google/.test(data.url)) {
+            PLAYER = new youtubeJavascriptPlayer(data);
+            PLAYER.type = data.type;
+        }
+    });
+    var $youtubeJavascriptPlayerBtn = $('<button id="youtube-javascript-player-btn" class="btn btn-sm btn-default">Использовать Youtube JS Player</button>')
+        .appendTo($topVideoControls)
+        .on('click', function() {
+            YOUTUBE_JS_PLAYER = !YOUTUBE_JS_PLAYER;
+            setOpt(CHANNEL.name + '_config-yt-js-player', YOUTUBE_JS_PLAYER);
+
+            if (YOUTUBE_JS_PLAYER) {
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
+            } else {
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
+            }
+
+            $('#refresh-video').click();
+        });
+    if (YOUTUBE_JS_PLAYER) {
+        $youtubeJavascriptPlayerBtn.removeClass('btn-default');
+        $youtubeJavascriptPlayerBtn.addClass('btn-success');
+
+        $('#refresh-video').click();
+    }
+
+
 
 
     var $expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="Развернуть плейлист">')

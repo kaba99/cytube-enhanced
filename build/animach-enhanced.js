@@ -1554,21 +1554,146 @@ animachEnhancedApp.addModule('utils', function () {
 
         return $outer;
     };
+
+
+
+
+
+    //Only for Google docs
+    //https://developers.google.com/youtube/js_api_reference?hl=ru
+    youtubeJavascriptPlayer = function (data) {
+        var self = this;
+
+        self.videoId = data.id;
+        self.videoLength = data.seconds;
+
+        self.init = function () {
+            removeOld();
+
+            self.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30'; //Basic URL to the Player
+            self.videoURL += '&docid=' + self.videoId; //Specify the fileID ofthe file to show
+            self.videoURL += '&autoplay=1';
+            self.videoURL += '&fs=1';
+            self.videoURL += '&start=' + parseInt(data.currentTime, 10);
+            self.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
+            self.videoURL += '&playerapiid=' + self.videoId; //Give the video player the same name as the video for future reference
+            self.videoURL += '&cc_load_policy=0'; //No caption on this video (not supported for Google Drive Videos)
+
+            var atts = {
+                id: "ytapiplayer"
+            };
+            var params = {
+                allowScriptAccess: "always"
+            };
+            swfobject.embedSWF(self.videoURL,
+                "ytapiplayer",
+                VWIDTH,
+                VHEIGHT,
+                "8",
+                null,
+                null,
+                params,
+                atts);
+
+            onYouTubePlayerReady = function (playerId) {
+                self.player = document.getElementById("ytapiplayer");
+                self.player.addEventListener("onStateChange", "onytplayerStateChange");
+
+                a = self.player;
+            };
+
+            onytplayerStateChange = function (newState) {
+                var statesMap = {
+                    '-1': 'beforeVideo',
+                    0: 'end',
+                    1: 'play',
+                    2: 'pause',
+                    3: 'buf',
+                    5: 'queue'
+                };
+
+
+                if (statesMap[newState] === 'beforeVideo') {
+                    self.setVolume(VOLUME);
+                } else if (statesMap[newState] === 'play') {
+                    PLAYER.paused = false;
+
+                    if (CLIENT.leader) {
+                        sendVideoUpdate();
+                    }
+                } else if (statesMap[newState] === 'pause') {
+                    PLAYER.paused = true;
+
+                    if (CLIENT.leader) {
+                        sendVideoUpdate();
+                    }
+                } else if (statesMap[newState] === 'end') {
+                    if (CLIENT.leader) {
+                        socket.emit("playNext");
+                    }
+                }
+            };
+        };
+
+        self.load = function (data) {
+            self.videoId = data.id;
+            self.videoLength = data.seconds;
+            self.init();
+        };
+
+        self.pause = function () {
+            if (self.player && self.player.pauseVideo) {
+                self.player.pauseVideo();
+            }
+        };
+
+        self.play = function () {
+            if (self.player && self.player.playVideo) {
+                self.player.playVideo();
+            }
+        };
+
+        self.getTime = function (callback) {
+            if (self.player && self.player.getCurrentTime) {
+                var t = parseFloat(self.player.getCurrentTime());
+                callback(t);
+            }
+        };
+
+        self.seek = function (time) {
+            if (self.player.seekTo) {
+                self.player.seekTo(time);
+            }
+        };
+
+        self.getVolume = function (callback) {
+            if (self.player && self.player.getVolume) {
+                callback(self.player.getVolume());
+            }
+        };
+
+        self.setVolume = function (volume) {
+            self.player.setVolume(volume);
+        };
+
+        self.init();
+    };
 });
 
 animachEnhancedApp.addModule('videoControls', function () {
     $('#mediarefresh').hide();
 
 
-    var $videoControls = $('<div id="video-controls" class="btn-group">').appendTo("#videowrap");
+    var $topVideoControls = $('<div id="top-video-controls" class="btn-group">').appendTo("#videowrap");
 
 
-    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default">Обновить видео</button>').appendTo($videoControls);
-    $refreshVideoBtn.on('click', function () {
-        PLAYER.type = '';
-        PLAYER.id = '';
-        socket.emit('playerReady');
-    });
+    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default">Обновить видео</button>')
+        .appendTo($topVideoControls)
+        .on('click', function () {
+            PLAYER.type = '';
+            PLAYER.id = '';
+            socket.emit('playerReady');
+        });
 
 
     var qualityLabelsTranslate = {
@@ -1580,7 +1705,7 @@ animachEnhancedApp.addModule('videoControls', function () {
         hd1080: '1080p',
         highres: 'наивысшее'
     };
-    var $videoQualityBtn = $('<div class="btn-group">').appendTo($videoControls)
+    var $videoQualityBtn = $('<div class="btn-group">').appendTo($topVideoControls)
         .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Качество: ' + qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>' +
             '<ul class="dropdown-menu">' +
                 '<li><a href="#" data-quality="auto">авто</a></li>' +
@@ -1651,7 +1776,7 @@ animachEnhancedApp.addModule('videoControls', function () {
 
 
     var $hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" data-hidden="0">Скрыть видео</button>')
-        .appendTo($videoControls)
+        .appendTo($topVideoControls)
         .on('click', function() {
             if (+$(this).data('hidden') === 0) {
                 var $playerWindow = $('#videowrap').find('.embed-responsive');
@@ -1674,7 +1799,7 @@ animachEnhancedApp.addModule('videoControls', function () {
 
     var PLAYER_VOLUME;
     var $muteVolumeBtn = $('<button id="mute-volume-btn" class="btn btn-sm btn-default" data-hidden="0">Выключить звук</button>')
-        .appendTo($videoControls)
+        .appendTo($topVideoControls)
         .on('click', function() {
             if (+$(this).data('hidden') === 0) {
                 PLAYER_VOLUME = PLAYER.player.volume;
@@ -1699,6 +1824,39 @@ animachEnhancedApp.addModule('videoControls', function () {
                 $(this).addClass('btn-default');
             }
         });
+
+
+    var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
+    socket.on('changeMedia', function (data) {
+        if (YOUTUBE_JS_PLAYER && data.type === 'fi' && /google/.test(data.url)) {
+            PLAYER = new youtubeJavascriptPlayer(data);
+            PLAYER.type = data.type;
+        }
+    });
+    var $youtubeJavascriptPlayerBtn = $('<button id="youtube-javascript-player-btn" class="btn btn-sm btn-default">Использовать Youtube JS Player</button>')
+        .appendTo($topVideoControls)
+        .on('click', function() {
+            YOUTUBE_JS_PLAYER = !YOUTUBE_JS_PLAYER;
+            setOpt(CHANNEL.name + '_config-yt-js-player', YOUTUBE_JS_PLAYER);
+
+            if (YOUTUBE_JS_PLAYER) {
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
+            } else {
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
+            }
+
+            $('#refresh-video').click();
+        });
+    if (YOUTUBE_JS_PLAYER) {
+        $youtubeJavascriptPlayerBtn.removeClass('btn-default');
+        $youtubeJavascriptPlayerBtn.addClass('btn-success');
+
+        $('#refresh-video').click();
+    }
+
+
 
 
     var $expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="Развернуть плейлист">')
