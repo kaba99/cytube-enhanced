@@ -346,6 +346,7 @@ animachEnhancedApp.addModule('chatCommands', function () {
             'Не, я не обняшился. Я тебе покушать принёс, Онии-чан!'
         ];
 
+
         IS_COMMAND = true;
 
         if (msg.indexOf("!r") === 0) {
@@ -568,21 +569,7 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
 
     $('<button id="chat-help-btn" class="btn btn-sm btn-default">Список команд</button>').appendTo($('#chat-controls'))
         .on('click', function () {
-            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            var $header = $('<div class="modal-header">').appendTo($content);
-            $('<button class="close" data-dismiss="modal" aria-hidden="true">').html('x').appendTo($header);
-            $('<h3 class="modal-title">').text('Список команд').appendTo($header);
-
-            var $body = $('<div class="modal-body">').appendTo($content);
-
-            $outer.on("hidden", function() {
-                $outer.remove();
-            });
-            $outer.modal();
-
+            var $bodyWrapper = $('<div>');
             var $ul;
             var commands;
             var command;
@@ -604,8 +591,8 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
                     'yoba': 'секретная команда'
                 };
 
-                $body.append('<strong>Новые команды чата</strong><br><br>');
-                $ul = $('<ul>').appendTo($body);
+                $bodyWrapper.append('<p><strong>Новые команды чата</strong><p>');
+                $ul = $('<ul>').appendTo($bodyWrapper);
                 for (command in commands) {
                     $ul.append('<li><code>!'+command+'</code> - '+commands[command]+'</li>');
                 }
@@ -618,11 +605,13 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
                 'afk':'Устанавливает статус "Отошёл".',
             };
 
-            $body.append('<br /><strong>Стандартные команды</strong><br /><br />');
-            $ul = $('<ul>').appendTo($body);
+            $bodyWrapper.append('<p><strong>Стандартные команды</strong><p>');
+            $ul = $('<ul>').appendTo($bodyWrapper);
             for (command in commands) {
                 $ul.append('<li><code>/'+command+'</code> - '+commands[command]+'</li>');
             }
+
+            var $modalWindow = createModalWindow('Список команд', $bodyWrapper);
         });
 });
 
@@ -1355,26 +1344,7 @@ animachEnhancedApp.addModule('userConfig', function () {
             }
         },
         'user-layout': function (userConfig) {
-            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            var $header = $('<div class="modal-header">').appendTo($content);
-            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
-            $('<h3 class="modal-title">').text('Настройки оформления').appendTo($header);
-
-            var $body = $('<div class="modal-body">').appendTo($content);
-
-            var $footer = $('<div class="modal-footer">').appendTo($content);
-
-            $outer.on('hidden.bs.modal', function () {
-                $(this).remove();
-            });
-
-            $outer.modal('show');
-
-
-            var $settingsWrapper = $('<div class="form-horizontal">').appendTo($body);
+            var $settingsWrapper = $('<div class="form-horizontal">');
 
             for (var layoutOption in layoutOptions) {
                 var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
@@ -1400,9 +1370,12 @@ animachEnhancedApp.addModule('userConfig', function () {
                 .appendTo($userCssTextareaWrapper)
                 .val(userConfig.get('user-css'));
 
+            var $btnWrapper = $('<div>');
 
-            $('<button type="button" id="reset-user-layout" class="btn btn-danger">Сбросить</button>')
-                .appendTo($footer)
+            $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">Отмена</button>').appendTo($btnWrapper);
+
+            $('<button type="button" id="reset-user-layout" class="btn btn-danger">Сбросить настройки</button>')
+                .appendTo($btnWrapper)
                 .on('click', function () {
                     if (confirm('Все настройки, в том числе и пользовательское CSS будут сброшены, вы уверены?')) {
                         for (var layoutOption in layoutOptions) {
@@ -1412,12 +1385,12 @@ animachEnhancedApp.addModule('userConfig', function () {
                         userConfig.set('user-css', '');
 
                         applyLayoutSettings();
-                        $outer.modal('hide');
+                        $modalWindow.modal('hide');
                     }
                 });
 
             $('<button type="button" id="save-user-layout" class="btn btn-success">Сохранить</button>')
-                .appendTo($footer)
+                .appendTo($btnWrapper)
                 .on('click', function () {
                     for (var layoutOption in layoutOptions) {
                         if ($('#' + layoutOption).length !== 0) {
@@ -1430,8 +1403,11 @@ animachEnhancedApp.addModule('userConfig', function () {
                     }
 
                     applyLayoutSettings();
-                    $outer.modal('hide');
+                    $modalWindow.modal('hide');
                 });
+
+
+            var $modalWindow = createModalWindow('Настройки оформления', $settingsWrapper, $btnWrapper);
         }
     };
 
@@ -1541,6 +1517,35 @@ animachEnhancedApp.addModule('utils', function () {
 
     insertText = function (str) {
         $("#chatline").val($("#chatline").val()+str).focus();
+    };
+
+    createModalWindow = function($headerContent, $bodyContent, $footerContent) {
+        var $outer = $('<div class="modal fade chat-help-modal" role="dialog" tabindex="-1">').appendTo($("body"));
+        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+        var $content = $('<div class="modal-content">').appendTo($modal);
+
+        if ($headerContent !== undefined) {
+            var $header = $('<div class="modal-header">').appendTo($content);
+
+            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
+            $('<h3 class="modal-title">').append($headerContent).appendTo($header);
+        }
+
+        if ($bodyContent !== undefined) {
+            $('<div class="modal-body">').append($bodyContent).appendTo($content);
+        }
+
+        if ($footerContent !== undefined) {
+            $('<div class="modal-footer">').append($footerContent).appendTo($content);
+        }
+
+        $outer.on('hidden.bs.modal', function () {
+            $(this).remove();
+        });
+
+        $outer.modal({keyboard: true});
+
+        return $outer;
     };
 });
 
@@ -1724,22 +1729,7 @@ animachEnhancedApp.addModule('videoControls', function () {
         .append('<span class="glyphicon glyphicon-user">')
         .prependTo('#videocontrols')
         .on('click', function() {
-            hidePlayer();
-            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            var $header = $('<div class="modal-header">').appendTo($content);
-            $('<button class="close" data-dismiss="modal" aria-hidden="true">').html('x').appendTo($header);
-            $('<h3 class="modal-title">').text('Список пользователей, добавивших видео').appendTo($header);
-
-            var $body = $('<div class="modal-body">').appendTo($content);
-
-            $outer.on("hidden", function() {
-                $outer.remove();
-                unhidePlayer();
-            });
-            $outer.modal();
+            var $bodyWrapper = $('<div>');
 
             var contributorsList = {};
             $("#queue .queue_entry").each(function () {
@@ -1752,12 +1742,14 @@ animachEnhancedApp.addModule('videoControls', function () {
                 }
             });
 
-           $body.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
+            $bodyWrapper.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
 
             var $contributorsListOl = $('<ol>');
             for (var contributor in contributorsList) {
                 $contributorsListOl.append($('<li>' + contributor + ': ' + contributorsList[contributor] + '.</li>'));
             }
-            $contributorsListOl.appendTo($body);
+            $contributorsListOl.appendTo($bodyWrapper);
+
+            createModalWindow('Список пользователей, добавивших видео', $bodyWrapper);
         });
 });

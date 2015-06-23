@@ -178,22 +178,7 @@ animachEnhancedApp.addModule('videoControls', function () {
         .append('<span class="glyphicon glyphicon-user">')
         .prependTo('#videocontrols')
         .on('click', function() {
-            hidePlayer();
-            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            var $header = $('<div class="modal-header">').appendTo($content);
-            $('<button class="close" data-dismiss="modal" aria-hidden="true">').html('x').appendTo($header);
-            $('<h3 class="modal-title">').text('Список пользователей, добавивших видео').appendTo($header);
-
-            var $body = $('<div class="modal-body">').appendTo($content);
-
-            $outer.on("hidden", function() {
-                $outer.remove();
-                unhidePlayer();
-            });
-            $outer.modal();
+            var $bodyWrapper = $('<div>');
 
             var contributorsList = {};
             $("#queue .queue_entry").each(function () {
@@ -206,12 +191,14 @@ animachEnhancedApp.addModule('videoControls', function () {
                 }
             });
 
-           $body.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
+            $bodyWrapper.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
 
             var $contributorsListOl = $('<ol>');
             for (var contributor in contributorsList) {
                 $contributorsListOl.append($('<li>' + contributor + ': ' + contributorsList[contributor] + '.</li>'));
             }
-            $contributorsListOl.appendTo($body);
+            $contributorsListOl.appendTo($bodyWrapper);
+
+            createModalWindow('Список пользователей, добавивших видео', $bodyWrapper);
         });
 });

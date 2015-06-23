@@ -98,6 +98,7 @@ animachEnhancedApp.addModule('chatCommands', function () {
             'Не, я не обняшился. Я тебе покушать принёс, Онии-чан!'
         ];
 
+
         IS_COMMAND = true;
 
         if (msg.indexOf("!r") === 0) {

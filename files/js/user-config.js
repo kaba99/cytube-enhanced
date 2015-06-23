@@ -151,26 +151,7 @@ animachEnhancedApp.addModule('userConfig', function () {
             }
         },
         'user-layout': function (userConfig) {
-            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            var $header = $('<div class="modal-header">').appendTo($content);
-            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
-            $('<h3 class="modal-title">').text('Настройки оформления').appendTo($header);
-
-            var $body = $('<div class="modal-body">').appendTo($content);
-
-            var $footer = $('<div class="modal-footer">').appendTo($content);
-
-            $outer.on('hidden.bs.modal', function () {
-                $(this).remove();
-            });
-
-            $outer.modal('show');
-
-
-            var $settingsWrapper = $('<div class="form-horizontal">').appendTo($body);
+            var $settingsWrapper = $('<div class="form-horizontal">');
 
             for (var layoutOption in layoutOptions) {
                 var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
@@ -196,9 +177,12 @@ animachEnhancedApp.addModule('userConfig', function () {
                 .appendTo($userCssTextareaWrapper)
                 .val(userConfig.get('user-css'));
 
+            var $btnWrapper = $('<div>');
 
-            $('<button type="button" id="reset-user-layout" class="btn btn-danger">Сбросить</button>')
-                .appendTo($footer)
+            $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">Отмена</button>').appendTo($btnWrapper);
+
+            $('<button type="button" id="reset-user-layout" class="btn btn-danger">Сбросить настройки</button>')
+                .appendTo($btnWrapper)
                 .on('click', function () {
                     if (confirm('Все настройки, в том числе и пользовательское CSS будут сброшены, вы уверены?')) {
                         for (var layoutOption in layoutOptions) {
@@ -208,12 +192,12 @@ animachEnhancedApp.addModule('userConfig', function () {
                         userConfig.set('user-css', '');
 
                         applyLayoutSettings();
-                        $outer.modal('hide');
+                        $modalWindow.modal('hide');
                     }
                 });
 
             $('<button type="button" id="save-user-layout" class="btn btn-success">Сохранить</button>')
-                .appendTo($footer)
+                .appendTo($btnWrapper)
                 .on('click', function () {
                     for (var layoutOption in layoutOptions) {
                         if ($('#' + layoutOption).length !== 0) {
@@ -226,8 +210,11 @@ animachEnhancedApp.addModule('userConfig', function () {
                     }
 
                     applyLayoutSettings();
-                    $outer.modal('hide');
+                    $modalWindow.modal('hide');
                 });
+
+
+            var $modalWindow = createModalWindow('Настройки оформления', $settingsWrapper, $btnWrapper);
         }
     };
 

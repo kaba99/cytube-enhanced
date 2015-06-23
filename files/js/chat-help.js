@@ -5,21 +5,7 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
 
     $('<button id="chat-help-btn" class="btn btn-sm btn-default">Список команд</button>').appendTo($('#chat-controls'))
         .on('click', function () {
-            var $outer = $('<div class="modal fade chat-help-modal" role="dialog">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            var $header = $('<div class="modal-header">').appendTo($content);
-            $('<button class="close" data-dismiss="modal" aria-hidden="true">').html('x').appendTo($header);
-            $('<h3 class="modal-title">').text('Список команд').appendTo($header);
-
-            var $body = $('<div class="modal-body">').appendTo($content);
-
-            $outer.on("hidden", function() {
-                $outer.remove();
-            });
-            $outer.modal();
-
+            var $bodyWrapper = $('<div>');
             var $ul;
             var commands;
             var command;
@@ -41,8 +27,8 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
                     'yoba': 'секретная команда'
                 };
 
-                $body.append('<strong>Новые команды чата</strong><br><br>');
-                $ul = $('<ul>').appendTo($body);
+                $bodyWrapper.append('<p><strong>Новые команды чата</strong><p>');
+                $ul = $('<ul>').appendTo($bodyWrapper);
                 for (command in commands) {
                     $ul.append('<li><code>!'+command+'</code> - '+commands[command]+'</li>');
                 }
@@ -55,10 +41,12 @@ animachEnhancedApp.addModule('chatHelp', function (app) {
                 'afk':'Устанавливает статус "Отошёл".',
             };
 
-            $body.append('<br /><strong>Стандартные команды</strong><br /><br />');
-            $ul = $('<ul>').appendTo($body);
+            $bodyWrapper.append('<p><strong>Стандартные команды</strong><p>');
+            $ul = $('<ul>').appendTo($bodyWrapper);
             for (command in commands) {
                 $ul.append('<li><code>/'+command+'</code> - '+commands[command]+'</li>');
             }
+
+            var $modalWindow = createModalWindow('Список команд', $bodyWrapper);
         });
 });
