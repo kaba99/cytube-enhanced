@@ -174,6 +174,15 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
     $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
         $('#modal-picture-overlay').remove();
         $('#modal-picture').remove();
+
+        return false;
+    });
+
+    $(document.body).on('keyup', function (e) {
+        if (e.which === 27 && $('#modal-picture').length !== 0) {
+            $('#modal-picture-overlay').remove();
+            $('#modal-picture').remove();
+        }
     });
 
     $('#add-picture-btn').on('click', function () {
