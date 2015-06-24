@@ -53,7 +53,7 @@ animachEnhancedApp.addModule('utils', function () {
         self.init = function () {
             removeOld();
 
-            self.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30'; //Basic URL to the Player
+            self.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30&version=3'; //Basic URL to the Player
             self.videoURL += '&docid=' + self.videoId; //Specify the fileID ofthe file to show
             self.videoURL += '&autoplay=1';
             self.videoURL += '&fs=1';
@@ -151,12 +151,12 @@ animachEnhancedApp.addModule('utils', function () {
 
         self.getVolume = function (callback) {
             if (self.player && self.player.getVolume) {
-                callback(self.player.getVolume());
+                callback(self.player.getVolume() / 100);
             }
         };
 
         self.setVolume = function (volume) {
-            self.player.setVolume(volume);
+            self.player.setVolume(volume * 100);
         };
 
         self.init();

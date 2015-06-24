@@ -1570,7 +1570,7 @@ animachEnhancedApp.addModule('utils', function () {
         self.init = function () {
             removeOld();
 
-            self.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30'; //Basic URL to the Player
+            self.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30&version=3'; //Basic URL to the Player
             self.videoURL += '&docid=' + self.videoId; //Specify the fileID ofthe file to show
             self.videoURL += '&autoplay=1';
             self.videoURL += '&fs=1';
@@ -1668,12 +1668,12 @@ animachEnhancedApp.addModule('utils', function () {
 
         self.getVolume = function (callback) {
             if (self.player && self.player.getVolume) {
-                callback(self.player.getVolume());
+                callback(self.player.getVolume() / 100);
             }
         };
 
         self.setVolume = function (volume) {
-            self.player.setVolume(volume);
+            self.player.setVolume(volume * 100);
         };
 
         self.init();
@@ -1687,12 +1687,112 @@ animachEnhancedApp.addModule('videoControls', function () {
     var $topVideoControls = $('<div id="top-video-controls" class="btn-group">').appendTo("#videowrap");
 
 
-    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default">Обновить видео</button>')
+    var $refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="Обновить видео">')
+        .html('<i class="glyphicon glyphicon-refresh">')
         .appendTo($topVideoControls)
         .on('click', function () {
             PLAYER.type = '';
             PLAYER.id = '';
             socket.emit('playerReady');
+        });
+
+
+    //var STORE_VOLUME;
+    //var $muteVolumeBtn = $('<button id="mute-volume-btn" class="btn btn-sm btn-default" title="Выключить звук">')
+    //    .html('<i class="glyphicon glyphicon-volume-off">')
+    //    .appendTo($topVideoControls)
+    //    .on('click', function() {
+    //        if (VOLUME !== 0) {
+    //            STORE_VOLUME = VOLUME;
+    //
+    //            if (PLAYER.player.mute !== undefined) {
+    //                PLAYER.player.mute();
+    //            } else if (PLAYER.player.volume !== undefined) {
+    //                PLAYER.player.volume = 0;
+    //            } else if (PLAYER.player.setVolume !== undefined) {
+    //                PLAYER.player.setVolume(0);
+    //            }
+    //
+    //            $muteVolumeBtn.html('<i class="glyphicon glyphicon-volume-up">');
+    //            $(this).removeClass('btn-default');
+    //            $(this).addClass('btn-success');
+    //        } else {
+    //            VOLUME = STORE_VOLUME;
+    //
+    //            if (PLAYER.player.unMute !== undefined) {
+    //                PLAYER.player.unMute();
+    //            } else if (PLAYER.player.volume !== undefined) {
+    //                PLAYER.player.volume = VOLUME;
+    //            } else if (PLAYER.player.setVolume !== undefined) {
+    //                PLAYER.player.setVolume(VOLUME);
+    //            }
+    //
+    //            $muteVolumeBtn.html('<i class="glyphicon glyphicon-volume-off">');
+    //            $(this).removeClass('btn-success');
+    //            $(this).addClass('btn-default');
+    //        }
+    //    });
+    //(function checkVolume() {
+    //    setTimeout(function () {
+    //        if (PLAYER && typeof PLAYER.getVolume === "function") {
+    //            PLAYER.getVolume(function (v) {
+    //                if (typeof v === "number") {
+    //                    if (v > 1) {
+    //                        v /= 100;
+    //                    }
+    //
+    //                    if (v >= 0 && v <= 1) {
+    //                        VOLUME = v;
+    //                    } else {
+    //                        VOLUME = 1;
+    //                    }
+    //
+    //                    setOpt("volume", VOLUME);
+    //                }
+    //            });
+    //        }
+    //
+    //        if (VOLUME !== 0) {
+    //            STORE_VOLUME = VOLUME;
+    //
+    //            $muteVolumeBtn.html('<i class="glyphicon glyphicon-volume-off">');
+    //            $muteVolumeBtn.removeClass('btn-success');
+    //            $muteVolumeBtn.addClass('btn-default');
+    //        } else {
+    //            $muteVolumeBtn.html('<i class="glyphicon glyphicon-volume-up">');
+    //            $muteVolumeBtn.removeClass('btn-default');
+    //            $muteVolumeBtn.addClass('btn-success');
+    //        }
+    //
+    //        checkVolume();
+    //    }, 1500);
+    //})();
+
+
+    var $hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" data-hidden="0" title="Скрыть видео">')
+        .html('<i class="glyphicon glyphicon-ban-circle">')
+        .appendTo($topVideoControls)
+        .on('click', function() {
+            if (+$(this).data('hidden') === 0) {
+                var $playerWindow = $('#videowrap').find('.embed-responsive');
+                $playerWindow.css({position: 'relative'});
+
+                $playerWindow.append($('<div id="hidden-player-overlay">'));
+
+                $(this).data('hidden', 1);
+
+                $(this).html('<i class="glyphicon glyphicon-film">');
+                $(this).removeClass('btn-default');
+                $(this).addClass('btn-success');
+            } else {
+                $('#hidden-player-overlay').remove();
+
+                $(this).data('hidden', 0);
+
+                $(this).html('<i class="glyphicon glyphicon-ban-circle">');
+                $(this).removeClass('btn-success');
+                $(this).addClass('btn-default');
+            }
         });
 
 
@@ -1773,57 +1873,6 @@ animachEnhancedApp.addModule('videoControls', function () {
         $("#us-joinmessage").prop("checked", USEROPTS.joinmessage);
         $("#us-shadowchat").prop("checked", USEROPTS.show_shadowchat);
     };
-
-
-    var $hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" data-hidden="0">Скрыть видео</button>')
-        .appendTo($topVideoControls)
-        .on('click', function() {
-            if (+$(this).data('hidden') === 0) {
-                var $playerWindow = $('#videowrap').find('.embed-responsive');
-                $playerWindow.css({position: 'relative'});
-
-                $playerWindow.append($('<div id="hidden-player-overlay">'));
-
-                $(this).data('hidden', 1);
-                $(this).removeClass('btn-default');
-                $(this).addClass('btn-success');
-            } else {
-                $('#hidden-player-overlay').remove();
-
-                $(this).data('hidden', 0);
-                $(this).removeClass('btn-success');
-                $(this).addClass('btn-default');
-            }
-        });
-
-
-    var PLAYER_VOLUME;
-    var $muteVolumeBtn = $('<button id="mute-volume-btn" class="btn btn-sm btn-default" data-hidden="0">Выключить звук</button>')
-        .appendTo($topVideoControls)
-        .on('click', function() {
-            if (+$(this).data('hidden') === 0) {
-                PLAYER_VOLUME = PLAYER.player.volume;
-                if (PLAYER.player.mute !== undefined) {
-                    PLAYER.player.mute();
-                } else if (PLAYER.player.volume !== undefined) {
-                    PLAYER.player.volume = 0;
-                }
-
-                $(this).data('hidden', 1);
-                $(this).removeClass('btn-default');
-                $(this).addClass('btn-success');
-            } else {
-                if (PLAYER.player.unMute !== undefined) {
-                    PLAYER.player.unMute();
-                } else if (PLAYER.player.volume !== undefined) {
-                    PLAYER.player.volume = PLAYER_VOLUME;
-                }
-
-                $(this).data('hidden', 0);
-                $(this).removeClass('btn-success');
-                $(this).addClass('btn-default');
-            }
-        });
 
 
     var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
