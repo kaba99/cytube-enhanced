@@ -19,12 +19,6 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
             .appendTo($tabValueWrapper);
     };
 
-    var fixIframeCut = function () {
-        $('#motd-tabs-content').find('.motd-tab-content').each(function () {
-            $(this).html($(this).html().replace(/\[iframe(.*?)\](.*?)[/iframe]]/g, '<iframe $1>$2</iframe>'));
-        });
-    };
-
     var tabsConfigToHtml = function (channelDescription, tabsConfig) {
         console.log(tabsConfig);
         var $virtualMainWrapper = $('<div>');
@@ -77,7 +71,49 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
         return $virtualMainWrapper.html();
     };
 
-    var $tabSettingsBtn = $('<button type="button" class="btn btn-primary" id="show-tabs-settings">Показать настройки вкладок</button>')
+    var tabsHtmlToCondig = function () {
+        $tabsArea.empty();
+
+        var $tabsTree = $('<div>').html($('#cs-motdtext').val());
+        var $tabsTreeNavBtns = $tabsTree.find('#motd-tabs').children();
+        var $tabsTreeTabsContent = $tabsTree.find('#motd-tabs-content');
+
+        $('#channel-description-input').val($tabsTree.find('#motd-channel-description').html());
+
+        $tabsTreeNavBtns.each(function () {
+            if ($(this).hasClass('btn-group')) {
+                var parsedDropdownItems = '';
+                var $dropdownItems = $(this).children('ul').children();
+
+                $dropdownItems.each(function () {
+                    var link = $(this).children('a');
+
+                    parsedDropdownItems += '[n]' + link.text() + '[/n][a]' + link.attr('href') + '[/a], ';
+                });
+                parsedDropdownItems = parsedDropdownItems.slice(0, -2);
+
+                addTabInput($tabsArea, '!dropdown!' + $(this).children('button').html().replace(' <span class="caret"></span>', ''), parsedDropdownItems);
+            } else {
+                addTabInput($tabsArea, $(this).html(), $tabsTreeTabsContent.find('[data-tab-index="' + $(this).data('tabIndex') + '"]').html());
+            }
+        });
+    };
+
+    var fixMotdCut = function () {
+        var cutMap = {
+            '<iframe $1>$2</iframe>': /\[iframe(.*?)\](.*?)[/iframe]]/g
+        };
+
+        $('#motd-tabs-content').find('.motd-tab-content').each(function () {
+            for (var tag in cutMap) {
+                $(this).html($(this).html().replace(cutMap[tag], tag));
+            }
+        });
+    };
+
+
+
+    var $tabSettingsBtn = $('<button type="button" class="btn btn-primary motd-bottom-btn" id="show-tabs-settings">Показать настройки вкладок</button>')
         .appendTo('#cs-motdeditor')
         .on('click', function () {
             if ($(this).hasClass('btn-primary')) {
@@ -98,55 +134,66 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
         .insertBefore('#cs-motdtext')
         .hide();
 
+    $('#cs-motdtext').before('<hr>');
+
     var $channelDescriptionInputWrapper = $('<div class="form-group">').appendTo($tabsSettings);
     var $channelDescriptionLabel = $('<label for="channel-description-input">Описание канала</label>').appendTo($channelDescriptionInputWrapper);
     var $channelDescriptionInput = $('<input id="channel-description-input" placeholder="Описание канала" class="form-control">').appendTo($channelDescriptionInputWrapper);
 
     var $tabsArea = $('<div id="tabs-settings-area">')
-        .html('<p>Вкладки</p>')
         .appendTo($tabsSettings);
 
-    var $addTabToTabsSettingsBtn = $('<button type="button" class="btn btn-default" id="tabs-settings-add">Добавить вкладку</button>')
+    $tabsArea.before('<p>Вкладки</p>');
+
+    var $addTabToTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-add">Добавить вкладку</button>')
         .appendTo($tabsSettings)
         .on('click', function () {
             addTabInput($tabsArea);
         });
 
-    var $removeLastTabFromTabsSettingsBtn = $('<button type="button" class="btn btn-default" id="tabs-settings-remove">Удалить последнюю вкладку</button>')
+    var $removeLastTabFromTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-remove">Удалить последнюю вкладку</button>')
         .appendTo($tabsSettings)
         .on('click', function () {
             $tabsArea.children('.tab-option-wrapper').last().remove();
         });
 
-
-    var $generateTabsHtml = $('<button type="button" class="btn btn-default" id="tabs-settings-add">Преобразовать в HTML в редакторе ниже</button>')
+    var $tabsToHtml = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-to-html">Преобразовать в код редактора</button>')
         .appendTo($tabsSettings)
         .on('click', function () {
-            var tabsConfig = []; //list of arrays like [tabTitle, tabContent]
+            if (confirm('Код в редакторе будет удалён и заменен новым, продолжить?')) {
+                var tabsConfig = []; //list of arrays like [tabTitle, tabContent]
 
-            $tabsArea.find('.tab-option-wrapper').each(function () {
-                var tabName = $(this).find('input[name="title"]').val().trim();
-                var tabContent = $(this).find('input[name="content"]').val().trim();
+                $tabsArea.find('.tab-option-wrapper').each(function () {
+                    var tabName = $(this).find('input[name="title"]').val().trim();
+                    var tabContent = $(this).find('input[name="content"]').val().trim();
 
-                if (tabName.indexOf('!dropdown!') === 0) {
-                    if (!/^(?:\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\][ ]*,[ ]*)*\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\]$/.test(tabContent)) {
-                        alert('Неправильное выражения для выпадающего списка: ' + tabName.replace('!dropdown!', '') + '.');
-                        return;
+                    if (tabName.indexOf('!dropdown!') === 0) {
+                        if (!/^(?:\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\][ ]*,[ ]*)*\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\]$/.test(tabContent)) {
+                            alert('Неправильное выражения для выпадающего списка: ' + tabName.replace('!dropdown!', '') + '.');
+                            return;
+                        }
+
+                        tabContent = tabContent.split(',').map(function (linkInfo) {
+                            linkInfo = linkInfo.trim().match(/^\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\]$/);
+
+                            return [linkInfo[1].trim(), linkInfo[2].trim()];
+                        });
                     }
 
-                    tabContent = tabContent.split(',').map(function (linkInfo) {
-                        linkInfo = linkInfo.trim().match(/^\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\]$/);
-
-                        return [linkInfo[1].trim(), linkInfo[2].trim()];
-                    });
-                }
-
-                tabsConfig.push([tabName, tabContent]);
-            });
+                    tabsConfig.push([tabName, tabContent]);
+                });
 
 
-            $('#cs-motdtext').val(tabsConfigToHtml($channelDescriptionInput.val(), tabsConfig));
+                $('#cs-motdtext').val(tabsConfigToHtml($channelDescriptionInput.val(), tabsConfig));
+            }
         });
+
+    var $htmlToTabs = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-from-html">Преобразовать из кода редактора</button>')
+        .appendTo($tabsSettings)
+        .on('click', function () {
+            tabsHtmlToCondig();
+        });
+
 
 
     $(document.body).on('click', '#motd-tabs .motd-tab-btn', function () {
@@ -177,36 +224,13 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
     });
 
 
-    $('#cs-motdtext').before('<hr>');
 
+    tabsHtmlToCondig();
 
-
-
-    var $tabsTree = $('<div>').html($('#cs-motdtext').val());
-    var $tabsTreeNavBtns = $tabsTree.find('#motd-tabs').children();
-    var $tabsTreeTabsContent = $tabsTree.find('#motd-tabs-content');
-
-    $('#channel-description-input').val($tabsTree.find('#motd-channel-description').html());
-
-    $tabsTreeNavBtns.each(function () {
-        if ($(this).hasClass('btn-group')) {
-            var parsedDropdownItems = '';
-            var $dropdownItems = $(this).children('ul').children();
-
-            $dropdownItems.each(function () {
-                var link = $(this).children('a');
-
-                parsedDropdownItems += '[n]' + link.text() + '[/n][a]' + link.attr('href') + '[/a], ';
-            });
-            parsedDropdownItems = parsedDropdownItems.slice(0, -2);
-
-            addTabInput($tabsArea, '!dropdown!' + $(this).children('button').html().replace(' <span class="caret"></span>', ''), parsedDropdownItems);
-        } else {
-            addTabInput($tabsArea, $(this).html(), $tabsTreeTabsContent.find('[data-tab-index="' + $(this).data('tabIndex') + '"]').html());
-        }
+    fixMotdCut();
+    socket.on('setMotd', function () {
+        fixMotdCut();
     });
-
-    fixIframeCut();
 
 
 

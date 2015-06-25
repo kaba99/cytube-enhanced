@@ -3004,7 +3004,6 @@ textarea.input-group-sm>.form-control, textarea.input-group-sm>.input-group-addo
 }
 .navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
     color: #fff;
-    background-color: none;
 }
 .navbar-default .navbar-nav>li>a, .navbar-default .navbar-text {
     color: #000;
@@ -3061,7 +3060,6 @@ textarea.input-group-sm>.form-control, textarea.input-group-sm>.input-group-addo
 }
 .navbar-inverse .navbar-brand:focus, .navbar-inverse .navbar-brand:hover {
     color: #fff;
-    background-color: none;
 }
 .navbar-inverse .navbar-nav>li>a, .navbar-inverse .navbar-text {
     color: #efefef;
@@ -3701,7 +3699,7 @@ a.list-group-item.active .list-group-item-text, a.list-group-item.active:focus .
     min-height: 20px;
     padding: 19px;
     margin-bottom: 20px;
-    background-color: rgba(0, 10, 20, .75)!important;
+    background-color: rgba(0, 10, 20, .5)!important;
     border: 1px solid #0c0d0e;
     border-radius: 4px;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
@@ -4637,7 +4635,7 @@ td.visible-print, th.visible-print {
     border-color: rgba(0, 0, 0, .6);
 }
 .btn-default {
-    background-color: none repeat scroll 0 0 rgba(0, 10, 20, .8)!important;
+    background: none repeat scroll 0 0 rgba(0, 10, 20, .8) !important;
     background-repeat: no-repeat;
     -webkit-filter: none;
     filter: none;
@@ -4948,7 +4946,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     text-align: center;
     margin: 4px 10px 10px;
     border: 2px solid rgba(0, 10, 20, .75);
-    background-color: rgba(0, 10, 20, .6);
+    background-color: rgba(0, 10, 20, .3);
     border-radius: 6px;
 }
 #favourite-pictures-panel {
@@ -5174,7 +5172,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     /*padding: 0px;*/
 /*}*/
 
-#show-tabs-settings {
+.motd-bottom-btn {
     margin-top: 10px;
 }
 
@@ -5182,3 +5180,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     padding: 20px;
 }
 
+#channeloptions .btn, #motd .btn {
+    margin-left: 2px;
+    margin-right: 2px;
+}
