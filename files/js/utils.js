@@ -86,7 +86,7 @@ animachEnhancedApp.addModule('utils', function () {
             onYouTubePlayerReady = function (playerId) {
                 self.player = document.getElementById("ytapiplayer");
                 self.player.addEventListener("onStateChange", "onytplayerStateChange");
-                self.player.addEventListener('onPlaybackQualityChange', 'youtubePlaybackQualityChange');
+                //self.player.addEventListener('onPlaybackQualityChange', 'youtubePlaybackQualityChange');
             };
 
             onytplayerStateChange = function (newState) {

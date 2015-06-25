@@ -208,21 +208,21 @@ animachEnhancedApp.addModule('videoControls', function () {
     };
 
 
-    youtubePlaybackQualityChange = function (quality) {
-        var youtubeQualityMap = {
-            default: 'auto'
-        };
-
-        quality = youtubeQualityMap[quality] !== undefined ?
-            youtubeQualityMap[quality] :
-            quality;
-
-        settingsFix();
-        $("#us-default-quality").val(quality);
-        saveUserOptions();
-
-        $videoQualityBtn.find('button').html('Качество: ' + qualityLabelsTranslate[quality] + ' <span class="caret"></span>');
-    };
+    //youtubePlaybackQualityChange = function (quality) {
+    //    var youtubeQualityMap = {
+    //        default: 'auto'
+    //    };
+    //
+    //    quality = youtubeQualityMap[quality] !== undefined ?
+    //        youtubeQualityMap[quality] :
+    //        quality;
+    //
+    //    settingsFix();
+    //    $("#us-default-quality").val(quality);
+    //    saveUserOptions();
+    //
+    //    $videoQualityBtn.find('button').html('Качество: ' + qualityLabelsTranslate[quality] + ' <span class="caret"></span>');
+    //};
 
 
     var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
