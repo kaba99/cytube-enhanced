@@ -758,8 +758,6 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
 
             $picture.appendTo($modalPicture);
         });
-
-        return false;
     });
 
     $(document.body).on('mousewheel', '#modal-picture', function (e) {
@@ -784,15 +782,11 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
                 marginTop: pictureMarginTop + (pictureHeight * ZOOM_CONST / 2),
             });
         }
-
-        return false;
     });
 
     $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
         $('#modal-picture-overlay').remove();
         $('#modal-picture').remove();
-
-        return false;
     });
 
     $(document.body).on('keydown', function (e) {
@@ -1765,6 +1759,8 @@ animachEnhancedApp.addModule('utils', function () {
             self.videoURL += '&docid=' + self.videoId; //Specify the fileID ofthe file to show
             self.videoURL += '&autoplay=1';
             self.videoURL += '&fs=1';
+            self.videoURL += '&showinfo=0';
+            self.videoURL += '&vq=' + (USEROPTS.default_quality || "auto");
             self.videoURL += '&start=' + parseInt(data.currentTime, 10);
             self.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
             self.videoURL += '&playerapiid=' + self.videoId; //Give the video player the same name as the video for future reference
@@ -1774,7 +1770,8 @@ animachEnhancedApp.addModule('utils', function () {
                 id: "ytapiplayer"
             };
             var params = {
-                allowScriptAccess: "always"
+                allowScriptAccess: "always",
+                allowFullScreen: "true"
             };
             swfobject.embedSWF(self.videoURL,
                 "ytapiplayer",
@@ -1789,8 +1786,6 @@ animachEnhancedApp.addModule('utils', function () {
             onYouTubePlayerReady = function (playerId) {
                 self.player = document.getElementById("ytapiplayer");
                 self.player.addEventListener("onStateChange", "onytplayerStateChange");
-
-                a = self.player;
             };
 
             onytplayerStateChange = function (newState) {
@@ -2008,6 +2003,19 @@ animachEnhancedApp.addModule('videoControls', function () {
                 '<li><a href="#" data-quality="highres">наивысшее</a></li>' +
             '</ul>')
         .on('click', 'a', function () {
+            if (YOUTUBE_JS_PLAYER) {
+                var quality = $(this).data('quality');
+                var youtubeQualityMap = {
+                    auto: 'default'
+                };
+
+                quality = youtubeQualityMap[quality] !== undefined ?
+                    youtubeQualityMap[quality] :
+                    quality;
+
+                PLAYER.player.setPlaybackQuality(quality);
+            }
+
             settingsFix();
 
             $("#us-default-quality").val($(this).data('quality'));
@@ -2066,7 +2074,7 @@ animachEnhancedApp.addModule('videoControls', function () {
     };
 
 
-    var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
+    YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
     socket.on('changeMedia', function (data) {
         if (YOUTUBE_JS_PLAYER && data.type === 'fi' && /google/.test(data.url)) {
             PLAYER = new youtubeJavascriptPlayer(data);

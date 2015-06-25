@@ -57,6 +57,8 @@ animachEnhancedApp.addModule('utils', function () {
             self.videoURL += '&docid=' + self.videoId; //Specify the fileID ofthe file to show
             self.videoURL += '&autoplay=1';
             self.videoURL += '&fs=1';
+            self.videoURL += '&showinfo=0';
+            self.videoURL += '&vq=' + (USEROPTS.default_quality || "auto");
             self.videoURL += '&start=' + parseInt(data.currentTime, 10);
             self.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
             self.videoURL += '&playerapiid=' + self.videoId; //Give the video player the same name as the video for future reference
@@ -66,7 +68,8 @@ animachEnhancedApp.addModule('utils', function () {
                 id: "ytapiplayer"
             };
             var params = {
-                allowScriptAccess: "always"
+                allowScriptAccess: "always",
+                allowFullScreen: "true"
             };
             swfobject.embedSWF(self.videoURL,
                 "ytapiplayer",
@@ -81,8 +84,6 @@ animachEnhancedApp.addModule('utils', function () {
             onYouTubePlayerReady = function (playerId) {
                 self.player = document.getElementById("ytapiplayer");
                 self.player.addEventListener("onStateChange", "onytplayerStateChange");
-
-                a = self.player;
             };
 
             onytplayerStateChange = function (newState) {

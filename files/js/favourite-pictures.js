@@ -141,8 +141,6 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
 
             $picture.appendTo($modalPicture);
         });
-
-        return false;
     });
 
     $(document.body).on('mousewheel', '#modal-picture', function (e) {
@@ -167,15 +165,11 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
                 marginTop: pictureMarginTop + (pictureHeight * ZOOM_CONST / 2),
             });
         }
-
-        return false;
     });
 
     $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
         $('#modal-picture-overlay').remove();
         $('#modal-picture').remove();
-
-        return false;
     });
 
     $(document.body).on('keydown', function (e) {

@@ -135,6 +135,19 @@ animachEnhancedApp.addModule('videoControls', function () {
                 '<li><a href="#" data-quality="highres">наивысшее</a></li>' +
             '</ul>')
         .on('click', 'a', function () {
+            if (YOUTUBE_JS_PLAYER) {
+                var quality = $(this).data('quality');
+                var youtubeQualityMap = {
+                    auto: 'default'
+                };
+
+                quality = youtubeQualityMap[quality] !== undefined ?
+                    youtubeQualityMap[quality] :
+                    quality;
+
+                PLAYER.player.setPlaybackQuality(quality);
+            }
+
             settingsFix();
 
             $("#us-default-quality").val($(this).data('quality'));
@@ -193,7 +206,7 @@ animachEnhancedApp.addModule('videoControls', function () {
     };
 
 
-    var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
+    YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
     socket.on('changeMedia', function (data) {
         if (YOUTUBE_JS_PLAYER && data.type === 'fi' && /google/.test(data.url)) {
             PLAYER = new youtubeJavascriptPlayer(data);
