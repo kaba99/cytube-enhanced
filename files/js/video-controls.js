@@ -117,7 +117,7 @@ animachEnhancedApp.addModule('videoControls', function () {
     var qualityLabelsTranslate = {
         auto: 'авто',
         small: '240p',
-        medium: '380p',
+        medium: '360p',
         large: '480p',
         hd720: '720p',
         hd1080: '1080p',
@@ -141,6 +141,7 @@ animachEnhancedApp.addModule('videoControls', function () {
                     auto: 'default'
                 };
 
+
                 quality = youtubeQualityMap[quality] !== undefined ?
                     youtubeQualityMap[quality] :
                     quality;
@@ -161,7 +162,8 @@ animachEnhancedApp.addModule('videoControls', function () {
             return false;
         });
 
-    var settingsFix = function () {
+
+    settingsFix = function () {
         $("#us-theme").val(USEROPTS.theme);
         $("#us-layout").val(USEROPTS.layout);
         $("#us-no-channelcss").prop("checked", USEROPTS.ignore_channelcss);
@@ -206,7 +208,24 @@ animachEnhancedApp.addModule('videoControls', function () {
     };
 
 
-    YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
+    youtubePlaybackQualityChange = function (quality) {
+        var youtubeQualityMap = {
+            default: 'auto'
+        };
+
+        quality = youtubeQualityMap[quality] !== undefined ?
+            youtubeQualityMap[quality] :
+            quality;
+
+        settingsFix();
+        $("#us-default-quality").val(quality);
+        saveUserOptions();
+
+        $videoQualityBtn.find('button').html('Качество: ' + qualityLabelsTranslate[quality] + ' <span class="caret"></span>');
+    };
+
+
+    var YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
     socket.on('changeMedia', function (data) {
         if (YOUTUBE_JS_PLAYER && data.type === 'fi' && /google/.test(data.url)) {
             YOUTUBE_JS_PLAYER_NOW = true;

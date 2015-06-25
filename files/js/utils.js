@@ -1,5 +1,5 @@
 animachEnhancedApp.addModule('utils', function () {
-    $('#wrap').find('.navbar-fixed-top').removeClass('navbar-fixed-top');
+    $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
 
     handleWindowResize(); //chat height fix because our css loaded later than cytube script calculates height
 
@@ -86,6 +86,7 @@ animachEnhancedApp.addModule('utils', function () {
             onYouTubePlayerReady = function (playerId) {
                 self.player = document.getElementById("ytapiplayer");
                 self.player.addEventListener("onStateChange", "onytplayerStateChange");
+                self.player.addEventListener('onPlaybackQualityChange', 'youtubePlaybackQualityChange');
             };
 
             onytplayerStateChange = function (newState) {
