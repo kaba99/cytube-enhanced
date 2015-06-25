@@ -5187,5 +5187,11 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     padding: 0px;
 }
 
+#show-tabs-settings {
+    margin-top: 10px;
+}
 
+.motd-tab-content {
+    padding: 20px;
+}
 

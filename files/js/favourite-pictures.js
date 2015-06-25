@@ -178,7 +178,7 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
         return false;
     });
 
-    $(document.body).on('keyup', function (e) {
+    $(document.body).on('keydown', function (e) {
         if (e.which === 27 && $('#modal-picture').length !== 0) {
             $('#modal-picture-overlay').remove();
             $('#modal-picture').remove();
