@@ -1703,6 +1703,8 @@ animachEnhancedApp.addModule('userConfig', function () {
 animachEnhancedApp.addModule('utils', function () {
     $('#wrap').find('.navbar-fixed-top').removeClass('navbar-fixed-top');
 
+    handleWindowResize(); //chat height fix because our css loaded later than cytube script calculates height
+
     $('#messagebuffer').on('click', '.username', function() {
         $('#chatline').val($(this).text() + $("#chatline").val()).focus();
     });
@@ -2003,7 +2005,7 @@ animachEnhancedApp.addModule('videoControls', function () {
                 '<li><a href="#" data-quality="highres">наивысшее</a></li>' +
             '</ul>')
         .on('click', 'a', function () {
-            if (YOUTUBE_JS_PLAYER) {
+            if (YOUTUBE_JS_PLAYER_NOW) {
                 var quality = $(this).data('quality');
                 var youtubeQualityMap = {
                     auto: 'default'
@@ -2077,8 +2079,12 @@ animachEnhancedApp.addModule('videoControls', function () {
     YOUTUBE_JS_PLAYER = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
     socket.on('changeMedia', function (data) {
         if (YOUTUBE_JS_PLAYER && data.type === 'fi' && /google/.test(data.url)) {
+            YOUTUBE_JS_PLAYER_NOW = true;
+
             PLAYER = new youtubeJavascriptPlayer(data);
             PLAYER.type = data.type;
+        } else {
+            YOUTUBE_JS_PLAYER_NOW = false;
         }
     });
     var $youtubeJavascriptPlayerBtn = $('<button id="youtube-javascript-player-btn" class="btn btn-sm btn-default">Использовать Youtube JS Player</button>')

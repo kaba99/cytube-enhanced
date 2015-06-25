@@ -1,6 +1,8 @@
 animachEnhancedApp.addModule('utils', function () {
     $('#wrap').find('.navbar-fixed-top').removeClass('navbar-fixed-top');
 
+    handleWindowResize(); //chat height fix because our css loaded later than cytube script calculates height
+
     $('#messagebuffer').on('click', '.username', function() {
         $('#chatline').val($(this).text() + $("#chatline").val()).focus();
     });
