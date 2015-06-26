@@ -1,4 +1,7 @@
-animachEnhancedApp.addModule('favouritePictures', function (app) {
+cytubeEnhanced.setModule('favouritePictures', function (app) {
+    var that = this;
+
+
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
     }
@@ -7,32 +10,36 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
         $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
     }
 
-    var $favouritePicturesBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="Показать избранные картинки">')
+
+    this.$toggleFavouritePicturesPanelBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="Показать избранные картинки">')
         .html('<i class="glyphicon glyphicon-th"></i>');
     if ($('#smiles-btn').length !== 0) {
-        $('#smiles-btn').after($favouritePicturesBtn);
+        this.$toggleFavouritePicturesPanelBtn.insertAfter('#smiles-btn');
     } else {
-        $favouritePicturesBtn.prependTo($('#chat-controls'));
+        this.$toggleFavouritePicturesPanelBtn.prependTo('#chat-controls');
     }
 
-    var $favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
-        .appendTo($('#chat-panel'))
-        .hide();
-    var $favouritePicturesBodyPanel = $('<div id="pictures-body-panel" class="row">')
-        .appendTo($favouritePicturesPanel);
-    var $favouritePicturesControlPanel = $('<div id="pictures-control-panel" class="row">')
-        .appendTo($favouritePicturesPanel);
 
-    var $favouritePicturesControlPanelForm = $('<div class="col-md-12">')
+    this.$favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
+        .appendTo('#chat-panel')
+        .hide();
+
+    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel" class="row">')
+        .appendTo(this.$favouritePicturesPanel);
+
+    this.$favouritePicturesControlPanel = $('<div id="pictures-control-panel" class="row">')
+        .appendTo(this.$favouritePicturesPanel);
+
+    this.$favouritePicturesControlPanelForm = $('<div class="col-md-12">')
         .html('<div class="input-group">' +
             '<span class="input-group-btn">' +
-                '<button id="pictures-export" class="btn btn-default" style="border-radius: 0;" type="button">Экспорт картинок</button>' +
+                '<button id="export-pictures" class="btn btn-default" style="border-radius: 0;" type="button">Экспорт картинок</button>' +
             '</span>' +
              '<span class="input-group-btn">' +
-                '<label for="pictures-import" class="btn btn-default" style="border-radius: 0;">Импорт картинок</label>' +
-                '<input type="file" style="display: none" id="pictures-import" name="pictures-import">' +
+                '<label for="import-pictures" class="btn btn-default" style="border-radius: 0;">Импорт картинок</label>' +
+                '<input type="file" style="display: none" id="import-pictures" name="pictures-import">' +
             '</span>' +
-            '<input type="text" id="add-picture-address" class="form-control" placeholder="Адрес картинки">' +
+            '<input type="text" id="picture-address" class="form-control" placeholder="Адрес картинки">' +
             '<span class="input-group-btn">' +
                 '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">Добавить</button>' +
             '</span>' +
@@ -40,15 +47,14 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
                 '<button id="remove-picture-btn" class="btn btn-default" type="button">Удалить</button>' +
             '</span>' +
         '</div>')
-        .appendTo($favouritePicturesControlPanel);
+        .appendTo(this.$favouritePicturesControlPanel);
 
 
-    var renderFavouritePictures = function () {
+    this.renderFavouritePictures = function () {
         var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
-        $favouritePicturesBodyPanel.empty();
+        that.$favouritePicturesBodyPanel.empty();
 
-        var escapedAddress;
         var entityMap = {
             "&": "&amp;",
             "<": "&lt;",
@@ -57,46 +63,57 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
             "'": '&#39;'
         };
         for (var n = 0, favouritePicturesLen = favouritePictures.length; n < favouritePicturesLen; n++) {
-            escapedAddress = favouritePictures[n].replace(/[&<>"']/g, function (s) {
-                return entityMap[s];
+            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, function (symbol) {
+                return entityMap[symbol];
             });
 
-            $('<img onclick="insertText(\' ' + escapedAddress + ' \')">')
-                 .attr({src: escapedAddress})
-                  .appendTo($favouritePicturesBodyPanel);
+            $('<img class="favourite-picture-on-panel">').attr({src: escapedAddress}).appendTo(that.$favouritePicturesBodyPanel);
         }
     };
-    renderFavouritePictures();
 
 
-    $favouritePicturesBtn.on('click', function() {
-        var isSmilesAndPictures = app.permittedModules.userConfig === true && app.modules.userConfig !== undefined && app.modules.userConfig.options['smiles-and-pictures'] === true;
+    this.insertFavouritePicture = function (address) {
+        app.getModule('utils').done(function (utilsModule) {
+            utilsModule.insertText(' ' + address + ' ');
+        });
+    };
+    $(document.body).on('click', '.favourite-picture-on-panel', function () {
+        that.insertFavouritePicture($(this).attr('src'));
+    });
 
-        if ($('#smiles-panel').length !== 0 && !isSmilesAndPictures) {
+
+    this.handleFavouritePicturesPanel = function ($toggleFavouritePicturesPanelBtn) {
+        var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
+
+        if ($('#smiles-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#smiles-panel').hide();
         }
 
-        $favouritePicturesPanel.toggle();
+        that.$favouritePicturesPanel.toggle();
 
 
-        if (!isSmilesAndPictures) {
-            if ($(this).hasClass('btn-default')) {
+        if (!smilesAndPicturesTogether) {
+            if ($toggleFavouritePicturesPanelBtn.hasClass('btn-default')) {
                 if ($('#smiles-btn').length !== 0 && $('#smiles-btn').hasClass('btn-success')) {
                     $('#smiles-btn').removeClass('btn-success');
                     $('#smiles-btn').addClass('btn-default');
                 }
 
-                $(this).removeClass('btn-default');
-                $(this).addClass('btn-success');
+                $toggleFavouritePicturesPanelBtn.removeClass('btn-default');
+                $toggleFavouritePicturesPanelBtn.addClass('btn-success');
             } else {
-                $(this).removeClass('btn-success');
-                $(this).addClass('btn-default');
+                $toggleFavouritePicturesPanelBtn.removeClass('btn-success');
+                $toggleFavouritePicturesPanelBtn.addClass('btn-default');
             }
         }
+    };
+    this.$toggleFavouritePicturesPanelBtn.on('click', function() {
+        that.handleFavouritePicturesPanel($(this));
     });
 
-    $(document.body).on('click', '.chat-picture', function () {
-        $picture = $('<img src="' + $(this).prop('src') + '">');
+
+    this.showPicturePreview = function (address) {
+        $picture = $('<img src="' + address + '">');
 
         $picture.ready(function () {
             var $modalPictureOverlay = $('<div id="modal-picture-overlay">').appendTo($(document.body));
@@ -141,10 +158,14 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
 
             $picture.appendTo($modalPicture);
         });
+    };
+    $(document.body).on('click', '.chat-picture', function () {
+        that.showPicturePreview($(this).prop('src'));
     });
 
-    $(document.body).on('mousewheel', '#modal-picture', function (e) {
-        var ZOOM_CONST = 0.15;
+
+    this.ZOOM_CONST = 0.15;
+    this.handleModalPictureMouseWheel = function (e) {
         var pictureWidth = parseInt($('#modal-picture').css('width'), 10);
         var pictureHeight = parseInt($('#modal-picture').css('height'), 10);
         var pictureMarginLeft = parseInt($('#modal-picture').css('marginLeft'), 10);
@@ -152,73 +173,90 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
 
         if (e.deltaY > 0) { //up
             $('#modal-picture').css({
-                width: pictureWidth * (1 + ZOOM_CONST),
-                height: pictureHeight * (1 + ZOOM_CONST),
-                marginLeft: pictureMarginLeft + (-pictureWidth * ZOOM_CONST / 2),
-                marginTop: pictureMarginTop + (-pictureHeight * ZOOM_CONST / 2),
+                width: pictureWidth * (1 + that.ZOOM_CONST),
+                height: pictureHeight * (1 + that.ZOOM_CONST),
+                marginLeft: pictureMarginLeft + (-pictureWidth * that.ZOOM_CONST / 2),
+                marginTop: pictureMarginTop + (-pictureHeight * that.ZOOM_CONST / 2),
             });
         } else { //down
             $('#modal-picture').css({
-                width: pictureWidth * (1 - ZOOM_CONST),
-                height: pictureHeight * (1 - ZOOM_CONST),
-                marginLeft: pictureMarginLeft + (pictureWidth * ZOOM_CONST / 2),
-                marginTop: pictureMarginTop + (pictureHeight * ZOOM_CONST / 2),
+                width: pictureWidth * (1 - that.ZOOM_CONST),
+                height: pictureHeight * (1 - that.ZOOM_CONST),
+                marginLeft: pictureMarginLeft + (pictureWidth * that.ZOOM_CONST / 2),
+                marginTop: pictureMarginTop + (pictureHeight * that.ZOOM_CONST / 2),
             });
         }
+    };
+    $(document.body).on('mousewheel', '#modal-picture', function (e) {
+        that.handleModalPictureMouseWheel(e);
     });
 
-    $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
+
+    this.closePictureByClick = function () {
         $('#modal-picture-overlay').remove();
         $('#modal-picture').remove();
+    };
+    $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
+        that.closePictureByClick();
     });
 
-    $(document.body).on('keydown', function (e) {
+    this.closePictureByEscape = function (e) {
         if (e.which === 27 && $('#modal-picture').length !== 0) {
             $('#modal-picture-overlay').remove();
             $('#modal-picture').remove();
         }
+    };
+    $(document.body).on('keydown', function (e) {
+        that.closePictureByEscape(e);
     });
 
-    $('#add-picture-btn').on('click', function () {
-        favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
-        if (favouritePictures.indexOf($('#add-picture-address').val()) === -1) {
-            if ($('#add-picture-address').val() !== '') {
-                favouritePictures.push($('#add-picture-address').val());
+    this.addFavouritePicture = function () {
+        if ($('#picture-address').val() !== '') {
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+            if (favouritePictures.indexOf($('#picture-address').val()) === -1) {
+                if ($('#picture-address').val() !== '') {
+                    favouritePictures.push($('#picture-address').val());
+                }
+            } else {
+                makeAlert("Такая картинка уже была добавлена").prependTo(that.$favouritePicturesBodyPanel);
+                $('#picture-address').val('');
+
+                return false;
             }
-        } else {
-            makeAlert("Такая картинка уже была добавлена").prependTo($favouritePicturesBodyPanel);
-            $('#add-picture-address').val('');
+            $('#picture-address').val('');
 
-            return false;
+            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+
+            that.renderFavouritePictures();
         }
-        $('#add-picture-address').val('');
-
-        window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
-
-        renderFavouritePictures();
-
-        return false;
+    };
+    $('#add-picture-btn').on('click', function () {
+        that.addFavouritePicture();
     });
 
-    $('#remove-picture-btn').on('click', function () {
-        favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
-        var removePosition = favouritePictures.indexOf($('#add-picture-address').val());
+    this.removeFavouritePicture = function () {
+        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+        var removePosition = favouritePictures.indexOf($('#picture-address').val());
         if (removePosition !== -1) {
             favouritePictures.splice(removePosition, 1);
 
             window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
 
-            renderFavouritePictures();
+            that.renderFavouritePictures();
         }
 
-        $('#add-picture-address').val('');
-
-        return false;
+        $('#picture-address').val('');
+    };
+    $('#remove-picture-btn').on('click', function () {
+        that.removeFavouritePicture();
     });
 
-    $('#pictures-export').on('click', function () {
+
+    this.exportPictures = function () {
         var $downloadLink = $('<a>')
             .attr({
                 href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(window.localStorage.getItem('favouritePictures') || JSON.stringify([])),
@@ -230,20 +268,28 @@ animachEnhancedApp.addModule('favouritePictures', function (app) {
         $downloadLink[0].click();
 
         $downloadLink.remove();
+    };
+    $('#export-pictures').on('click', function () {
+        that.exportPictures();
     });
 
-    $('#pictures-import').on('change', function (e) {
-        var importFile = e.target.files[0];
-        var favouritePicturesAdressesReader = new FileReader();
 
-        favouritePicturesAdressesReader.addEventListener('load', function(e) {
+    this.importPictures = function (importFile) {
+        var favouritePicturesAddressesReader = new FileReader();
+
+        favouritePicturesAddressesReader.addEventListener('load', function(e) {
             window.localStorage.setItem('favouritePictures', e.target.result);
 
-            renderFavouritePictures();
+            that.renderFavouritePictures();
         });
-
-        favouritePicturesAdressesReader.readAsText(importFile);
-
-        return false;
+        favouritePicturesAddressesReader.readAsText(importFile);
+    };
+    $('#import-pictures').on('change', function () {
+        that.importPictures($(this)[0].files[0]);
     });
+
+
+    this.run = function () {
+        that.renderFavouritePictures();
+    };
 });

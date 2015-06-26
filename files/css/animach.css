@@ -5033,7 +5033,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     z-index: 99999;
     animation: yoba-move 3s infinite ease-out;
 }
-#hidden-player-overlay {
+#player-overlay {
     position: absolute;
     left: 0;
     top: 0;

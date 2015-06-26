@@ -1,5 +1,8 @@
-animachEnhancedApp.addModule('navMenuTabs', function () {
-    var addTabInput = function ($tabsArea, tabName, tabValue) {
+cytubeEnhanced.setModule('navMenuTabs', function () {
+    var that = this;
+
+
+    this.addTabInput = function ($tabsArea, tabName, tabValue) {
         tabName = tabName || '';
         tabValue = tabValue || '';
 
@@ -19,8 +22,8 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
             .appendTo($tabValueWrapper);
     };
 
-    var tabsConfigToHtml = function (channelDescription, tabsConfig) {
-        console.log(tabsConfig);
+
+    this.tabsConfigToHtml = function (channelDescription, tabsConfig) {
         var $virtualMainWrapper = $('<div>');
 
         if (channelDescription !== undefined && channelDescription !== '') {
@@ -71,10 +74,11 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
         return $virtualMainWrapper.html();
     };
 
-    var tabsHtmlToCondig = function () {
-        $tabsArea.empty();
 
-        var $tabsTree = $('<div>').html($('#cs-motdtext').val());
+    this.tabsHtmlToCondig = function (htmlCode) {
+        that.$tabsArea.empty();
+
+        var $tabsTree = $('<div>').html(htmlCode);
         var $tabsTreeNavBtns = $tabsTree.find('#motd-tabs').children();
         var $tabsTreeTabsContent = $tabsTree.find('#motd-tabs-content');
 
@@ -92,78 +96,84 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
                 });
                 parsedDropdownItems = parsedDropdownItems.slice(0, -2);
 
-                addTabInput($tabsArea, '!dropdown!' + $(this).children('button').html().replace(' <span class="caret"></span>', ''), parsedDropdownItems);
+                that.addTabInput(that.$tabsArea, '!dropdown!' + $(this).children('button').html().replace(' <span class="caret"></span>', ''), parsedDropdownItems);
             } else {
-                addTabInput($tabsArea, $(this).html(), $tabsTreeTabsContent.find('[data-tab-index="' + $(this).data('tabIndex') + '"]').html());
+                that.addTabInput(that.$tabsArea, $(this).html(), $tabsTreeTabsContent.find('[data-tab-index="' + $(this).data('tabIndex') + '"]').html());
             }
         });
     };
 
-    var fixMotdCut = function () {
-        var cutMap = {
-            '<iframe $1>$2</iframe>': /\[iframe(.*?)\](.*?)[/iframe]]/g
-        };
 
+    this.motdCutMap = {
+        '<iframe $1>$2</iframe>': /\[iframe(.*?)\](.*?)[/iframe]]/g
+    };
+    this.fixMotdCut = function () {
         $('#motd-tabs-content').find('.motd-tab-content').each(function () {
-            for (var tag in cutMap) {
-                $(this).html($(this).html().replace(cutMap[tag], tag));
+            for (var tag in that.motdCutMap) {
+                $(this).html($(this).html().replace(that.motdCutMap[tag], tag));
             }
         });
     };
 
 
-
-    var $tabSettingsBtn = $('<button type="button" class="btn btn-primary motd-bottom-btn" id="show-tabs-settings">Показать настройки вкладок</button>')
+    this.$tabSettingsBtn = $('<button type="button" class="btn btn-primary motd-bottom-btn" id="show-tabs-settings">')
+        .text('Показать настройки вкладок')
         .appendTo('#cs-motdeditor')
         .on('click', function () {
             if ($(this).hasClass('btn-primary')) {
-                $tabsSettings.show();
+                that.$tabsSettings.show();
 
                 $(this).removeClass('btn-primary');
                 $(this).addClass('btn-success');
             } else {
-                $tabsSettings.hide();
+                that.$tabsSettings.hide();
 
                 $(this).removeClass('btn-success');
                 $(this).addClass('btn-primary');
             }
         });
 
-    var $tabsSettings = $('<div id="tabs-settings">')
+
+    this.$tabsSettings = $('<div id="tabs-settings">')
         .html('<hr><h3>Настройка вкладок</h3>')
         .insertBefore('#cs-motdtext')
         .hide();
 
     $('#cs-motdtext').before('<hr>');
 
-    var $channelDescriptionInputWrapper = $('<div class="form-group">').appendTo($tabsSettings);
-    var $channelDescriptionLabel = $('<label for="channel-description-input">Описание канала</label>').appendTo($channelDescriptionInputWrapper);
-    var $channelDescriptionInput = $('<input id="channel-description-input" placeholder="Описание канала" class="form-control">').appendTo($channelDescriptionInputWrapper);
 
-    var $tabsArea = $('<div id="tabs-settings-area">')
-        .appendTo($tabsSettings);
+    this.$channelDescriptionInputWrapper = $('<div class="form-group">').appendTo(this.$tabsSettings);
+    this.$channelDescriptionLabel = $('<label for="channel-description-input">Описание канала</label>').appendTo(this.$channelDescriptionInputWrapper);
+    this.$channelDescriptionInput = $('<input id="channel-description-input" placeholder="Описание канала" class="form-control">').appendTo(this.$channelDescriptionInputWrapper);
 
-    $tabsArea.before('<p>Вкладки</p>');
 
-    var $addTabToTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-add">Добавить вкладку</button>')
-        .appendTo($tabsSettings)
+    this.$tabsArea = $('<div id="tabs-settings-area">').appendTo(this.$tabsSettings);
+
+    $('<p>Вкладки</p>').insertBefore(this.$tabsArea);
+
+
+    this.$addTabToTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-add">Добавить вкладку</button>')
+        .appendTo(this.$tabsSettings)
         .on('click', function () {
-            addTabInput($tabsArea);
+            that.addTabInput(that.$tabsArea);
         });
 
-    var $removeLastTabFromTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-remove">Удалить последнюю вкладку</button>')
-        .appendTo($tabsSettings)
+
+    this.$removeLastTabFromTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-remove">Удалить последнюю вкладку</button>')
+        .appendTo(this.$tabsSettings)
         .on('click', function () {
-            $tabsArea.children('.tab-option-wrapper').last().remove();
+            that.$tabsArea.children('.tab-option-wrapper').last().remove();
         });
 
-    var $tabsToHtml = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-to-html">Преобразовать в код редактора</button>')
-        .appendTo($tabsSettings)
+
+    this.$tabsToHtml = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-to-html">')
+        .text('Преобразовать в код редактора')
+        .appendTo(this.$tabsSettings)
         .on('click', function () {
             if (confirm('Код в редакторе будет удалён и заменен новым, продолжить?')) {
                 var tabsConfig = []; //list of arrays like [tabTitle, tabContent]
 
-                $tabsArea.find('.tab-option-wrapper').each(function () {
+                that.$tabsArea.find('.tab-option-wrapper').each(function () {
                     var tabName = $(this).find('input[name="title"]').val().trim();
                     var tabContent = $(this).find('input[name="content"]').val().trim();
 
@@ -184,74 +194,62 @@ animachEnhancedApp.addModule('navMenuTabs', function () {
                 });
 
 
-                $('#cs-motdtext').val(tabsConfigToHtml($channelDescriptionInput.val(), tabsConfig));
+                $('#cs-motdtext').val(that.tabsConfigToHtml(that.$channelDescriptionInput.val(), tabsConfig));
             }
         });
 
-    var $htmlToTabs = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-from-html">Преобразовать из кода редактора</button>')
-        .appendTo($tabsSettings)
+
+    this.$htmlToTabs = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-from-html">')
+        .text('Преобразовать из кода редактора')
+        .appendTo(this.$tabsSettings)
         .on('click', function () {
-            tabsHtmlToCondig();
+            that.tabsHtmlToCondig($('#cs-motdtext').val());
         });
 
 
+    this.showMotdTab = function ($tabBtn) {
+        var $tabContent = $('#motd-tabs-content').find('[data-tab-index="' + $tabBtn.data('tabIndex') + '"]');
 
-    $(document.body).on('click', '#motd-tabs .motd-tab-btn', function () {
-        var $tabContent = $('#motd-tabs-content').find('[data-tab-index="' + $(this).data('tabIndex') + '"]');
-
-        if ($(this).hasClass('btn-default')) { //closed
+        if ($tabBtn.hasClass('btn-default')) { //closed
             $('.motd-tab-content').hide();
             $tabContent.show();
 
             $('.motd-tab-btn').removeClass('btn-success');
             $('.motd-tab-btn').addClass('btn-default');
 
-            $(this).removeClass('btn-default');
-            $(this).addClass('btn-success');
+            $tabBtn.removeClass('btn-default');
+            $tabBtn.addClass('btn-success');
         } else { //opened
             $tabContent.hide();
 
-            $(this).removeClass('btn-success');
-            $(this).addClass('btn-default');
+            $tabBtn.removeClass('btn-success');
+            $tabBtn.addClass('btn-default');
         }
+    };
+    $(document.body).on('click', '#motd-tabs .motd-tab-btn', function () {
+        that.showMotdTab($(this));
     });
 
-    $(document.body).on('click', '#motd-tabs .dropdown-toggle', function () {
+
+    this.motdHandleDropdown = function () {
         $('.motd-tab-btn').removeClass('btn-success');
         $('.motd-tab-btn').addClass('btn-default');
 
         $('.motd-tab-content').hide();
+    };
+    $(document.body).on('click', '#motd-tabs .dropdown-toggle', function () {
+        that.motdHandleDropdown();
     });
 
 
+    this.run = function () {
+        that.tabsHtmlToCondig($('#cs-motdtext').val());
 
-    tabsHtmlToCondig();
+        that.fixMotdCut();
 
-    fixMotdCut();
-    socket.on('setMotd', function () {
-        fixMotdCut();
-    });
-
-
-
-
-    //var $channelDescription = $('<h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1>');
-
-    //если ключ начинается с подстроки !dropdown!, то создаётся кнопка с выпадающим меню, в котором содержатся ссылки из массива значения ключа
-    //var tabsArray = [
-    //    ['Расписание', '<div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;"></div>'],
-    //    ['FAQ и правила', '<strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br/>Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png">.<br/><br/><strong>Страница загружается, но не происходит подключение</strong><br/>Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br/><br/><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br/>Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br/><br/><strong>Как отправлять смайлики</strong><br/>Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br/><br/><strong>Как пользоваться личными сообщениями?</strong><br/>Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br/><br/<strong>Как добавить свое видео в плейлист?</strong><br/>Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br/><br/><strong>Как проголосовать за пропуск видео?</strong><br/>Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png">. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br/><br/><strong>Почему я не могу проголосовать за пропуск?</strong><br/>Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br/><br/><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br/>Наводим курсор на название видео в плейлисте.<br/><br/><strong>Как пользоваться поиском видео?</strong><br/>Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png"> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br/><br/><strong>Список поддерживаемых URL:</strong><br/>* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br/>* Vimeo - <code>http://vimeo.com/(videoid)</code><br/>* Soundcloud - <code>http://soundcloud.com/(songname)</code><br/>* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br/>* TwitchTV - <code>http://twitch.tv/(stream)</code><br/>* JustinTV - <code>http://justin.tv/(stream)</code><br/>* Livestream - <code>http://livestream.com/(stream)</code><br/>* UStream - <code>http://ustream.tv/(channel)</code><br/>* RTMP Livestreams - <code>rtmp://(stream server)</code><br/>* JWPlayer - <code>jw:(stream url)</code><br/><br/><strong>Ранговая система:</strong><br/>* Администратор сайта - Красный, розовый, фиолетовый<br/>* Администратор канала - Голубой<br/>* Модератор канала - Зеленый<br/>* Пользователь - Белый<br/>* Гость - Серый<br/><br/><strong>Правила:</strong><br/>Не злоупотреблять смайлами<br/>Не вайпать чат и плейлист<br/>Не спамить ссылками<br/>Не спойлерить<br/>Обсуждение политики - /po<br/>'],
-    //    ['Список реквестов', '<div class="text-center"><iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"></iframe></div>'],
-    //    ['Реквестировать аниме', '<div class="text-center"><iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма &quot;Таблица Google&quot;" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"></iframe></div>'],
-    //    ['!dropdown!Наши ссылки', {
-    //        'MAL': 'http://myanimelist.net/animelist/animachtv',
-    //        'Наша доска': 'https://2ch.hk/tvch/',
-    //        'Твиттер': 'https://twitter.com/2ch_tv',
-    //        'ВК': 'http://vk.com/tv2ch'
-    //    }]
-    //];
+        socket.on('setMotd', function () {
+            that.fixMotdCut();
+        });
+    };
 });
-
-
-
 //<div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>

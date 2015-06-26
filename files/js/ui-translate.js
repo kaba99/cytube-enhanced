@@ -1,4 +1,4 @@
-animachEnhancedApp.addModule('uiTranslate', function () {
+cytubeEnhanced.setModule('uiTranslate', function () {
     if ($('#newpollbtn').length !== 0) {
         $('#newpollbtn').text('Создать опрос');
     }

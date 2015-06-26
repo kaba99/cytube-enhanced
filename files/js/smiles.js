@@ -1,4 +1,7 @@
-animachEnhancedApp.addModule('smiles', function (app) {
+cytubeEnhanced.setModule('smiles', function (app) {
+    var that = this;
+
+
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
     }
@@ -7,37 +10,54 @@ animachEnhancedApp.addModule('smiles', function (app) {
         $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
     }
 
+
     $('#emotelistbtn').hide();
 
-    var $smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="Показать смайлики">')
-        .html('<i class="glyphicon glyphicon-picture"></i>')
-        .prependTo($('#chat-controls'));
 
-    var $smilesPanel = $('<div id="smiles-panel">')
-        .prependTo($('#chat-panel'))
+    this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="Показать смайлики">')
+        .html('<i class="glyphicon glyphicon-picture"></i>')
+        .prependTo('#chat-controls');
+
+
+    this.$smilesPanel = $('<div id="smiles-panel">')
+        .prependTo('#chat-panel')
         .hide();
 
-    var rendersmiles = function () {
+
+    this.renderSmiles = function () {
         var smiles = CHANNEL.emotes;
 
-        for (var n = 0, smilesLen = smiles.length; n < smilesLen; n++) {
-            $('<img onclick="insertText(\' ' + smiles[n].name + ' \')">')
-                 .attr({src: smiles[n].image})
-                  .appendTo($smilesPanel);
+        for (var smileIndex = 0, smilesLen = smiles.length; smileIndex < smilesLen; smileIndex++) {
+            $('<img class="smile-on-panel">')
+                .attr({src: smiles[smileIndex].image})
+                .data('name', smiles[smileIndex].name)
+                .appendTo(that.$smilesPanel);
         }
     };
-    rendersmiles();
 
-    $smilesBtn.on('click', function() {
-        var isSmilesAndPictures = app.permittedModules.userConfig === true && app.modules.userConfig !== undefined && app.modules.userConfig.options['smiles-and-pictures'] === true;
 
-        if ($('#favourite-pictures-panel').length !== 0 && !isSmilesAndPictures) {
+    this.insertSmile = function (smileName) {
+        app.getModule('utils').done(function (utilsModule) {
+            utilsModule.insertText(' ' + smileName + ' ');
+        });
+    };
+    $(document.body).on('click', '.smile-on-panel', function () {
+        that.insertSmile($(this).data('name'));
+    });
+
+
+    this.$smilesBtn.on('click', function() {
+        var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
+
+        console.log(smilesAndPicturesTogether);
+
+        if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#favourite-pictures-panel').hide();
         }
 
-        $smilesPanel.toggle();
+        that.$smilesPanel.toggle();
 
-        if (!isSmilesAndPictures) {
+        if (!smilesAndPicturesTogether) {
             if ($(this).hasClass('btn-default')) {
                 if ($('#favourite-pictures-btn').length !== 0 && $('#favourite-pictures-btn').hasClass('btn-success')) {
                     $('#favourite-pictures-btn').removeClass('btn-success');
@@ -52,4 +72,9 @@ animachEnhancedApp.addModule('smiles', function (app) {
             }
         }
     });
+
+
+    this.run = function () {
+        that.renderSmiles();
+    };
 });

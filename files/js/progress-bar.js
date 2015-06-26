@@ -1,11 +1,17 @@
-animachEnhancedApp.addModule('progressBar', function () {
-    var $titlerow = $('<div id="titlerow" class="row" />').insertBefore("#main");
-	var $titlerowouter = $('<div id="titlerow-outer" class="col-md-12" />')
-        .html($("#currenttitle").text($(".queue_active a").text() !== '' ? $("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:') : '').detach())
-        .appendTo($titlerow);
-	var $mediainfo = $('<p id="mediainfo">').prependTo("#videowrap");
+cytubeEnhanced.setModule('progressBar', function () {
+    var that = this;
 
-    var showPlaylistInfo = function () {
+
+    this.$titleRow = $('<div id="titlerow" class="row">').insertBefore('#main');
+
+	this.$titleRowOuter = $('<div id="titlerow-outer" class="col-md-12" />')
+        .html($("#currenttitle").text($(".queue_active a").text() !== '' ? $("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:') : '').detach())
+        .appendTo(this.$titleRow);
+
+    this.$mediaInfo = $('<p id="mediainfo">').prependTo("#videowrap");
+
+
+    this.showPlaylistInfo = function () {
 //        $("#currenttitle").text($("#currenttitle").text().replace('Currently Playing:', 'Сейчас: '));
 //
 //        var infoString = 'СЛЕДУЩЕЕ:';
@@ -22,18 +28,24 @@ animachEnhancedApp.addModule('progressBar', function () {
 //            infoString += ' // КОНЕЦ ПЛЕЙЛИСТА //';
 //        }
 //
-//		$mediainfo.html('<marquee scrollamount="5">' + infoString + '</marquee>');
+//		$mediaInfo.html('<marquee scrollamount="5">' + infoString + '</marquee>');
         if ($(".queue_active").length !== 0) {
             $("#currenttitle").text($("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:'));
 
-            $mediainfo.text($('.queue_active').attr('title').replace('Added by', 'Добавлено'));
+            that.$mediaInfo.text($('.queue_active').attr('title').replace('Added by', 'Добавлено'));
         } else {
             $("#currenttitle").text('');
 
-            $mediainfo.text('Ничего не воспроизводится');
+            that.$mediaInfo.text('Ничего не воспроизводится');
         }
     };
-    showPlaylistInfo();
 
-    socket.on("changeMedia", showPlaylistInfo);
+
+    this.run = function () {
+        that.showPlaylistInfo();
+
+        socket.on("changeMedia", function () {
+            that.showPlaylistInfo();
+        });
+    };
 });
