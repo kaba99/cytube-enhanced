@@ -1,39 +1,16 @@
-function CytubeEnhanced(permittedModules) {
+function CytubeEnhanced(modulesSettings) {
+    modulesSettings = modulesSettings || {};
+
+    var modulesConstructors = {};
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 10000; //ms
     var MODULE_LOAD_PERIOD = 100; //ms
 
-    /**
-     * Sets the module and run it if it is permitted
-     *
-     * Module should have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedBinds object
-     * Example of cytubeEnhancedBinds: {'myModuleName1': {beforeRun: function(module), afterRun: function(module)}, 'myModuleName2': {beforeRun: function(module), afterRun: function(module)}}
-     *
-     * @param moduleName The name of the module
-     * @param moduleConstructor The name of the module's constructor
-     */
-    this.setModule = function (moduleName, moduleConstructor) {
-        if (this.isModulePermitted(moduleName)) {
-            modules[moduleName] = new moduleConstructor(this);
-
-            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].beforeRun !== undefined) {
-                cytubeEnhancedBinds[moduleName].beforeRun(modules[moduleName]);
-            }
-
-            if (modules[moduleName].run !== undefined) {
-                modules[moduleName].run();
-            }
-
-            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].afterRun !== undefined) {
-                cytubeEnhancedBinds[moduleName].afterRun(modules[moduleName]);
-            }
-        }
-    };
 
     /**
-     * Loads the module
+     * Gets the module
      *
-     * Returns the $.Deferred() object or exception if timeout
+     * Returns the $.Deferred() object or throws exception if timeout
      *
      * @param {string} moduleName The name of the module
      * @returns {object}
@@ -57,6 +34,45 @@ function CytubeEnhanced(permittedModules) {
         return promise;
     };
 
+
+    /**
+     * Sets the module and run it if it is permitted
+     *
+     * Module should have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedBinds object
+     * Example of cytubeEnhancedBinds: {'myModuleName1': {beforeRun: function(module), afterRun: function(module)}, 'myModuleName2': {beforeRun: function(module), afterRun: function(module)}}
+     *
+     * @param {string} moduleName The name of the module
+     * @param moduleConstructor The name of the module's constructor
+     */
+    this.setModule = function (moduleName, moduleConstructor) {
+        modulesConstructors[moduleName] = moduleConstructor;
+    };
+
+
+    /**
+     * Runs the module
+     * @param {string} moduleName The name of the module
+     */
+    this.runModule = function (moduleName) {
+        if (this.isModulePermitted(moduleName)) {
+            modules[moduleName] = new modulesConstructors[moduleName](this, modulesSettings[moduleName]);
+            modules[moduleName].settings = modulesSettings[moduleName];
+
+            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].beforeRun !== undefined) {
+                cytubeEnhancedBinds[moduleName].beforeRun(modules[moduleName]);
+            }
+
+            if (modules[moduleName].run !== undefined) {
+                modules[moduleName].run();
+            }
+
+            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].afterRun !== undefined) {
+                cytubeEnhancedBinds[moduleName].afterRun(modules[moduleName]);
+            }
+        }
+    };
+
+
     /**
      * Checks if module is permitted
      *
@@ -64,21 +80,68 @@ function CytubeEnhanced(permittedModules) {
      * @returns {boolean}
      */
     this.isModulePermitted = function (moduleName) {
-        return permittedModules[moduleName] || false;
+        return modulesSettings[moduleName] !== undefined ?
+            (modulesSettings[moduleName].enabled || false) :
+            false;
+    };
+
+
+    /**
+     * Runs the application
+     */
+    this.run = function () {
+        for (var moduleName in modulesConstructors) {
+            this.runModule(moduleName);
+        }
     };
 }
 
 
-var cytubeEnhanced = new CytubeEnhanced({
-    utils: true,
-    chatHelp: true,
-    favouritePictures: true,
-    smiles: true,
-    videoControls: true,
-    progressBar: true,
-    chatCommands: true,
-    chatControls: true,
-    uiTranslate: true,
-    navMenuTabs: true,
-    userConfig: true
+cytubeEnhanced = new CytubeEnhanced({
+    utils: {
+        enabled: true,
+        unfixedTopNavbar: true,
+        insertUsernameOnClick: true
+    },
+    chatHelp: {
+        enabled: true
+    },
+    favouritePictures: {
+        enabled: true
+    },
+    smiles: {
+        enabled: true
+    },
+    videoControls: {
+        enabled: true,
+        turnOffVideoOption: true,
+        selectQualityOption: true,
+        youtubeFlashPlayerForGoogleDocsOption: true,
+        expandPlaylistOption: true,
+        showVideoContributorsOption: true
+    },
+    showVideoInfo: {
+        enabled: true
+    },
+    chatCommands: {
+        enabled: true,
+        additionalPermittedCommands: ['*']
+    },
+    chatControls: {
+        enabled: true,
+        afkButton: true,
+        clearChatButton: true
+    },
+    uiTranslate: {
+        enabled: true
+    },
+    navMenuTabs: {
+        enabled: true
+    },
+    userConfig: {
+        enabled: true,
+        layoutConfigButton: true,
+        smilesAndPicturesTogetherButton: true,
+        minimizeButton: true
+    }
 });

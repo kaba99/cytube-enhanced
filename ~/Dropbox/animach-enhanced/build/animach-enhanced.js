@@ -903,16 +903,15 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
         '"': '&quot;',
         "'": '&#39;'
     };
-    this.replaceUnsafeSymbol = function (symbol) {
-        return that.entityMap[symbol];
-    };
     this.renderFavouritePictures = function () {
         var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
         that.$favouritePicturesBodyPanel.empty();
 
         for (var n = 0, favouritePicturesLen = favouritePictures.length; n < favouritePicturesLen; n++) {
-            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, that.replaceUnsafeSymbol);
+            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, function (symbol) {
+                return that.entityMap[symbol];
+            });
 
             $('<img class="favourite-picture-on-panel">').attr({src: escapedAddress}).appendTo(that.$favouritePicturesBodyPanel);
         }
@@ -980,21 +979,20 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
                 .appendTo($modalPictureOptions);
 
 
-            var scaleFactor = 1;
-            if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
-                if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
-                    scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-                } else {
+            if (pictureWidth > document.documentElement.clientWidth || pictureHeight > document.documentElement.clientHeight) {
+                var scaleFactor;
+                if (pictureWidth > pictureHeight) {
                     scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-                }
-            } else if (pictureHeight > document.documentElement.clientHeight) {
-                scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-            } else if (pictureWidth > document.documentElement.clientWidth) {
-                scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-            }
 
-            pictureHeight /= scaleFactor;
-            pictureWidth /= scaleFactor;
+                    pictureHeight /= scaleFactor;
+                    pictureWidth /= scaleFactor;
+                } else {
+                    scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+
+                    pictureHeight /= scaleFactor;
+                    pictureWidth /= scaleFactor;
+                }
+            }
 
             $modalPicture.css({
                 width: pictureWidth,
@@ -1058,6 +1056,8 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     };
     $(document.body).on('keydown', function (e) {
         that.closePictureByEscape(e);
+
+        return false;
     });
 
 
@@ -1502,6 +1502,8 @@ cytubeEnhanced.setModule('smiles', function (app) {
 
     this.$smilesBtn.on('click', function() {
         var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
+
+        console.log(smilesAndPicturesTogether);
 
         if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#favourite-pictures-panel').hide();
@@ -2021,9 +2023,9 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         $.when(app.getModule('smiles'), app.getModule('favouritePictures')).then(function () {
             that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
                 .append($('<div class="col-lg-3 col-md-3 control-label">Общее</div>'))
-                .appendTo(that.$configBody);
-            that.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(that.$commonConfigForm);
-            that.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(that.$commonConfigWrapper);
+                .appendTo(this.$configBody);
+            that.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$commonConfigForm);
+            that.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(this.$commonConfigWrapper);
 
 
             that.toggleSmilesAndPictures = function () {
@@ -2189,9 +2191,7 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
             $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
         }
 
-        setTimeout(function () {
-            handleWindowResize(); //chat height fix because our css loads later than cytube script calculates height
-        }, 3000);
+        handleWindowResize(); //chat height fix because our css loads later than cytube script calculates height
     };
 });
 

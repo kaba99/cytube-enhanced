@@ -1,4 +1,4 @@
-cytubeEnhanced.setModule('progressBar', function () {
+cytubeEnhanced.setModule('showVideoInfo', function () {
     var that = this;
 
 

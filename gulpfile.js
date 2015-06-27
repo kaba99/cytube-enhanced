@@ -12,7 +12,7 @@ var shell = require('gulp-shell');
 gulp.task('default', ['combine-js', 'combine-css']);
 
 gulp.task('combine-js', function () {
-    return gulp.src(['./files/js/main.js', './files/js/jquery.mousewheel.js', './files/js/*.js'])
+    return gulp.src(['./files/js/main.js', './files/js/jquery.mousewheel.js', './files/js/modules/*.js', './files/js/main-run.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(concat('animach-enhanced.js'))
@@ -40,7 +40,7 @@ gulp.task('combine-css', function () {
 
 
 gulp.task('clean-css', function () {
-    return gulp.src(['./files/css/animach.css', './files/css/*.css'])
+    return gulp.src(['./files/css/*.css'])
         .pipe(minifyCss({
             compatibility: 'ie8',
             keepBreaks: true,

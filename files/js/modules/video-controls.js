@@ -1,5 +1,137 @@
-cytubeEnhanced.setModule('videoControls', function (app) {
+cytubeEnhanced.setModule('videoControls', function (app, settings) {
     var that = this;
+
+    var defaultSettings = {
+        turnOffVideoOption: true,
+        selectQualityOption: true,
+        youtubeFlashPlayerForGoogleDocsOption: true,
+        expandPlaylistOption: true,
+        showVideoContributorsOption: true
+    };
+    settings = $.extend(defaultSettings, settings);
+
+
+    //Only for Google drive
+    //https://developers.google.com/youtube/js_api_reference
+    this.youtubeJavascriptPlayerForGoogleDrive = function (data) {
+        var that = this;
+
+        that.videoId = data.id;
+        that.videoLength = data.seconds;
+
+        that.init = function () {
+            removeOld();
+
+            that.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30&version=3'; //Basic URL to the Player
+            that.videoURL += '&docid=' + that.videoId; //Specify the fileID of the file to show
+            that.videoURL += '&autoplay=1';
+            that.videoURL += '&fs=1';
+            that.videoURL += '&showinfo=0';
+            that.videoURL += '&rel=0';
+            that.videoURL += '&vq=' + (USEROPTS.default_quality || "auto");
+            that.videoURL += '&start=' + parseInt(data.currentTime, 10);
+            that.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
+            that.videoURL += '&playerapiid=' + that.videoId; //Give the video player the same name as the video for future reference
+            that.videoURL += '&cc_load_policy=0'; //No caption on this video (not supported for Google Drive Videos)
+
+            var atts = {
+                id: "ytapiplayer"
+            };
+            var params = {
+                allowScriptAccess: "always",
+                allowFullScreen: "true"
+            };
+            swfobject.embedSWF(that.videoURL,
+                "ytapiplayer",
+                VWIDTH,
+                VHEIGHT,
+                "8",
+                null,
+                null,
+                params,
+                atts);
+
+            onYouTubePlayerReady = function (playerId) {
+                that.player = $('#ytapiplayer')[0];
+                that.player.addEventListener("onStateChange", "onytplayerStateChange");
+            };
+
+            onytplayerStateChange = function (newState) {
+                var statesMap = {
+                    '-1': 'beforeVideo',
+                    0: 'end',
+                    1: 'play',
+                    2: 'pause',
+                    3: 'buf',
+                    5: 'queue'
+                };
+
+
+                if (statesMap[newState] === 'beforeVideo') {
+                    that.setVolume(VOLUME);
+                } else if (statesMap[newState] === 'play') {
+                    PLAYER.paused = false;
+
+                    if (CLIENT.leader) {
+                        sendVideoUpdate();
+                    }
+                } else if (statesMap[newState] === 'pause') {
+                    PLAYER.paused = true;
+
+                    if (CLIENT.leader) {
+                        sendVideoUpdate();
+                    }
+                } else if (statesMap[newState] === 'end') {
+                    if (CLIENT.leader) {
+                        socket.emit("playNext");
+                    }
+                }
+            };
+        };
+
+        that.load = function (data) {
+            that.videoId = data.id;
+            that.videoLength = data.seconds;
+            that.init();
+        };
+
+        that.pause = function () {
+            if (that.player && that.player.pauseVideo) {
+                that.player.pauseVideo();
+            }
+        };
+
+        that.play = function () {
+            if (that.player && that.player.playVideo) {
+                that.player.playVideo();
+            }
+        };
+
+        that.getTime = function (callback) {
+            if (that.player && that.player.getCurrentTime) {
+                var t = parseFloat(that.player.getCurrentTime());
+                callback(t);
+            }
+        };
+
+        that.seek = function (time) {
+            if (that.player.seekTo) {
+                that.player.seekTo(time);
+            }
+        };
+
+        that.getVolume = function (callback) {
+            if (that.player && that.player.getVolume) {
+                callback(that.player.getVolume() / 100);
+            }
+        };
+
+        that.setVolume = function (volume) {
+            that.player.setVolume(volume * 100);
+        };
+
+        that.init();
+    };
 
 
     $('#mediarefresh').hide();
@@ -45,6 +177,9 @@ cytubeEnhanced.setModule('videoControls', function (app) {
         .on('click', function() {
             that.hidePlayer($(this));
         });
+    if (!settings.turnOffVideoOption) {
+        this.$hidePlayerBtn.hide();
+    }
 
 
     this.qualityLabelsTranslate = {
@@ -98,6 +233,9 @@ cytubeEnhanced.setModule('videoControls', function (app) {
 
         return false;
     });
+    if (!settings.selectQualityOption) {
+        this.$videoQualityBtnGroup.hide();
+    }
 
 
     this.settingsFix = function () {
@@ -145,23 +283,6 @@ cytubeEnhanced.setModule('videoControls', function (app) {
     };
 
 
-    //youtubePlaybackQualityChange = function (quality) {
-    //    var youtubeQualityMap = {
-    //        default: 'auto'
-    //    };
-    //
-    //    quality = youtubeQualityMap[quality] !== undefined ?
-    //        youtubeQualityMap[quality] :
-    //        quality;
-    //
-    //    settingsFix();
-    //    $("#us-default-quality").val(quality);
-    //    saveUserOptions();
-    //
-    //    $videoQualityBtnGroup.find('button').html('Качество: ' + qualityLabelsTranslate[quality] + ' <span class="caret"></span>');
-    //};
-
-
     this.toggleGoogleDrivePlayer = function ($youtubeJavascriptPlayerBtn) {
         that.YOUTUBE_JS_PLAYER_TURNED_ON = !that.YOUTUBE_JS_PLAYER_TURNED_ON;
         setOpt(CHANNEL.name + '_config-yt-js-player', that.YOUTUBE_JS_PLAYER_TURNED_ON);
@@ -182,6 +303,9 @@ cytubeEnhanced.setModule('videoControls', function (app) {
         .on('click', function() {
             that.toggleGoogleDrivePlayer($(this));
         });
+    if (!settings.youtubeFlashPlayerForGoogleDocsOption) {
+        this.$youtubeJavascriptPlayerBtn.hide();
+    }
 
 
     this.PLAYLIST_HEIGHT = 500;
@@ -210,6 +334,9 @@ cytubeEnhanced.setModule('videoControls', function (app) {
         .on('click', function() {
             that.expandPlaylist($(this));
         });
+    if (!settings.expandPlaylistOption) {
+        this.$expandPlaylistBtn.hide();
+    }
 
 
     this.$scrollToCurrentBtn = $('<button id="scroll-to-current-btn" class="btn btn-sm btn-default" title="Прокрутить плейлист к текущему видео">')
@@ -252,34 +379,36 @@ cytubeEnhanced.setModule('videoControls', function (app) {
         .on('click', function() {
             that.showVideoContributorsList();
         });
+    if (!settings.showVideoContributorsOption) {
+        this.$videoContributorsBtn.hide();
+    }
 
 
     this.handleGoogleDrivePlayer = function (data) {
         if (that.YOUTUBE_JS_PLAYER_TURNED_ON && data.type === 'fi' && /google/.test(data.url)) {
             that.YOUTUBE_JS_PLAYER_NOW = true;
 
-            app.getModule('utils').done(function (utilsModule) {
-                PLAYER = new utilsModule.youtubeJavascriptPlayerForGoogleDrive(data);
-                PLAYER.type = data.type;
-            });
+            PLAYER = new that.youtubeJavascriptPlayerForGoogleDrive(data);
+            PLAYER.type = data.type;
         } else {
             that.YOUTUBE_JS_PLAYER_NOW = false;
         }
     };
 
-
     this.run = function () {
-        that.YOUTUBE_JS_PLAYER_TURNED_ON = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
+        if (settings.youtubeFlashPlayerForGoogleDocsOption) {
+            that.YOUTUBE_JS_PLAYER_TURNED_ON = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
 
-        socket.on('changeMedia', function (data) {
-            that.handleGoogleDrivePlayer(data);
-        });
+            socket.on('changeMedia', function (data) {
+                that.handleGoogleDrivePlayer(data);
+            });
 
-        if (this.YOUTUBE_JS_PLAYER_TURNED_ON) {
-            that.$youtubeJavascriptPlayerBtn.removeClass('btn-default');
-            that.$youtubeJavascriptPlayerBtn.addClass('btn-success');
+            if (that.YOUTUBE_JS_PLAYER_TURNED_ON) {
+                that.$youtubeJavascriptPlayerBtn.removeClass('btn-default');
+                that.$youtubeJavascriptPlayerBtn.addClass('btn-success');
 
-            that.$refreshVideoBtn.click();
+                that.$refreshVideoBtn.click();
+            }
         }
     };
 });

@@ -1,5 +1,11 @@
-cytubeEnhanced.setModule('chatControls', function () {
+cytubeEnhanced.setModule('chatControls', function (app, settings) {
     var that = this;
+
+    var defaultSettings = {
+        afkButton: true,
+        clearChatButton: true
+    };
+    settings = $.extend(defaultSettings, settings);
 
 
     this.handleAfk = function (data) {
@@ -24,6 +30,9 @@ cytubeEnhanced.setModule('chatControls', function () {
         .on('click', function () {
             that.handleAfkBtn();
         });
+    if (!settings.afkButton) {
+        this.$afkBtn.hide();
+    }
 
 
     this.handleClearBtn = function () {
@@ -37,25 +46,26 @@ cytubeEnhanced.setModule('chatControls', function () {
         .on('click', function () {
             that.handleClearBtn();
         });
-
-    if (hasPermission("chatclear")) {
-        this.$clearChatBtn.show();
-    } else {
+    if (!hasPermission("chatclear") || !settings.clearChatButton) {
         this.$clearChatBtn.hide();
     }
 
 
     this.run = function () {
-        socket.on('setAFK', function (data) {
-            that.handleAfk(data);
-        });
+        if (settings.afkButton) {
+            socket.on('setAFK', function (data) {
+                that.handleAfk(data);
+            });
+        }
 
-        socket.on('setUserRank', function () {
-            if (hasPermission("chatclear")) {
-                that.$clearChatBtn.show();
-            } else {
-                that.$clearChatBtn.hide();
-            }
-        });
+        if (settings.clearChatButton) {
+            socket.on('setUserRank', function () {
+                if (hasPermission("chatclear")) {
+                    that.$clearChatBtn.show();
+                } else {
+                    that.$clearChatBtn.hide();
+                }
+            });
+        }
     };
 });

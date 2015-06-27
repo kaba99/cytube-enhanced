@@ -38,7 +38,7 @@ cytubeEnhanced.setModule('smiles', function (app) {
 
     this.insertSmile = function (smileName) {
         app.getModule('utils').done(function (utilsModule) {
-            utilsModule.insertText(' ' + smileName + ' ');
+            utilsModule.addMessageToChatInput(' ' + smileName + ' ', 'end');
         });
     };
     $(document.body).on('click', '.smile-on-panel', function () {
@@ -48,8 +48,6 @@ cytubeEnhanced.setModule('smiles', function (app) {
 
     this.$smilesBtn.on('click', function() {
         var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
-
-        console.log(smilesAndPicturesTogether);
 
         if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#favourite-pictures-panel').hide();

@@ -1,5 +1,13 @@
-cytubeEnhanced.setModule('chatCommands', function () {
+cytubeEnhanced.setModule('chatCommands', function (app, settings) {
     var that = this;
+
+    var defaultSettings = {
+        additionalPermittedCommands: ['*']
+    };
+    settings = $.extend(defaultSettings, settings);
+    function isAdditionalCommandPermitted(commandName) {
+        return $(settings.additionalPermittedCommands).not(['*']).length === 0 && $(['*']).not(settings.additionalPermittedCommands).length === 0 || settings.additionalPermittedCommands.indexOf(commandName) !== -1 || false;
+    }
 
 
     this.askAnswers = ["100%", "Определенно да", "Да", "Вероятно", "Ни шанса", "Определенно нет", "Вероятность мала", "Нет", "50/50", "Фея устала и отвечать не будет", "Отказываюсь отвечать"];
@@ -234,9 +242,11 @@ cytubeEnhanced.setModule('chatCommands', function () {
 
         for (var command in that.commandsList) {
             if (msg.indexOf(command) === 0) {
-                IS_COMMAND = true;
+                if (isAdditionalCommandPermitted(command)) {
+                    IS_COMMAND = true;
 
-                msg = that.commandsList[command](msg);
+                    msg = that.commandsList[command](msg);
+                }
 
                 break;
             }

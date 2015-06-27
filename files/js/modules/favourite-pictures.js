@@ -50,22 +50,23 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
         .appendTo(this.$favouritePicturesControlPanel);
 
 
+    this.entityMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': '&quot;',
+        "'": '&#39;'
+    };
+    this.replaceUnsafeSymbol = function (symbol) {
+        return that.entityMap[symbol];
+    };
     this.renderFavouritePictures = function () {
         var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
         that.$favouritePicturesBodyPanel.empty();
 
-        var entityMap = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': '&quot;',
-            "'": '&#39;'
-        };
         for (var n = 0, favouritePicturesLen = favouritePictures.length; n < favouritePicturesLen; n++) {
-            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, function (symbol) {
-                return entityMap[symbol];
-            });
+            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, that.replaceUnsafeSymbol);
 
             $('<img class="favourite-picture-on-panel">').attr({src: escapedAddress}).appendTo(that.$favouritePicturesBodyPanel);
         }
@@ -74,7 +75,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
 
     this.insertFavouritePicture = function (address) {
         app.getModule('utils').done(function (utilsModule) {
-            utilsModule.insertText(' ' + address + ' ');
+            utilsModule.addMessageToChatInput(' ' + address + ' ', 'end');
         });
     };
     $(document.body).on('click', '.favourite-picture-on-panel', function () {
@@ -133,20 +134,21 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
                 .appendTo($modalPictureOptions);
 
 
-            if (pictureWidth > document.documentElement.clientWidth || pictureHeight > document.documentElement.clientHeight) {
-                var scaleFactor;
-                if (pictureWidth > pictureHeight) {
-                    scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-
-                    pictureHeight /= scaleFactor;
-                    pictureWidth /= scaleFactor;
-                } else {
+            var scaleFactor = 1;
+            if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
+                if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
                     scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-
-                    pictureHeight /= scaleFactor;
-                    pictureWidth /= scaleFactor;
+                } else {
+                    scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
                 }
+            } else if (pictureHeight > document.documentElement.clientHeight) {
+                scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+            } else if (pictureWidth > document.documentElement.clientWidth) {
+                scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
             }
+
+            pictureHeight /= scaleFactor;
+            pictureWidth /= scaleFactor;
 
             $modalPicture.css({
                 width: pictureWidth,
@@ -189,6 +191,8 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     };
     $(document.body).on('mousewheel', '#modal-picture', function (e) {
         that.handleModalPictureMouseWheel(e);
+
+        return false;
     });
 
 

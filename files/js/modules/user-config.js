@@ -1,5 +1,12 @@
-cytubeEnhanced.setModule('userConfig', function (app) {
+cytubeEnhanced.setModule('userConfig', function (app, settings) {
     var that = this;
+
+    var defaultSettings = {
+        layoutConfigButton: true,
+        smilesAndPicturesTogetherButton: true,
+        minimizeButton: true
+    };
+    settings = $.extend(defaultSettings, settings);
 
 
     this.layoutOptions = {
@@ -105,10 +112,12 @@ cytubeEnhanced.setModule('userConfig', function (app) {
         var options = this.options;
 
 
-        options.minimize = this.loadOption('minimize', false);
+        if (settings.minimizeButton) {
+            options.minimize = this.loadOption('minimize', false);
+        }
 
 
-        if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
+        if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
             options['smiles-and-pictures'] = this.loadOption('smiles-and-pictures', false);
 
             app.getModule('smiles').done(function (smilesModule) {
@@ -121,12 +130,15 @@ cytubeEnhanced.setModule('userConfig', function (app) {
         }
 
 
-        for (var layoutOption in that.layoutOptions) {
-            options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
-        }
+        if (settings.layoutConfigButton) {
+            for (var layoutOption in that.layoutOptions) {
+                options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
+            }
 
-        options['user-css'] = this.loadOption('user-css', '');
+            options['user-css'] = this.loadOption('user-css', '');
+        }
     };
+
 
     this.userConfig.configFunctions = {
         minimize: function (isMinimized) {
@@ -220,6 +232,9 @@ cytubeEnhanced.setModule('userConfig', function (app) {
         .append($('<div class="col-lg-3 col-md-3 control-label">Оформление</div>'));
     this.$layoutWrapper = $('<div id="layout-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$layoutForm);
     this.$layoutBtnWrapper = $('<div id="layout-config-btn-wrapper" class="btn-group">').appendTo(this.$layoutWrapper);
+    if (!settings.layoutConfigButton && !settings.minimizeButton) {
+        this.$layoutForm.hide();
+    }
 
     this.configUserLayout = function (userConfig) {
         var $settingsWrapper = $('<div class="form-horizontal">');
@@ -295,6 +310,9 @@ cytubeEnhanced.setModule('userConfig', function (app) {
         .on('click', function() {
             that.configUserLayout(that.userConfig);
         });
+    if (!settings.layoutConfigButton) {
+        this.$layoutConfigBtn.hide();
+    }
 
     this.minifyInterface = function (userConfig) {
         var isMinimized = userConfig.toggle('minimize');
@@ -305,16 +323,19 @@ cytubeEnhanced.setModule('userConfig', function (app) {
         .on('click', function() {
             that.minifyInterface(that.userConfig);
         });
-
-
-    this.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
-        .append($('<div class="col-lg-3 col-md-3 control-label">Общее</div>'))
-        .appendTo(this.$configBody);
-    this.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$commonConfigForm);
-    this.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(this.$commonConfigWrapper);
+    if (!settings.minimizeButton) {
+        this.$minBtn.hide();
+    }
 
     if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
         $.when(app.getModule('smiles'), app.getModule('favouritePictures')).then(function () {
+            that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
+                .append($('<div class="col-lg-3 col-md-3 control-label">Общее</div>'))
+                .appendTo(that.$configBody);
+            that.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(that.$commonConfigForm);
+            that.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(that.$commonConfigWrapper);
+
+
             that.toggleSmilesAndPictures = function () {
                 var isTurnedOn = that.userConfig.toggle('smiles-and-pictures');
                 that.userConfig.configFunctions['smiles-and-pictures'](isTurnedOn);
@@ -325,6 +346,12 @@ cytubeEnhanced.setModule('userConfig', function (app) {
                 .on('click', function() {
                     that.toggleSmilesAndPictures();
                 });
+
+
+            if (!settings.smilesAndPicturesTogetherButton) {
+                that.$smilesAndPicturesBtn.hide();
+                that.$commonConfigForm.hide();
+            }
         });
     }
 
@@ -396,6 +423,8 @@ cytubeEnhanced.setModule('userConfig', function (app) {
     this.run = function () {
         that.userConfig.loadDefaults();
 
-        that.applyLayoutSettings(that.userConfig);
+        if (settings.layoutConfigButton) {
+            that.applyLayoutSettings(that.userConfig);
+        }
     };
 });
