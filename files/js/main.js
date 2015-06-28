@@ -103,9 +103,6 @@ cytubeEnhanced = new CytubeEnhanced({
         unfixedTopNavbar: true,
         insertUsernameOnClick: true
     },
-    chatHelp: {
-        enabled: true
-    },
     favouritePictures: {
         enabled: true
     },
@@ -123,7 +120,10 @@ cytubeEnhanced = new CytubeEnhanced({
     showVideoInfo: {
         enabled: true
     },
-    chatCommands: {
+    chatCommandsHelp: {
+        enabled: true
+    },
+    additionalChatCommands: {
         enabled: true,
         additionalPermittedCommands: ['*']
     },

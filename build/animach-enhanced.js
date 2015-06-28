@@ -103,9 +103,6 @@ cytubeEnhanced = new CytubeEnhanced({
         unfixedTopNavbar: true,
         insertUsernameOnClick: true
     },
-    chatHelp: {
-        enabled: true
-    },
     favouritePictures: {
         enabled: true
     },
@@ -123,7 +120,10 @@ cytubeEnhanced = new CytubeEnhanced({
     showVideoInfo: {
         enabled: true
     },
-    chatCommands: {
+    chatCommandsHelp: {
+        enabled: true
+    },
+    additionalChatCommands: {
         enabled: true,
         additionalPermittedCommands: ['*']
     },
@@ -368,7 +368,7 @@ cytubeEnhanced = new CytubeEnhanced({
 
 }));
 
-cytubeEnhanced.setModule('chatCommands', function (app, settings) {
+cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
@@ -480,128 +480,200 @@ cytubeEnhanced.setModule('chatCommands', function (app, settings) {
 
 
     this.commandsList = {
-        '!pick ': function (msg) {
-            var variants = msg.split("!pick ")[1].split(",");
-            return variants[Math.floor(Math.random() * (variants.length - 1))];
-        },
-        '!ask ': function (msg) {
-            return that.askAnswers[Math.floor(Math.random() * (that.askAnswers.length - 1))];
-        },
-        '!time': function (msg) {
-            var h = new Date().getHours();
-            if (h < 10) {
-                h = '0' + h;
+        '!pick ': {
+            description: 'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick слово1, слово2, слово3</i>)',
+            value: function (msg) {
+                var variants = msg.replace('!pick ', '').split(',');
+                return variants[Math.floor(Math.random() * (variants.length - 1))].trim();
+            },
+            isAvailable: function () {
+                return true;
             }
-
-            var m = new Date().getMinutes();
-            if (m < 10) {
-                m = '0' + m;
+        },
+        '!ask ': {
+            description: 'задать вопрос с вариантами ответа да/нет/... (Например: <i>!ask Сегодня пойдет дождь?</i>)',
+            value: function () {
+                return that.askAnswers[Math.floor(Math.random() * (that.askAnswers.length - 1))];
+            },
+            isAvailable: function () {
+                return true;
             }
-
-            return 'текущее время: ' + h + ':' + m;
         },
-        '!dice': function (msg) {
-            return Math.floor(Math.random() * 5) + 1;
-        },
-        '!roll': function (msg) {
-            var randomNumber = Math.floor(Math.random() * 1000);
+        '!time': {
+            description: 'показать текущее время',
+            value: function () {
+                var h = new Date().getHours();
+                if (h < 10) {
+                    h = '0' + h;
+                }
 
-            if (randomNumber < 100) {
-                randomNumber = '0' + randomNumber;
-            } else if (randomNumber < 10) {
-                randomNumber= '00' + randomNumber;
+                var m = new Date().getMinutes();
+                if (m < 10) {
+                    m = '0' + m;
+                }
+
+                return 'текущее время: ' + h + ':' + m;
+            },
+            isAvailable: function () {
+                return true;
             }
-
-            return randomNumber;
         },
-        '!q': function (msg) {
-            if (that.randomQuotes.length === 0) {
-                msg = 'цитаты отсутствуют';
-            } else {
-                msg = that.randomQuotes[Math.floor(Math.random() * (that.randomQuotes.length - 1))];
+        '!dice': {
+            description: 'кинуть кость',
+            value: function () {
+                return Math.floor(Math.random() * 5) + 1;
+            },
+            isAvailable: function () {
+                return true;
             }
-
-            return msg;
         },
-        '!skip': function (msg) {
-            if (hasPermission('voteskip')) {
+        '!roll': {
+            description: 'случайное число от 0 до 999',
+            value: function () {
+                var randomNumber = Math.floor(Math.random() * 1000);
+
+                if (randomNumber < 100) {
+                    randomNumber = '0' + randomNumber;
+                } else if (randomNumber < 10) {
+                    randomNumber= '00' + randomNumber;
+                }
+
+                return randomNumber;
+            },
+            isAvailable: function () {
+                return true;
+            }
+        },
+        '!q': {
+            description: 'показать случайную цитату',
+            value: function (msg) {
+                if (that.randomQuotes.length === 0) {
+                    msg = 'цитаты отсутствуют';
+                } else {
+                    msg = that.randomQuotes[Math.floor(Math.random() * (that.randomQuotes.length - 1))];
+                }
+
+                return msg;
+            },
+            isAvailable: function () {
+                return true;
+            }
+        },
+        '!skip': {
+            description: 'проголосовать за пропуск текущего видео',
+            value: function (msg) {
                 socket.emit("voteskip");
                 msg = 'отдан голос за пропуск текущего видео';
-            }
 
-            return msg;
+                return msg;
+            },
+            isAvailable: function () {
+                return hasPermission('voteskip');
+            }
         },
-        '!next': function (msg) {
-            if (hasPermission('playlistjump')) {
+        '!next': {
+            description: 'проиграть следующее видео',
+            value: function (msg) {
                 socket.emit("playNext");
                 msg = 'начато проигрывание следующего видео';
-            }
 
-            return msg;
+                return msg;
+            },
+            isAvailable: function () {
+                return hasPermission('playlistjump');
+            }
         },
-        '!bump': function (msg) {
-            if (hasPermission('playlistmove')) {
+        '!bump': {
+            description: 'поднять последнее видео',
+            value: function (msg) {
                 var last = $("#queue").children().length;
                 var uid = $("#queue .queue_entry:nth-child("+last+")").data("uid");
                 var title = $("#queue .queue_entry:nth-child("+last+") .qe_title").html();
                 socket.emit("moveMedia", {from: uid, after: PL_CURRENT});
 
                 msg = 'поднято последнее видео: ' + title;
-            }
 
-            return msg;
+                return msg;
+            },
+            isAvailable: function () {
+                return hasPermission('playlistmove');
+            }
         },
-        '!add': function (msg) {
-            if (hasPermission('playlistadd')) {
+        '!add': {
+            description: 'добавляет видео в конец плейлиста (Например: <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)',
+            value: function (msg) {
                 var parsed = parseMediaLink(msg.split("!add ")[1]);
+
                 if (parsed.id === null) {
                     msg = 'ошибка: неверная ссылка';
                 } else {
                     socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
                     msg = 'видео было добавлено';
                 }
+
+
+                return msg;
+            },
+            isAvailable: function () {
+                return hasPermission('playlistadd');
             }
-
-            return msg;
         },
-        '!now': function (msg) {
-            return 'сейчас играет: ' + $(".queue_active a").html();
+        '!now': {
+            description: 'показать название текущего видео',
+            value: function () {
+                return 'сейчас играет: ' + $(".queue_active a").html();
+            },
+            isAvailable: function () {
+                return true;
+            }
         },
-        '!sm': function (msg) {
-            var smilesArray = CHANNEL.emotes.map(function (smile) {
-                return smile.name;
-            });
+        '!sm': {
+            description: 'показать случайный смайлик',
+            value: function () {
+                var smilesArray = CHANNEL.emotes.map(function (smile) {
+                    return smile.name;
+                });
 
-            return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
+                return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
+            },
+            isAvailable: function () {
+                return true;
+            }
         },
-        '!yoba': function (msg) {
-            var $yoba = $('<div class="yoba">').appendTo($(document.body));
-            $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
+        '!yoba': {
+            description: 'секретная команда',
+            value: function () {
+                var $yoba = $('<div class="yoba">').appendTo($(document.body));
+                $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
 
-            var IMBA=new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
-            IMBA.volume=0.6;
-            IMBA.play();
-            var BGCHANGE = 0;
-            var inbix = setInterval(function() {
-                $("body").css('background-image', 'none');
-                BGCHANGE++;
+                var IMBA=new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
+                IMBA.volume=0.6;
+                IMBA.play();
+                var BGCHANGE = 0;
+                var inbix = setInterval(function() {
+                    $("body").css('background-image', 'none');
+                    BGCHANGE++;
 
-                if (BGCHANGE % 2 === 0) {
-                    $("body").css('background-color', 'red');
-                } else {
-                    $("body").css('background-color', 'blue');
-                }
-            }, 200);
+                    if (BGCHANGE % 2 === 0) {
+                        $("body").css('background-color', 'red');
+                    } else {
+                        $("body").css('background-color', 'blue');
+                    }
+                }, 200);
 
-            setTimeout(function() {
-                var BGCHANGE=0;
-                clearInterval(inbix);
-                $("body").css({'background-image':'', 'background-color':''});
-                $yoba.remove();
-            }, 12000);
+                setTimeout(function() {
+                    var BGCHANGE=0;
+                    clearInterval(inbix);
+                    $("body").css({'background-image':'', 'background-color':''});
+                    $yoba.remove();
+                }, 12000);
 
 
-            return 'YOBA';
+                return 'YOBA';
+            },
+            isAvailable: function () {
+                return true;
+            }
         }
     };
 
@@ -612,10 +684,10 @@ cytubeEnhanced.setModule('chatCommands', function (app, settings) {
 
         for (var command in that.commandsList) {
             if (msg.indexOf(command) === 0) {
-                if (isAdditionalCommandPermitted(command)) {
+                if (isAdditionalCommandPermitted(command) && that.commandsList[command].isAvailable()) {
                     IS_COMMAND = true;
 
-                    msg = that.commandsList[command](msg);
+                    msg = that.commandsList[command].value(msg);
                 }
 
                 break;
@@ -710,6 +782,64 @@ cytubeEnhanced.setModule('chatCommands', function (app, settings) {
     };
 });
 
+cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
+    var that = this;
+
+
+    if ($('#chat-controls').length === 0) {
+        $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
+    }
+
+
+    that.commands = {};
+
+    that.commands['Стандартные команды'] = {
+        '/me':'%username% что-то сделал. Например: <i>/me танцует</i>',
+        '/sp':'спойлер',
+        '/afk':'устанавливает статус "Отошёл".'
+    };
+
+    if (app.isModulePermitted('additionalChatCommands')) {
+        app.getModule('additionalChatCommands').done(function (commandsModule) {
+            var additionalCommands = {};
+
+            for (var commandName in commandsModule.commandsList) {
+                if (commandsModule.commandsList[commandName].isAvailable()) {
+                    additionalCommands[commandName] = commandsModule.commandsList[commandName].description;
+                }
+            }
+
+            that.commands['Дополнительные команды'] = additionalCommands;
+        });
+    }
+
+
+    this.handleChatHelpBtn = function (commands) {
+        var $bodyWrapper = $('<div>');
+
+        for (var commandsPartName in commands) {
+            $('<h3>').html(commandsPartName).appendTo($bodyWrapper);
+
+            var $ul = $('<ul>');
+            for (var command in commands[commandsPartName]) {
+                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command]).appendTo($ul);
+            }
+
+            $ul.appendTo($bodyWrapper);
+        }
+
+        app.getModule('utils').done(function (utilsModule) {
+            utilsModule.createModalWindow('Список команд', $bodyWrapper);
+        });
+    };
+    this.$chatHelpBtn = $('<button id="chat-help-btn" class="btn btn-sm btn-default">')
+        .text('Список команд')
+        .appendTo('#chat-controls')
+        .on('click', function () {
+            that.handleChatHelpBtn(that.commands);
+        });
+});
+
 cytubeEnhanced.setModule('chatControls', function (app, settings) {
     var that = this;
 
@@ -780,68 +910,6 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
             });
         }
     };
-});
-
-cytubeEnhanced.setModule('chatHelp', function (app) {
-    var that = this;
-
-
-    if ($('#chat-controls').length === 0) {
-        $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
-    }
-
-
-    that.commands = {};
-
-    that.commands['Стандартные команды'] = {
-        '/me':'%username% что-то сделал. Например: <i>/me танцует</i>',
-        '/sp':'спойлер',
-        '/afk':'устанавливает статус "Отошёл".'
-    };
-
-    if (app.isModulePermitted('chatCommands')) {
-        that.commands['Дополнительные команды'] = {
-            '!r': 'показать расписание',
-            '!pick':'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick japan,korea,china</i>)',
-            '!ask':'задать вопрос с вариантами ответа да/нет (Например: <i>!ask Сегодня пойдет дождь?</i>)',
-            '!q':'показать случайную цитату',
-            '!sm': 'показать случайный смайлик',
-            '!dice':'кинуть кубики',
-            '!roll':'случайное трехзначное число',
-            '!time':'показать текущее время',
-            '!now':'displaying current playing title (<i>!now</i>)',
-            '!skip':'проголосовать за пропуск текущего видео (<i>!skip</i>)',
-            '!add':'добавляет видео в конец плейлиста (Например: <i>!add https://www.youtube.com/watch?v=29FFHC2D12Q</i>)',
-            '!stat': 'показать статистику за данную сессию (<i>!stat</i>)',
-            '!yoba': 'секретная команда'
-        };
-    }
-
-
-    this.handleChatHelpBtn = function (commands) {
-        var $bodyWrapper = $('<div>');
-
-        for (var commandsPartName in commands) {
-            $('<h3>').html(commandsPartName).appendTo($bodyWrapper);
-
-            var $ul = $('<ul>');
-            for (var command in commands[commandsPartName]) {
-                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command]).appendTo($ul);
-            }
-
-            $ul.appendTo($bodyWrapper);
-        }
-
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow('Список команд', $bodyWrapper);
-        });
-    };
-    this.$chatHelpBtn = $('<button id="chat-help-btn" class="btn btn-sm btn-default">')
-        .text('Список команд')
-        .appendTo('#chat-controls')
-        .on('click', function () {
-            that.handleChatHelpBtn(that.commands);
-        });
 });
 
 cytubeEnhanced.setModule('favouritePictures', function (app) {
