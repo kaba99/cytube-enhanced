@@ -3,7 +3,8 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
 
     var defaultSettings = {
         unfixedTopNavbar: true,
-        insertUsernameOnClick: true
+        insertUsernameOnClick: true,
+        showScriptInfo: true
     };
     settings = $.extend(defaultSettings, settings);
 
@@ -66,6 +67,10 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
     this.run = function () {
         if (settings.unfixedTopNavbar) {
             $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
+        }
+
+        if (settings.showScriptInfo) {
+            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced · Copyright © 2015 kaba, RitE, anonimous321 · <a href="https://github.com/kaba99/cytube-enhanced">GitHub</a></p>');
         }
 
         setTimeout(function () {

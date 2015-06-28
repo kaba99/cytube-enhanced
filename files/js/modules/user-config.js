@@ -375,8 +375,12 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
             $('#videowrap').detach().insertBefore($('#chatwrap'));
         } else if (userConfig.get('player-position') === 'center') {
-            $('#chatwrap').removeClass('col-lg-5 col-md-5');
-            $('#videowrap').removeClass('col-lg-7 col-md-7');
+            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
 
             $('#chatwrap').addClass('col-md-10 col-md-offset-1');
             $('#videowrap').addClass('col-md-10 col-md-offset-1');

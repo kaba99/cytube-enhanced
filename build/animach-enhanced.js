@@ -1,5 +1,7 @@
 function CytubeEnhanced(modulesSettings) {
-    modulesSettings = modulesSettings || {};
+    var that = this;
+
+    this.modulesSettings = modulesSettings || {};
 
     var modulesConstructors = {};
     var modules = {};
@@ -55,7 +57,7 @@ function CytubeEnhanced(modulesSettings) {
      */
     this.runModule = function (moduleName) {
         if (this.isModulePermitted(moduleName)) {
-            modules[moduleName] = new modulesConstructors[moduleName](this, modulesSettings[moduleName]);
+            modules[moduleName] = new modulesConstructors[moduleName](this, this.modulesSettings[moduleName]);
             modules[moduleName].settings = modulesSettings[moduleName];
 
             if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].beforeRun !== undefined) {
@@ -80,9 +82,20 @@ function CytubeEnhanced(modulesSettings) {
      * @returns {boolean}
      */
     this.isModulePermitted = function (moduleName) {
-        return modulesSettings[moduleName] !== undefined ?
-            (modulesSettings[moduleName].enabled || false) :
+        return this.modulesSettings[moduleName] !== undefined ?
+            (this.modulesSettings[moduleName].enabled || false) :
             false;
+    };
+
+
+    /**
+     * Configures the module
+     *
+     * @param moduleName The name of the module to check
+     * @param moduleSettings The settings of the module, settings must contain enabled key with true value to be able to execute.
+     */
+    this.configureModule = function (moduleName, moduleSettings) {
+        this.modulesSettings[moduleName] = moduleSettings;
     };
 
 
@@ -101,7 +114,8 @@ cytubeEnhanced = new CytubeEnhanced({
     utils: {
         enabled: true,
         unfixedTopNavbar: true,
-        insertUsernameOnClick: true
+        insertUsernameOnClick: true,
+        showScriptInfo: true
     },
     favouritePictures: {
         enabled: true
@@ -2133,8 +2147,12 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
             $('#videowrap').detach().insertBefore($('#chatwrap'));
         } else if (userConfig.get('player-position') === 'center') {
-            $('#chatwrap').removeClass('col-lg-5 col-md-5');
-            $('#videowrap').removeClass('col-lg-7 col-md-7');
+            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
 
             $('#chatwrap').addClass('col-md-10 col-md-offset-1');
             $('#videowrap').addClass('col-md-10 col-md-offset-1');
@@ -2192,7 +2210,8 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
 
     var defaultSettings = {
         unfixedTopNavbar: true,
-        insertUsernameOnClick: true
+        insertUsernameOnClick: true,
+        showScriptInfo: true
     };
     settings = $.extend(defaultSettings, settings);
 
@@ -2255,6 +2274,10 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
     this.run = function () {
         if (settings.unfixedTopNavbar) {
             $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
+        }
+
+        if (settings.showScriptInfo) {
+            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced · Copyright © 2015 kaba, RitE, anonimous321 · <a href="https://github.com/kaba99/cytube-enhanced">GitHub</a></p>');
         }
 
         setTimeout(function () {

@@ -1,5 +1,7 @@
 function CytubeEnhanced(modulesSettings) {
-    modulesSettings = modulesSettings || {};
+    var that = this;
+
+    this.modulesSettings = modulesSettings || {};
 
     var modulesConstructors = {};
     var modules = {};
@@ -55,7 +57,7 @@ function CytubeEnhanced(modulesSettings) {
      */
     this.runModule = function (moduleName) {
         if (this.isModulePermitted(moduleName)) {
-            modules[moduleName] = new modulesConstructors[moduleName](this, modulesSettings[moduleName]);
+            modules[moduleName] = new modulesConstructors[moduleName](this, this.modulesSettings[moduleName]);
             modules[moduleName].settings = modulesSettings[moduleName];
 
             if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].beforeRun !== undefined) {
@@ -80,9 +82,20 @@ function CytubeEnhanced(modulesSettings) {
      * @returns {boolean}
      */
     this.isModulePermitted = function (moduleName) {
-        return modulesSettings[moduleName] !== undefined ?
-            (modulesSettings[moduleName].enabled || false) :
+        return this.modulesSettings[moduleName] !== undefined ?
+            (this.modulesSettings[moduleName].enabled || false) :
             false;
+    };
+
+
+    /**
+     * Configures the module
+     *
+     * @param moduleName The name of the module to check
+     * @param moduleSettings The settings of the module, settings must contain enabled key with true value to be able to execute.
+     */
+    this.configureModule = function (moduleName, moduleSettings) {
+        this.modulesSettings[moduleName] = moduleSettings;
     };
 
 
@@ -101,7 +114,8 @@ cytubeEnhanced = new CytubeEnhanced({
     utils: {
         enabled: true,
         unfixedTopNavbar: true,
-        insertUsernameOnClick: true
+        insertUsernameOnClick: true,
+        showScriptInfo: true
     },
     favouritePictures: {
         enabled: true
