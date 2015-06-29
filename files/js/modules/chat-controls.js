@@ -25,7 +25,7 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
         socket.emit('chatMsg', {msg: '/afk'});
     };
     this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
-        .text('АФК')
+        .text(app.t('AFK'))
         .appendTo('#chatheader')
         .on('click', function () {
             that.handleAfkBtn();
@@ -36,12 +36,12 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
 
 
     this.handleClearBtn = function () {
-        if (confirm('Вы уверены, что хотите очистить чат?')) {
+        if (confirm(app.t('Are you sure, that you want to clear the chat?'))) {
             socket.emit("chatMsg", {msg: '/clear'});
         }
     };
     this.$clearChatBtn = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">')
-        .text('Очистить чат')
+        .text(app.t('Clear chat'))
         .insertAfter(that.$afkBtn)
         .on('click', function () {
             that.handleClearBtn();

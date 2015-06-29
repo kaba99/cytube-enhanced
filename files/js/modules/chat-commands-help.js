@@ -9,10 +9,10 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
 
     that.commands = {};
 
-    that.commands['Стандартные команды'] = {
-        '/me':'%username% что-то сделал. Например: <i>/me танцует</i>',
-        '/sp':'спойлер',
-        '/afk':'устанавливает статус "Отошёл".'
+    that.commands[app.t('Standard commands')] = {
+        '/me': app.t('chatCommands[.]%username% action (e.g: <i>/me is dancing</i>)'),
+        '/sp': app.t('chatCommands[.]spoiler'),
+        '/afk': app.t('chatCommands[.]sets the "AFK" status')
     };
 
     if (app.isModulePermitted('additionalChatCommands')) {
@@ -25,7 +25,7 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
                 }
             }
 
-            that.commands['Дополнительные команды'] = additionalCommands;
+            that.commands[app.t('Extra commands')] = additionalCommands;
         });
     }
 
@@ -38,18 +38,18 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
 
             var $ul = $('<ul>');
             for (var command in commands[commandsPartName]) {
-                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command]).appendTo($ul);
+                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command] + '.').appendTo($ul);
             }
 
             $ul.appendTo($bodyWrapper);
         }
 
         app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow('Список команд', $bodyWrapper);
+            utilsModule.createModalWindow(app.t('The list of chat commands'), $bodyWrapper);
         });
     };
     this.$chatHelpBtn = $('<button id="chat-help-btn" class="btn btn-sm btn-default">')
-        .text('Список команд')
+        .text(app.t('Commands list'))
         .appendTo('#chat-controls')
         .on('click', function () {
             that.handleChatHelpBtn(that.commands);

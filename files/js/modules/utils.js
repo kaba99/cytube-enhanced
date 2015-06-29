@@ -70,11 +70,11 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
         }
 
         if (settings.showScriptInfo) {
-            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced · Copyright © 2015 kaba, RitE, anonimous321 · <a href="https://github.com/kaba99/cytube-enhanced">GitHub</a></p>');
+            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
         }
 
         setTimeout(function () {
-            handleWindowResize(); //chat height fix because our css loads later than cytube script calculates height
+            handleWindowResize(); //chat height fix
         }, 3000);
     };
 });

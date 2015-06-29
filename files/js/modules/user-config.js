@@ -11,36 +11,36 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
     this.layoutOptions = {
         'hide-header': {
-            title: 'Скрывать шапку',
+            title: app.t('userConfig[.]Hide header'),
             'default': 'no',
             values: {
-                yes: 'Да',
-                no: 'Нет'
+                yes: app.t('userConfig[.]Yes'),
+                no: app.t('userConfig[.]No')
             }
         },
         'player-position': {
-            title: 'Положение плеера',
+            title: app.t('userConfig[.]Player position'),
             'default': 'right',
             values: {
-                left: 'Слева',
-                right: 'Справа',
-                center: 'По центру'
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right'),
+                center: app.t('userConfig[.]Center')
             }
         },
         'playlist-position': {
-            title: 'Положение плейлиста',
+            title: app.t('userConfig[.]Playlist position'),
             'default': 'right',
             values: {
-                left: 'Слева',
-                right: 'Справа'
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right')
             }
         },
         'userlist-position': {
-            title: 'Позиция списка пользователей чата',
+            title: app.t('userConfig[.]Chat\'s userlist position'),
             'default': 'left',
             values: {
-                left: 'Слева',
-                right: 'Справа'
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right')
             }
         }
     };
@@ -182,7 +182,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
                 $('#favourite-pictures-btn').addClass('btn-default');
                 $('#favourite-pictures-btn').removeClass('btn-success');
 
-                $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="Показать смайлики и избранные картинки">')
+                $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="' + app.t('userConfig[.]Show emotes and favorite images') + '">')
                     .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
                     .prependTo($('#chat-controls'))
                     .on('click', function () {
@@ -221,7 +221,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
     this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
-        .html('<span class="glyphicon glyphicon-cog"></span> Настройки')
+        .html('<span class="glyphicon glyphicon-cog"></span> ' + app.t('userConfig[.]Settings'))
         .appendTo('#leftcontrols')
         .on('click', function() {
             that.toggleConfigPanel();
@@ -229,7 +229,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
 
     this.$layoutForm = $('<div id="layout-config-form" class="form-group">').appendTo(this.$configBody)
-        .append($('<div class="col-lg-3 col-md-3 control-label">Оформление</div>'));
+        .append($('<div class="col-lg-3 col-md-3 control-label">' + app.t('userConfig[.]Layout') + '</div>'));
     this.$layoutWrapper = $('<div id="layout-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$layoutForm);
     this.$layoutBtnWrapper = $('<div id="layout-config-btn-wrapper" class="btn-group">').appendTo(this.$layoutWrapper);
     if (!settings.layoutConfigButton && !settings.minimizeButton) {
@@ -257,7 +257,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         }
 
         var $userCssWrapper = $('<div class="form-group">').appendTo($settingsWrapper);
-        var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">Пользовательское CSS</label>').appendTo($userCssWrapper);
+        var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
         var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
         var $userCssTextarea = $('<textarea id="user-css" class="form-control" rows="7">')
             .appendTo($userCssTextareaWrapper)
@@ -265,12 +265,12 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         var $btnWrapper = $('<div>');
 
-        $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">Отмена</button>').appendTo($btnWrapper);
+        $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">' + app.t('userConfig[.]User CSS') + '</button>').appendTo($btnWrapper);
 
-        $('<button type="button" id="reset-user-layout" class="btn btn-danger">Сбросить настройки</button>')
+        $('<button type="button" id="reset-user-layout" class="btn btn-danger">' + app.t('userConfig[.]Reset settings') + '</button>')
             .appendTo(this.$btnWrapper)
             .on('click', function () {
-                if (confirm('Все настройки, в том числе и пользовательское CSS будут сброшены, вы уверены?')) {
+                if (confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
                     for (var layoutOption in that.layoutOptions) {
                         userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
                     }
@@ -282,7 +282,8 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
                 }
             });
 
-        $('<button type="button" id="save-user-layout" class="btn btn-success">Сохранить</button>')
+        $('<button type="button" id="save-user-layout" class="btn btn-success">')
+            .text(app.t('userConfig[.]Save'))
             .appendTo($btnWrapper)
             .on('click', function () {
                 for (var layoutOption in that.layoutOptions) {
@@ -302,10 +303,11 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         var $modalWindow;
         app.getModule('utils').done(function (utilsModule) {
-            $modalWindow = utilsModule.createModalWindow('Настройки оформления', $settingsWrapper, $btnWrapper);
+            $modalWindow = utilsModule.createModalWindow(app.t('userConfig[.]Layout settings'), $settingsWrapper, $btnWrapper);
         });
     };
-    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">Настройка</button>')
+    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">')
+        .text(app.t('userConfig[.]Settings'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
             that.configUserLayout(that.userConfig);
@@ -318,7 +320,8 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         var isMinimized = userConfig.toggle('minimize');
         userConfig.configFunctions.minimize(isMinimized);
     };
-    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">Минимизировать</button>')
+    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">')
+        .text(app.t('userConfig[.]Minimize'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
             that.minifyInterface(that.userConfig);
@@ -330,7 +333,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
         $.when(app.getModule('smiles'), app.getModule('favouritePictures')).then(function () {
             that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
-                .append($('<div class="col-lg-3 col-md-3 control-label">Общее</div>'))
+                .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
                 .appendTo(that.$configBody);
             that.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(that.$commonConfigForm);
             that.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(that.$commonConfigWrapper);
@@ -341,7 +344,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
                 that.userConfig.configFunctions['smiles-and-pictures'](isTurnedOn);
             };
             that.$smilesAndPicturesBtn = $('<button id="common-config-smiles-and-pictures-btn" class="btn btn-default">')
-                .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
+                .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
                 .appendTo(that.$commonConfigBtnWrapper)
                 .on('click', function() {
                     that.toggleSmilesAndPictures();

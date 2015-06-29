@@ -1,8 +1,12 @@
-function CytubeEnhanced(modulesSettings) {
+function CytubeEnhanced(channelName, language, modulesSettings) {
     var that = this;
 
-    this.modulesSettings = modulesSettings || {};
+    this.channelName = channelName;
 
+    var translations = {};
+    this.language = language || 'en';
+
+    this.modulesSettings = modulesSettings || {};
     var modulesConstructors = {};
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 10000; //ms
@@ -38,10 +42,7 @@ function CytubeEnhanced(modulesSettings) {
 
 
     /**
-     * Sets the module and run it if it is permitted
-     *
-     * Module should have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedBinds object
-     * Example of cytubeEnhancedBinds: {'myModuleName1': {beforeRun: function(module), afterRun: function(module)}, 'myModuleName2': {beforeRun: function(module), afterRun: function(module)}}
+     * Sets the module
      *
      * @param {string} moduleName The name of the module
      * @param moduleConstructor The name of the module's constructor
@@ -52,7 +53,11 @@ function CytubeEnhanced(modulesSettings) {
 
 
     /**
-     * Runs the module
+     * Runs the module if it is permitted
+     *
+     * Module may have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedSettings object
+     * Example of cytubeEnhancedSettings for binds: cytubeEnhancedSettings = {binds: {'myModuleName1': {beforeRun: function (module) {}, afterRun: function (module) {}}, 'myModuleName2': {beforeRun: function (module) {}, afterRun: function (module) {}}}};
+     *
      * @param {string} moduleName The name of the module
      */
     this.runModule = function (moduleName) {
@@ -60,16 +65,16 @@ function CytubeEnhanced(modulesSettings) {
             modules[moduleName] = new modulesConstructors[moduleName](this, this.modulesSettings[moduleName]);
             modules[moduleName].settings = modulesSettings[moduleName];
 
-            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].beforeRun !== undefined) {
-                cytubeEnhancedBinds[moduleName].beforeRun(modules[moduleName]);
+            if (typeof cytubeEnhancedSettings !== 'undefined' && cytubeEnhancedSettings.binds !== undefined && cytubeEnhancedSettings.binds[moduleName] !== undefined && cytubeEnhancedSettings.binds[moduleName].beforeRun !== undefined) {
+                cytubeEnhancedSettings.binds[moduleName].beforeRun(modules[moduleName]);
             }
 
             if (modules[moduleName].run !== undefined) {
                 modules[moduleName].run();
             }
 
-            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].afterRun !== undefined) {
-                cytubeEnhancedBinds[moduleName].afterRun(modules[moduleName]);
+            if (typeof cytubeEnhancedSettings !== 'undefined' && cytubeEnhancedSettings.binds !== undefined && cytubeEnhancedSettings.binds[moduleName] !== undefined && cytubeEnhancedSettings.binds[moduleName].afterRun !== undefined) {
+                cytubeEnhancedSettings.binds[moduleName].afterRun(modules[moduleName]);
             }
         }
     };
@@ -100,6 +105,43 @@ function CytubeEnhanced(modulesSettings) {
 
 
     /**
+     * Adds the translation object
+     * @param language The language identifier
+     * @param translationObject The translation object
+     */
+    this.addTranslation = function (language, translationObject) {
+        translations[language] = translationObject;
+    };
+
+
+    /**
+     * Translates the text
+     * @param text The text to translate
+     * @returns {string}
+     */
+    this.t = function (text) {
+        var translatedText = text;
+
+        if (this.language !== 'en' && translations[this.language] !== undefined) {
+            if (text.indexOf('[.]') !== -1) {
+                var textWithNamespaces = text.split('[.]');
+
+                translatedText = translations[this.language][textWithNamespaces[0]];
+                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
+                    translatedText = translatedText[textWithNamespaces[namespace]];
+                }
+            } else {
+                translatedText = translations[this.language][text];
+            }
+        } else if (text.indexOf('[.]') !== -1) { //English
+            translatedText = text.split('[.]').pop();
+        }
+
+        return translatedText;
+    };
+
+
+    /**
      * Runs the application
      */
     this.run = function () {
@@ -110,7 +152,9 @@ function CytubeEnhanced(modulesSettings) {
 }
 
 
-cytubeEnhanced = new CytubeEnhanced({
+
+
+var defaultModulesSettings = {
     utils: {
         enabled: true,
         unfixedTopNavbar: true,
@@ -146,7 +190,7 @@ cytubeEnhanced = new CytubeEnhanced({
         afkButton: true,
         clearChatButton: true
     },
-    uiTranslate: {
+    standardUITranslate: {
         enabled: true
     },
     navMenuTabs: {
@@ -158,4 +202,13 @@ cytubeEnhanced = new CytubeEnhanced({
         smilesAndPicturesTogetherButton: true,
         minimizeButton: true
     }
-});
+};
+
+
+
+
+cytubeEnhanced = new CytubeEnhanced(
+    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.channelName || 'Channel name') : 'Channel name'),
+    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.language || 'en') : 'en'),
+    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.modulesSettings || defaultModulesSettings) : defaultModulesSettings)
+);

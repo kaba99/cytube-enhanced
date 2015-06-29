@@ -12,30 +12,30 @@ var shell = require('gulp-shell');
 gulp.task('default', ['combine-js', 'combine-css']);
 
 gulp.task('combine-js', function () {
-    return gulp.src(['./files/js/main.js', './files/js/jquery.mousewheel.js', './files/js/modules/*.js', './files/js/main-run.js'])
+    return gulp.src(['./files/js/main/main-en.js', './files/js/jquery.mousewheel.js', './files/js/modules/*.js', './files/js/main-run.js', './files/extra/quotes_for_!q/en/*'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(concat('animach-enhanced.js'))
-        .pipe(gulp.dest('./build'))
-        .pipe(rename('animach-enhanced.min.js'))
+        .pipe(concat('cytube-enhanced.js'))
+        .pipe(gulp.dest('./build/en'))
+        .pipe(rename('cytube-enhanced.min.js'))
         .pipe(uglify({mangle: false}))
-        .pipe(gulp.dest('./build'));
+        .pipe(gulp.dest('./build/en'));
 });
 
 gulp.task('combine-css', function () {
-    return gulp.src(['./files/css/animach.css', './files/css/*.css'])
-        .pipe(concat('animach-enhanced.css'))
+    return gulp.src(['./files/css/cytube-enhanced.css'])
+        .pipe(concat('cytube-enhanced.css'))
         .pipe(autoprefixer({
             browsers: ['last 2 versions'],
             cascade: false
         }))
-        .pipe(gulp.dest('./build'))
-        .pipe(rename('animach-enhanced.min.css'))
+        .pipe(gulp.dest('./build/en'))
+        .pipe(rename('cytube-enhanced.min.css'))
         .pipe(minifyCss({
             compatibility: 'ie8',
             keepSpecialComments: 0
         }))
-        .pipe(gulp.dest('./build'));
+        .pipe(gulp.dest('./build/en'));
 });
 
 

@@ -32,7 +32,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             that.videoURL += '&start=' + parseInt(data.currentTime, 10);
             that.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
             that.videoURL += '&playerapiid=' + that.videoId; //Give the video player the same name as the video for future reference
-            that.videoURL += '&cc_load_policy=0'; //No caption on this video (not supported for Google Drive Videos)
+            that.videoURL += '&cc_load_policy=0'; //No caption on this video (maybe not supported for Google Drive Videos)
 
             var atts = {
                 id: "ytapiplayer"
@@ -145,7 +145,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         PLAYER.id = '';
         socket.emit('playerReady');
     };
-    this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="Обновить видео">')
+    this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="' + app.t('video[.]Refresh video') + '">')
         .html('<i class="glyphicon glyphicon-refresh">')
         .appendTo(this.$topVideoControls)
         .on('click', function () {
@@ -171,7 +171,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             $hidePlayerBtn.addClass('btn-default');
         }
     };
-    this.$hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" title="Скрыть видео">')
+    this.$hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Hide video') + '">')
         .html('<i class="glyphicon glyphicon-ban-circle">')
         .appendTo(this.$topVideoControls)
         .on('click', function() {
@@ -189,7 +189,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         large: '480p',
         hd720: '720p',
         hd1080: '1080p',
-        highres: 'наивысшее'
+        highres: app.t('video[.]highres')
     };
 
     this.youtubeQualityMap = {
@@ -197,7 +197,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
     };
 
     this.$videoQualityBtnGroup = $('<div class="btn-group">')
-        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Качество: ' + this.qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
+        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + app.t('video[.]Quality') + ': ' + this.qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
         .appendTo(this.$topVideoControls);
 
     this.$videoQualityList = $('<ul class="dropdown-menu">');
@@ -225,7 +225,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
         that.$refreshVideoBtn.click();
 
-        that.$videoQualityBtnGroup.find('button').html('Качество: ' + $qualityLink.text() + ' <span class="caret"></span>');
+        that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + $qualityLink.text() + ' <span class="caret"></span>');
         $('.video-dropdown-toggle').dropdown();
     };
     this.$videoQualityBtnGroup.on('click', 'a', function () {
@@ -243,23 +243,6 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         $("#us-layout").val(USEROPTS.layout);
         $("#us-no-channelcss").prop("checked", USEROPTS.ignore_channelcss);
         $("#us-no-channeljs").prop("checked", USEROPTS.ignore_channeljs);
-        var conninfo = "<strong>Информация о соединении: </strong>" +
-                       "Connected to <code>" + IO_URL + "</code> (";
-        if (IO_V6) {
-            conninfo += "IPv6, ";
-        } else {
-            conninfo += "IPv4, ";
-        }
-
-        if (IO_URL === IO_URLS["ipv4-ssl"] || IO_URL === IO_URLS["ipv6-ssl"]) {
-            conninfo += "SSL)";
-        } else {
-            conninfo += "no SSL)";
-        }
-
-        conninfo += ".  SSL включено по умолчанию если оно поддерживается сервером.";
-        $("#us-conninfo").html(conninfo);
-
 
         $("#us-synch").prop("checked", USEROPTS.synch);
         $("#us-synch-accuracy").val(USEROPTS.sync_accuracy);
@@ -298,7 +281,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         that.$refreshVideoBtn.click();
     };
     this.$youtubeJavascriptPlayerBtn = $('<button id="youtube-javascript-player-btn" class="btn btn-sm btn-default">')
-        .text('Использовать Youtube JS Player')
+        .text(app.t('video[.]Use Youtube JS Player'))
         .appendTo(this.$topVideoControls)
         .on('click', function() {
             that.toggleGoogleDrivePlayer($(this));
@@ -313,14 +296,14 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         if ($expandPlaylistBtn.hasClass('btn-success')) {//expanded
             $('#queue').css('max-height', that.PLAYLIST_HEIGHT + 'px');
 
-            $expandPlaylistBtn.attr('title', 'Развернуть плейлист');
+            $expandPlaylistBtn.attr('title', app.t('video[.]Expand playlist'));
 
             $expandPlaylistBtn.removeClass('btn-success');
             $expandPlaylistBtn.addClass('btn-default');
         } else {//not expanded
             $('#queue').css('max-height', '100000px');
 
-            $expandPlaylistBtn.attr('title', 'Свернуть плейлист');
+            $expandPlaylistBtn.attr('title', app.t('video[.]Unexpand playlist'));
 
             $expandPlaylistBtn.removeClass('btn-default');
             $expandPlaylistBtn.addClass('btn-success');
@@ -328,7 +311,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             scrollQueue();
         }
     };
-    this.$expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="Развернуть плейлист">')
+    this.$expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="' + app.t('video[.]Expand playlist') + '">')
         .append('<span class="glyphicon glyphicon-resize-full">')
         .prependTo('#videocontrols')
         .on('click', function() {
@@ -339,7 +322,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
     }
 
 
-    this.$scrollToCurrentBtn = $('<button id="scroll-to-current-btn" class="btn btn-sm btn-default" title="Прокрутить плейлист к текущему видео">')
+    this.$scrollToCurrentBtn = $('<button id="scroll-to-current-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Scroll the playlist to the current video') + '">')
         .append('<span class="glyphicon glyphicon-hand-right">')
         .prependTo('#videocontrols')
         .on('click', function() {
@@ -361,7 +344,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             }
         });
 
-        $bodyWrapper.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
+        $bodyWrapper.append($('<p>' + app.t('video[.]Video\'s count') + ': ' + ($("#queue .queue_entry").length + 1) + '</p>'));
 
         var $contributorsListOl = $('<ol>');
         for (var contributor in contributorsList) {
@@ -370,10 +353,10 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         $contributorsListOl.appendTo($bodyWrapper);
 
         app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow('Список пользователей, добавивших видео', $bodyWrapper);
+            utilsModule.createModalWindow(app.t('video[.]Contributors\' list'), $bodyWrapper);
         });
     };
-    this.$videoContributorsBtn = $('<button id="video-contributors-btn" class="btn btn-sm btn-default" title="Список пользователей, добавивших видео">')
+    this.$videoContributorsBtn = $('<button id="video-contributors-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Contributors\' list') + '">')
         .append('<span class="glyphicon glyphicon-user">')
         .prependTo('#videocontrols')
         .on('click', function() {

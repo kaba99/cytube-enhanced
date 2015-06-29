@@ -1,8 +1,12 @@
-function CytubeEnhanced(modulesSettings) {
+function CytubeEnhanced(channelName, language, modulesSettings) {
     var that = this;
 
-    this.modulesSettings = modulesSettings || {};
+    this.channelName = channelName;
 
+    var translations = {};
+    this.language = language || 'en';
+
+    this.modulesSettings = modulesSettings || {};
     var modulesConstructors = {};
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 10000; //ms
@@ -38,10 +42,7 @@ function CytubeEnhanced(modulesSettings) {
 
 
     /**
-     * Sets the module and run it if it is permitted
-     *
-     * Module should have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedBinds object
-     * Example of cytubeEnhancedBinds: {'myModuleName1': {beforeRun: function(module), afterRun: function(module)}, 'myModuleName2': {beforeRun: function(module), afterRun: function(module)}}
+     * Sets the module
      *
      * @param {string} moduleName The name of the module
      * @param moduleConstructor The name of the module's constructor
@@ -52,7 +53,11 @@ function CytubeEnhanced(modulesSettings) {
 
 
     /**
-     * Runs the module
+     * Runs the module if it is permitted
+     *
+     * Module may have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedSettings object
+     * Example of cytubeEnhancedSettings for binds: cytubeEnhancedSettings = {binds: {'myModuleName1': {beforeRun: function (module) {}, afterRun: function (module) {}}, 'myModuleName2': {beforeRun: function (module) {}, afterRun: function (module) {}}}};
+     *
      * @param {string} moduleName The name of the module
      */
     this.runModule = function (moduleName) {
@@ -60,16 +65,16 @@ function CytubeEnhanced(modulesSettings) {
             modules[moduleName] = new modulesConstructors[moduleName](this, this.modulesSettings[moduleName]);
             modules[moduleName].settings = modulesSettings[moduleName];
 
-            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].beforeRun !== undefined) {
-                cytubeEnhancedBinds[moduleName].beforeRun(modules[moduleName]);
+            if (typeof cytubeEnhancedSettings !== 'undefined' && cytubeEnhancedSettings.binds !== undefined && cytubeEnhancedSettings.binds[moduleName] !== undefined && cytubeEnhancedSettings.binds[moduleName].beforeRun !== undefined) {
+                cytubeEnhancedSettings.binds[moduleName].beforeRun(modules[moduleName]);
             }
 
             if (modules[moduleName].run !== undefined) {
                 modules[moduleName].run();
             }
 
-            if (typeof cytubeEnhancedBinds !== 'undefined' && cytubeEnhancedBinds[moduleName] !== undefined && cytubeEnhancedBinds[moduleName].afterRun !== undefined) {
-                cytubeEnhancedBinds[moduleName].afterRun(modules[moduleName]);
+            if (typeof cytubeEnhancedSettings !== 'undefined' && cytubeEnhancedSettings.binds !== undefined && cytubeEnhancedSettings.binds[moduleName] !== undefined && cytubeEnhancedSettings.binds[moduleName].afterRun !== undefined) {
+                cytubeEnhancedSettings.binds[moduleName].afterRun(modules[moduleName]);
             }
         }
     };
@@ -100,6 +105,43 @@ function CytubeEnhanced(modulesSettings) {
 
 
     /**
+     * Adds the translation object
+     * @param language The language identifier
+     * @param translationObject The translation object
+     */
+    this.addTranslation = function (language, translationObject) {
+        translations[language] = translationObject;
+    };
+
+
+    /**
+     * Translates the text
+     * @param text The text to translate
+     * @returns {string}
+     */
+    this.t = function (text) {
+        var translatedText = text;
+
+        if (this.language !== 'en' && translations[this.language] !== undefined) {
+            if (text.indexOf('[.]') !== -1) {
+                var textWithNamespaces = text.split('[.]');
+
+                translatedText = translations[this.language][textWithNamespaces[0]];
+                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
+                    translatedText = translatedText[textWithNamespaces[namespace]];
+                }
+            } else {
+                translatedText = translations[this.language][text];
+            }
+        } else if (text.indexOf('[.]') !== -1) { //English
+            translatedText = text.split('[.]').pop();
+        }
+
+        return translatedText;
+    };
+
+
+    /**
      * Runs the application
      */
     this.run = function () {
@@ -110,7 +152,9 @@ function CytubeEnhanced(modulesSettings) {
 }
 
 
-cytubeEnhanced = new CytubeEnhanced({
+
+
+var defaultModulesSettings = {
     utils: {
         enabled: true,
         unfixedTopNavbar: true,
@@ -146,7 +190,7 @@ cytubeEnhanced = new CytubeEnhanced({
         afkButton: true,
         clearChatButton: true
     },
-    uiTranslate: {
+    standardUITranslate: {
         enabled: true
     },
     navMenuTabs: {
@@ -157,6 +201,169 @@ cytubeEnhanced = new CytubeEnhanced({
         layoutConfigButton: true,
         smilesAndPicturesTogetherButton: true,
         minimizeButton: true
+    }
+};
+
+
+
+
+cytubeEnhanced = new CytubeEnhanced(
+    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.channelName || 'Имя канала') : 'Имя канала'),
+    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.language || 'ru') : 'ru'),
+    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.modulesSettings || defaultModulesSettings) : defaultModulesSettings)
+);
+
+cytubeEnhanced.addTranslation('ru', {
+    qCommands: {
+        'of course': 'определенно да',
+        'yes': 'да',
+        'maybe': 'возможно',
+        'impossible': 'ни шанса',
+        'no way': 'определенно нет',
+        'don\'t think so': 'вероятность мала',
+        'no': 'нет',
+        'fairy is busy': 'фея устала и отвечать не будет',
+        'I regret to inform you': 'отказываюсь отвечать'
+    },
+    chatCommands: {
+        '%username% action (e.g: <i>/me is dancing</i>)': '%username% что-то сделал. Например: <i>/me танцует</i>',
+        'spoiler': 'спойлер',
+        'sets the "AFK" status': 'устанавливает статус "Отошёл"',
+        'random option from the list of options (!pick option1, option2, option3)': 'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick слово1, слово2, слово3</i>)',
+        'asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)': 'задать вопрос с вариантами ответа да/нет/... (Например: <i>!ask Сегодня пойдет дождь?</i>)',
+        'show the current time': 'показать текущее время',
+        'current time': 'текущее время',
+        'throw a dice': 'кинуть кость',
+        'random number between 0 and 999': 'случайное число от 0 до 999',
+        'show the random quote': 'показать случайную цитату',
+        'there aren\'t any quotes. If you are the channel administrator, you can download them from https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q': 'цитаты отсутствуют. Если вы администратор канала, то вы можете скачать их на https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q',
+        'vote for the video skip': 'проголосовать за пропуск текущего видео',
+        'you have been voted for the video skip': 'отдан голос за пропуск текущего видео',
+        'play the next video': 'проиграть следующее видео',
+        'the next video is playing': 'начато проигрывание следующего видео',
+        'bump the last video': 'поднять последнее видео',
+        'the last video was bumped: ': 'поднято последнее видео: ',
+        'adds the video to the end of the playlist (e.g. <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)': 'добавляет видео в конец плейлиста (Например: <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)',
+        'error: the wrong link': 'ошибка: неверная ссылка',
+        'the video was added': 'видео было добавлено',
+        'show the current video\'s name': 'показать название текущего видео',
+        'now: ': 'сейчас играет: ',
+        'show the random emote': 'показать случайный смайлик',
+        'the secret command': 'секретная команда'
+    },
+    'The list of chat commands': 'Список команд чата',
+    'Standard commands': 'Стандартные команды',
+    'Extra commands': 'Дополнительные команды',
+    'Commands list': 'Список команд',
+    'AFK': 'АФК',
+    'Clear chat': 'Очистить чат',
+    'Are you sure, that you want to clear the chat?': 'Вы уверены, что хотите очистить чат?',
+    favPics: {
+        'Show your favorite images': 'Показать избранные картинки',
+        'Export pictures': 'Экспорт картинок',
+        'Import pictures': 'Импорт картинок',
+        'Picture address': 'Адрес картинки',
+        'Add': 'Добавить',
+        'Remove': 'Удалить',
+        'The image already exists': 'Такая картинка уже была добавлена'
+    },
+    videoInfo: {
+        'Now:': 'Сейчас:',
+        'Added by': 'Добавлено',
+        'Nothing is playing now': 'Сейчас ничего не воспроизводится'
+    },
+    tabs: {
+        'Title': 'Заголовок',
+        'Content': 'Содержимое',
+        'Show tabs settings (cytube enhanced)': 'Показать настройки вкладок (cytube enhanced)',
+        'Tabs settings': 'Настройка вкладок',
+        'Channel description': 'Описание канала',
+        'Add tab': 'Добавить вкладку',
+        'Remove the last tab': 'Удалить последнюю вкладку',
+        'Convert to the editor\'s code': 'Преобразовать в код редактора',
+        'The code in the editor will be replaced with the new code, continue?': 'Код в редакторе будет удалён и заменен новым, продолжить?',
+        'The wrong content for the dropdown': 'Содержимое для выпадающего списка: ',
+        'Convert from the editor\'s code': 'Преобразовать из кода редактора'
+    },
+    emotes: {
+        'Show emotes': 'Показать смайлики'
+    },
+    userConfig: {
+        'Hide header': 'Скрывать шапку',
+        'Player position': 'Положение плеера',
+        'Playlist position': 'Положение плейлиста',
+        'Chat\'s userlist position': 'Позиция списка пользователей чата',
+        'Yes': 'Да',
+        'No': 'Нет',
+        'Left': 'Слева',
+        'Right': 'Справа',
+        'Center': 'По центру',
+        'Show emotes and favorite images': 'Показать смайлики и избранные картинки',
+        'Settings': 'Настройки',
+        'Layout': 'Оформление',
+        'User CSS': 'Пользовательское CSS',
+        'Cancel': 'Отмена',
+        'Reset settings': 'Сбросить настройки',
+        'All the settings including user css will be reset, continue?': 'Все настройки, в том числе и пользовательское CSS будут сброшены, продолжить?',
+        'Save': 'Сохранить',
+        'Layout settings': 'Настройки оформления',
+        'Minimize': 'Минимизировать',
+        'Common': 'Общее',
+        'and': 'и'
+    },
+    standardUI: {   //app.t('standardUI[.]')
+        'Create a poll': 'Создать опрос',
+        'Add video': 'Добавить видео',
+        'Add video from url': 'Добавить видео по ссылке',
+        'connected users': 'пользователей',
+        'connected user': 'пользователь',
+        'AFK': 'АФК',
+        'Anonymous': 'Анонимных',
+        'Channel Admins': 'Администраторов канала',
+        'Guests': 'Гостей',
+        'Moderators': 'Модераторов',
+        'Regular Users': 'Обычных пользователей',
+        'Site Admins': 'Администраторов сайта',
+        'Welcome, ': 'Добро пожаловать, ',
+        'Log out': 'Выйти',
+        'Login': 'Логин',
+        'Password': 'Пароль',
+        'Remember me': 'Запомнить',
+        'Log in': 'Вход',
+        'Home': 'На главную',
+        'Account': 'Аккаунт',
+        'Logout': 'Выход',
+        'Channels': 'Каналы',
+        'Profile': 'Профиль',
+        'Change Password/Email': 'Изменить пароль/почту',
+        'Register': 'Регистрация',
+        'Options': 'Настройки',
+        'Channel Settings': 'Настройки канала',
+        'Layout': 'Оформление',
+        'Chat Only': 'Только чат',
+        'Remove Video': 'Удалить видео',
+        'Video url': 'Адрес видео',
+        'Next': 'Следующим',
+        'At end': 'В конец',
+        'Play': 'Проиграть',
+        'Queue Next': 'Поставить следующим',
+        'Make Temporary': 'Сделать временным',
+        'Make Permanent': 'Сделать постоянным',
+        'Delete': 'Удалить',
+        'Name': 'Имя',
+        'Guest login': 'Гостевой вход'
+    },
+    video: {
+        'Refresh video': 'Обновить видео',
+        'Hide video': 'Скрыть видео',
+        'highres': 'наивысшее',
+        'Quality': 'Качество',
+        'Use Youtube JS Player': 'Использовать Youtube JS Player',
+        'Expand playlist': 'Развернуть плейлист',
+        'Unexpand playlist': 'Свернуть плейлист',
+        'Scroll the playlist to the current video': 'Прокрутить плейлист к текущему видео',
+        'Contributors\' list': 'Список пользователей, добавивших видео',
+        'Video\'s count': 'Всего видео'
     }
 });
 
@@ -394,108 +601,15 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     }
 
 
-    this.askAnswers = ["100%", "Определенно да", "Да", "Вероятно", "Ни шанса", "Определенно нет", "Вероятность мала", "Нет", "50/50", "Фея устала и отвечать не будет", "Отказываюсь отвечать"];
+    this.askAnswers = ["100%", app.t('qCommands[.]of course'), app.t('qCommands[.]yes'), app.t('qCommands[.]maybe'), app.t('qCommands[.]impossible'), app.t('qCommands[.]no way'), app.t('qCommands[.]don\'t think so'), app.t('qCommands[.]no'), "50/50", app.t('qCommands[.]fairy is busy'), app.t('qCommands[.]I regret to inform you')];
 
 
-    this.randomQuotes = [
-        'Не поддавайся сожалениям, о которых тебе напоминает прошлое.',
-        'Честно говоря, я всегда думал, что лучше умереть, чем жить в одиночестве...',
-        'Прошу прощения, но валите прочь.',
-        'По-настоящему силён лишь тот, кто знает свои слабости.',
-        'Быть умным и хорошо учиться — две разные вещи.',
-        'Когда я стану главнокомандующим, я заставлю всех девушек носить мини-юбки!',
-        'Тот кто правит временем, правит всем миром.',
-        'Я должен познакомить тебя с моими друзьями. Они еще те извращенцы, но они хорошие люди.',
-        'Победа не важна, если она лишь твоя.',
-        'Наркотики убивают в людях человечность.',
-        'Если бы меня волновало мнение других людей, то я давно бы уже покрасил волосы в другой цвет.',
-        'Слезы — кровотечение души....',
-        'Весело создавать что-то вместе.',
-        'Как ты не понимаешь, что есть люди, которые умрут от горя, если тебя не станет!',
-        'Я частенько слышал, что пары, которые внешне любят друг друга, частенько холодны внутри.',
-        'Если хочешь, что бы люди поверили в мечту, сначала поверь в нее сам.',
-        'Жизнь, в которой человек имеет всё, что желает, пуста и неинтересна.',
-        'Чтобы чего-то достичь, необходимо чем-то пожертвовать.',
-        'Я не одинока. Я просто люблю играть соло. Краситься, укорачивать юбку и заигрывать с парнями — это для потаскух.',
-        'Очень страшно, когда ты не помнишь, кто ты такая.',
-        'Больно помнить о своих слабостях.',
-        'Похоже, мудрость и алкоголь несовместимы.',
-        'Почему... Почему... Почему со мной вечно происходит какая-то херня?!',
-        'Красивое нельзя ненавидеть.',
-        'Если ты хочешь написать что-то плохое в комментариях в интернете, пиши, но это будет лишь выражением твоей зависти.',
-        'Хочешь сбежать от повседневности — не останавливайся в развитии.',
-        'Одинокие женщины ищут утешение в домашних животных.',
-        'В эпоху, когда информация правит миром, жить без компьютера совершенно непростительно!',
-        'Каждый человек одинок. Звезды в ночном небе тоже вроде бы все вместе, но на самом деле они разделены бездной. Холодной, тёмной, непреодолимой бездной.',
-        'Умные люди умны ещё до того, как начинают учиться.',
-        'Только те, у кого явные проблемы, говорят, что у них всё хорошо.',
-        'Не важно если меня победит другой, но... Себе я не проиграю!',
-        'Немногие способны на правильные поступки, когда это необходимо.',
-        'Я мечтаю о мире, где все смогут улыбаться и спать, когда им того захочется.',
-        'Девушке не обмануть меня… даже если она без трусиков!',
-        'Это не мир скучный, это я не выделяюсь.',
-        'С людьми без воображения одни проблемы.',
-        'Нечестно это — своей слабостью шантажировать.',
-        'То ли я уже не человек, то ли вы еще не люди.',
-        'Чего я действительно опасаюсь, так это не потери своей памяти, а исчезновения из памяти остальных.',
-        'Даже если небо погружено во тьму, и ничего не видно, где-то обязательно будет светиться звезда. Если она будет сиять ярче и ярче, её обязательно увидят...',
-        'Никто не может нырнуть в бездну и вынырнуть прежним.',
-        'Когда теряешь всё разом, мир начинает казаться довольно хреновым местечком.',
-        'Не хочу видеть, что будет, когда Маяка узнает, что её шоколад украли. Не люблю ужастики.',
-        'В мире есть добро потому, что есть кошки.',
-        'Девчата, пойте! Зажигайте свет вашей души!',
-        'И что ты собираешься делать, рождённый неизвестно зачем, и умирающий неизвестно за что?',
-        'А давай станем с тобой чудовищами, и поставим весь мир на уши?',
-        'Не забывай только, что и доброта может причинить боль.',
-        'Тяжело признать плохим то, за что отдал 20 баксов.',
-        'Говорят, в вере спасение… Но мне что-то никогда в это не верилось.',
-        'Клубничка — это сердце тортика!',
-        'Бабушка мне всегда говорила: «Юи-тян, ты запомнишь всё что угодно, но при этом ты забудешь всё остальное».',
-        'Как жаль, что люди начинают ценить что-то только тогда, когда теряют это.',
-        'У людей с холодными руками тёплое сердце.',
-        'Я всегда думала, что это здорово: Посмеяться перед серьёзным делом.',
-        'Мир не так жесток, как ты думаешь.',
-        'Даже отдав все свои силы, не каждый способен стать победителем.',
-        'Наше общество — просто стадо баранов.',
-        'Пока сами чего-то не сделаете, это ваше «однажды» никогда не наступит.',
-        'Чтобы что-то выбрать, нужно что-то потерять.',
-        'За каждой улыбкой, что ты увидишь, будут скрываться чьи-то слёзы.',
-        'Приключения — мечта настоящего мужчины!',
-        'Твоя хитрость всегда будет оценена по достоинству.',
-        'Я гораздо лучше орудую мечами, нежели словами.',
-        'Прошлое всегда сияет ярче настоящего.',
-        'Становиться взрослой так грустно...',
-        'Романтические чувства — всего лишь химическая реакция',
-        'Говорят, что в море ты или плывёшь, или тонешь.',
-        'Не важно как ты осторожен, всегда есть опасность споткнуться.',
-        'Я насилие не люблю, оно у меня само получается.',
-        'Когда я смотрю аниме от КёАни, Господь подымает меня над полом и приближает к себе.',
-        'Бака, бака, бака!',
-        'Ты так говоришь, будто это что-то плохое.',
-        'Мне вас жаль.',
-        'Ваше мнение очень важно для нас.',
-        'А в глубине души я всех вас ненавижу, как и весь этот мир.',
-        'А разгадка одна — безблагодатность.',
-        'Умерьте пыл.',
-        'Меня трудно найти, легко потерять и невозможно забыть....',
-        'Не твоя, вот ты и бесишься.',
-        'Ваш ребенок - аниме.',
-        'Здесь все твои друзья.',
-        'Мне 20 и я бородат',
-        'Ребята не стоит вскрывать эту тему. Вы молодые, шутливые, вам все легко. Это не то. Это не Чикатило и даже не архивы спецслужб. Сюда лучше не лезть. Серьезно, любой из вас будет жалеть. Лучше закройте тему и забудьте что тут писалось.',
-        'Ты понимаешь, что ты няшка? Уже всё. Не я, блин, няшка… не он, блин, а ты!', 'Меня твои истории просто невероятно заинтересовали уже, я уже могу их слушать часами, блин! Одна история няшней другой просто!', 'НАЧАЛЬНИК, БЛИН, ЭТОТ НЯША ОБКАВАИЛСЯ! ИДИТЕ МОЙТЕ ЕГО, Я С НИМ ЗДЕСЬ НЯШИТСЯ БУДУ!', 'ЧЕГО ВЫ МЕНЯ С НЯШЕЙ ПОСЕЛИЛИ, БЛИН, ОН ЖЕ КАВАЙ ПОЛНЫЙ, БЛИН!!!',
-        'Ну… Чаю выпил, блин, ну, бутылку, с одной тян. Ну, а потом под пледиком поняшились.',
-        'Хочешь я на одной ноге понякаю, а ты мне погону отдашь? Как нека, хочешь?',
-        'ЭТО ЗНАТЬ НАДО! ЭТО ЗОЛОТОЙ ФОНД, БЛИН!',
-        'Как п… как поспал, онии-чан? Проголодался, наверное! Онии-чан…',
-        'Ты что, обняшился что ли, няшка, блин?!',
-        'Не, я не обняшился. Я тебе покушать принёс, Онии-чан!'
-    ];
+    this.randomQuotes = [];
 
 
     this.commandsList = {
         '!pick ': {
-            description: 'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick слово1, слово2, слово3</i>)',
+            description: app.t('chatCommands[.]random option from the list of options (!pick option1, option2, option3)'),
             value: function (msg) {
                 var variants = msg.replace('!pick ', '').split(',');
                 return variants[Math.floor(Math.random() * (variants.length - 1))].trim();
@@ -505,7 +619,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!ask ': {
-            description: 'задать вопрос с вариантами ответа да/нет/... (Например: <i>!ask Сегодня пойдет дождь?</i>)',
+            description: app.t('chatCommands[.]asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)'),
             value: function () {
                 return that.askAnswers[Math.floor(Math.random() * (that.askAnswers.length - 1))];
             },
@@ -514,7 +628,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!time': {
-            description: 'показать текущее время',
+            description: app.t('chatCommands[.]show the current time'),
             value: function () {
                 var h = new Date().getHours();
                 if (h < 10) {
@@ -526,14 +640,14 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                     m = '0' + m;
                 }
 
-                return 'текущее время: ' + h + ':' + m;
+                return app.t('chatCommands[.]current time') + ': ' + h + ':' + m;
             },
             isAvailable: function () {
                 return true;
             }
         },
         '!dice': {
-            description: 'кинуть кость',
+            description: app.t('chatCommands[.]throw a dice'),
             value: function () {
                 return Math.floor(Math.random() * 5) + 1;
             },
@@ -542,7 +656,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!roll': {
-            description: 'случайное число от 0 до 999',
+            description: app.t('chatCommands[.]random number between 0 and 999'),
             value: function () {
                 var randomNumber = Math.floor(Math.random() * 1000);
 
@@ -559,10 +673,10 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!q': {
-            description: 'показать случайную цитату',
+            description: app.t('chatCommands[.]show the random quote'),
             value: function (msg) {
                 if (that.randomQuotes.length === 0) {
-                    msg = 'цитаты отсутствуют';
+                    msg = app.t('chatCommands[.]there aren\'t any quotes. If you are the channel administrator, you can download them from https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q');
                 } else {
                     msg = that.randomQuotes[Math.floor(Math.random() * (that.randomQuotes.length - 1))];
                 }
@@ -574,10 +688,10 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!skip': {
-            description: 'проголосовать за пропуск текущего видео',
+            description: app.t('chatCommands[.]vote for the video skip'),
             value: function (msg) {
                 socket.emit("voteskip");
-                msg = 'отдан голос за пропуск текущего видео';
+                msg = app.t('chatCommands[.]you have been voted for the video skip');
 
                 return msg;
             },
@@ -586,10 +700,10 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!next': {
-            description: 'проиграть следующее видео',
+            description: app.t('chatCommands[.]play the next video'),
             value: function (msg) {
                 socket.emit("playNext");
-                msg = 'начато проигрывание следующего видео';
+                msg = app.t('chatCommands[.]the next video is playing');
 
                 return msg;
             },
@@ -598,14 +712,14 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!bump': {
-            description: 'поднять последнее видео',
+            description: app.t('chatCommands[.]bump the last video'),
             value: function (msg) {
                 var last = $("#queue").children().length;
                 var uid = $("#queue .queue_entry:nth-child("+last+")").data("uid");
                 var title = $("#queue .queue_entry:nth-child("+last+") .qe_title").html();
                 socket.emit("moveMedia", {from: uid, after: PL_CURRENT});
 
-                msg = 'поднято последнее видео: ' + title;
+                msg = app.t('chatCommands[.]the last video was bumped') + title;
 
                 return msg;
             },
@@ -614,15 +728,15 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!add': {
-            description: 'добавляет видео в конец плейлиста (Например: <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)',
+            description: app.t('chatCommands[.]adds the video to the end of the playlist (e.g. <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)'),
             value: function (msg) {
                 var parsed = parseMediaLink(msg.split("!add ")[1]);
 
                 if (parsed.id === null) {
-                    msg = 'ошибка: неверная ссылка';
+                    msg = app.t('chatCommands[.]error: the wrong link');
                 } else {
                     socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
-                    msg = 'видео было добавлено';
+                    msg = app.t('chatCommands[.]the video was added');
                 }
 
 
@@ -633,16 +747,16 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!now': {
-            description: 'показать название текущего видео',
+            description: app.t('chatCommands[.]show the current video\'s name'),
             value: function () {
-                return 'сейчас играет: ' + $(".queue_active a").html();
+                return app.t('chatCommands[.]now: ') + $(".queue_active a").html();
             },
             isAvailable: function () {
                 return true;
             }
         },
         '!sm': {
-            description: 'показать случайный смайлик',
+            description: app.t('chatCommands[.]show the random emote'),
             value: function () {
                 var smilesArray = CHANNEL.emotes.map(function (smile) {
                     return smile.name;
@@ -655,12 +769,12 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             }
         },
         '!yoba': {
-            description: 'секретная команда',
+            description: app.t('chatCommands[.]the secret command'),
             value: function () {
                 var $yoba = $('<div class="yoba">').appendTo($(document.body));
                 $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
 
-                var IMBA=new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
+                var IMBA = new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
                 IMBA.volume=0.6;
                 IMBA.play();
                 var BGCHANGE = 0;
@@ -807,10 +921,10 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
 
     that.commands = {};
 
-    that.commands['Стандартные команды'] = {
-        '/me':'%username% что-то сделал. Например: <i>/me танцует</i>',
-        '/sp':'спойлер',
-        '/afk':'устанавливает статус "Отошёл".'
+    that.commands[app.t('Standard commands')] = {
+        '/me': app.t('chatCommands[.]%username% action (e.g: <i>/me is dancing</i>)'),
+        '/sp': app.t('chatCommands[.]spoiler'),
+        '/afk': app.t('chatCommands[.]sets the "AFK" status')
     };
 
     if (app.isModulePermitted('additionalChatCommands')) {
@@ -823,7 +937,7 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
                 }
             }
 
-            that.commands['Дополнительные команды'] = additionalCommands;
+            that.commands[app.t('Extra commands')] = additionalCommands;
         });
     }
 
@@ -836,18 +950,18 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
 
             var $ul = $('<ul>');
             for (var command in commands[commandsPartName]) {
-                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command]).appendTo($ul);
+                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command] + '.').appendTo($ul);
             }
 
             $ul.appendTo($bodyWrapper);
         }
 
         app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow('Список команд', $bodyWrapper);
+            utilsModule.createModalWindow(app.t('The list of chat commands'), $bodyWrapper);
         });
     };
     this.$chatHelpBtn = $('<button id="chat-help-btn" class="btn btn-sm btn-default">')
-        .text('Список команд')
+        .text(app.t('Commands list'))
         .appendTo('#chat-controls')
         .on('click', function () {
             that.handleChatHelpBtn(that.commands);
@@ -881,7 +995,7 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
         socket.emit('chatMsg', {msg: '/afk'});
     };
     this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
-        .text('АФК')
+        .text(app.t('AFK'))
         .appendTo('#chatheader')
         .on('click', function () {
             that.handleAfkBtn();
@@ -892,12 +1006,12 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
 
 
     this.handleClearBtn = function () {
-        if (confirm('Вы уверены, что хотите очистить чат?')) {
+        if (confirm(app.t('Are you sure, that you want to clear the chat?'))) {
             socket.emit("chatMsg", {msg: '/clear'});
         }
     };
     this.$clearChatBtn = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">')
-        .text('Очистить чат')
+        .text(app.t('Clear chat'))
         .insertAfter(that.$afkBtn)
         .on('click', function () {
             that.handleClearBtn();
@@ -939,7 +1053,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     }
 
 
-    this.$toggleFavouritePicturesPanelBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="Показать избранные картинки">')
+    this.$toggleFavouritePicturesPanelBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="' + app.t('favPics[.]Show your favorite images') + '">')
         .html('<i class="glyphicon glyphicon-th"></i>');
     if ($('#smiles-btn').length !== 0) {
         this.$toggleFavouritePicturesPanelBtn.insertAfter('#smiles-btn');
@@ -961,18 +1075,18 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     this.$favouritePicturesControlPanelForm = $('<div class="col-md-12">')
         .html('<div class="input-group">' +
             '<span class="input-group-btn">' +
-                '<button id="export-pictures" class="btn btn-default" style="border-radius: 0;" type="button">Экспорт картинок</button>' +
+                '<button id="export-pictures" class="btn btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Export pictures') + '</button>' +
             '</span>' +
              '<span class="input-group-btn">' +
-                '<label for="import-pictures" class="btn btn-default" style="border-radius: 0;">Импорт картинок</label>' +
+                '<label for="import-pictures" class="btn btn-default" style="border-radius: 0;">' + app.t('favPics[.]Import pictures') + '</label>' +
                 '<input type="file" style="display: none" id="import-pictures" name="pictures-import">' +
             '</span>' +
-            '<input type="text" id="picture-address" class="form-control" placeholder="Адрес картинки">' +
+            '<input type="text" id="picture-address" class="form-control" placeholder="' + app.t('favPics[.]Picture address') + '">' +
             '<span class="input-group-btn">' +
-                '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">Добавить</button>' +
+                '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
             '<span class="input-group-btn">' +
-                '<button id="remove-picture-btn" class="btn btn-default" type="button">Удалить</button>' +
+                '<button id="remove-picture-btn" class="btn btn-default" type="button">' + app.t('favPics[.]Remove') + '</button>' +
             '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
@@ -1058,7 +1172,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
             var $openImageBtn = $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
                 .appendTo($modalPictureOptions);
 
-            var $searchByPictureBtn = $('<a href="https://www.google.nl/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+            var $searchByPictureBtn = $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
                 .appendTo($modalPictureOptions);
 
 
@@ -1152,7 +1266,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
                     favouritePictures.push($('#picture-address').val());
                 }
             } else {
-                makeAlert("Такая картинка уже была добавлена").prependTo(that.$favouritePicturesBodyPanel);
+                makeAlert(app.t('favPics[.]The image already exists')).prependTo(that.$favouritePicturesBodyPanel);
                 $('#picture-address').val('');
 
                 return false;
@@ -1192,7 +1306,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
         var $downloadLink = $('<a>')
             .attr({
                 href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(window.localStorage.getItem('favouritePictures') || JSON.stringify([])),
-                download: 'animach_images.txt'
+                download: 'cytube_enhanced_favourite_images.txt'
             })
             .hide()
             .appendTo($(document.body));
@@ -1226,7 +1340,8 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     };
 });
 
-cytubeEnhanced.setModule('navMenuTabs', function () {
+//Example of tabs html for the editor: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
+cytubeEnhanced.setModule('navMenuTabs', function (app) {
     var that = this;
 
 
@@ -1238,14 +1353,14 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
         var $tabNameWrapperOfWrapper = $('<div class="col-sm-4 col-md-3">').appendTo($wrapper);
         var $tabNameWrapper = $('<div class="form-group">').appendTo($tabNameWrapperOfWrapper);
-        var $tabNameInput = $('<input name="title" type="text" class="form-control" placeholder="Заголовок">')
+        var $tabNameInput = $('<input name="title" type="text" class="form-control" placeholder="' + app.t('tabs[.]Title') + '">')
             .val(tabName)
             .appendTo($tabNameWrapper);
 
 
         var $tabValueWrapperOfWrapper = $('<div class="col-sm-8 col-md-9">').appendTo($wrapper);
         var $tabValueWrapper = $('<div class="form-group">').appendTo($tabValueWrapperOfWrapper);
-        var $tabValueInput = $('<input name="content" type="text" class="form-control" placeholder="Содержимое">')
+        var $tabValueInput = $('<input name="content" type="text" class="form-control" placeholder="' + app.t('tabs[.]Content') + '">')
             .val(tabValue)
             .appendTo($tabValueWrapper);
     };
@@ -1345,7 +1460,7 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
 
     this.$tabSettingsBtn = $('<button type="button" class="btn btn-primary motd-bottom-btn" id="show-tabs-settings">')
-        .text('Показать настройки вкладок')
+        .text(app.t('tabs[.]Show tabs settings (cytube enhanced)'))
         .appendTo('#cs-motdeditor')
         .on('click', function () {
             if ($(this).hasClass('btn-primary')) {
@@ -1363,7 +1478,7 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
 
     this.$tabsSettings = $('<div id="tabs-settings">')
-        .html('<hr><h3>Настройка вкладок</h3>')
+        .html('<hr><h3>' + app.t('tabs[.]Tabs settings') + '</h3>')
         .insertBefore('#cs-motdtext')
         .hide();
 
@@ -1371,8 +1486,8 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
 
     this.$channelDescriptionInputWrapper = $('<div class="form-group">').appendTo(this.$tabsSettings);
-    this.$channelDescriptionLabel = $('<label for="channel-description-input">Описание канала</label>').appendTo(this.$channelDescriptionInputWrapper);
-    this.$channelDescriptionInput = $('<input id="channel-description-input" placeholder="Описание канала" class="form-control">').appendTo(this.$channelDescriptionInputWrapper);
+    this.$channelDescriptionLabel = $('<label for="channel-description-input">' + app.t('tabs[.]Channel description') + '</label>').appendTo(this.$channelDescriptionInputWrapper);
+    this.$channelDescriptionInput = $('<input id="channel-description-input" placeholder="' + app.t('tabs[.]Channel description') + '" class="form-control">').appendTo(this.$channelDescriptionInputWrapper);
 
 
     this.$tabsArea = $('<div id="tabs-settings-area">').appendTo(this.$tabsSettings);
@@ -1380,14 +1495,16 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
     $('<p>Вкладки</p>').insertBefore(this.$tabsArea);
 
 
-    this.$addTabToTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-add">Добавить вкладку</button>')
+    this.$addTabToTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-add">')
+        .text(app.t('tabs[.]Add tab'))
         .appendTo(this.$tabsSettings)
         .on('click', function () {
             that.addTabInput(that.$tabsArea);
         });
 
 
-    this.$removeLastTabFromTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-remove">Удалить последнюю вкладку</button>')
+    this.$removeLastTabFromTabsSettingsBtn = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-remove">')
+        .text(app.t('tabs[.]Remove the last tab'))
         .appendTo(this.$tabsSettings)
         .on('click', function () {
             that.$tabsArea.children('.tab-option-wrapper').last().remove();
@@ -1395,10 +1512,10 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
 
     this.$tabsToHtml = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-to-html">')
-        .text('Преобразовать в код редактора')
+        .text(app.t('tabs[.]Convert to the editor\'s code'))
         .appendTo(this.$tabsSettings)
         .on('click', function () {
-            if (confirm('Код в редакторе будет удалён и заменен новым, продолжить?')) {
+            if (confirm(app.t('tabs[.]The code in the editor will be replaced with the new code, continue?'))) {
                 var tabsConfig = []; //list of arrays like [tabTitle, tabContent]
 
                 that.$tabsArea.find('.tab-option-wrapper').each(function () {
@@ -1407,7 +1524,7 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
                     if (tabName.indexOf('!dropdown!') === 0) {
                         if (!/^(?:\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\][ ]*,[ ]*)*\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\]$/.test(tabContent)) {
-                            alert('Неправильное выражения для выпадающего списка: ' + tabName.replace('!dropdown!', '') + '.');
+                            alert(app.t('tabs[.]The wrong content for the dropdown') + tabName.replace('!dropdown!', '') + '.');
                             return;
                         }
 
@@ -1428,7 +1545,7 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
 
 
     this.$htmlToTabs = $('<button type="button" class="btn btn-sm btn-primary" id="tabs-settings-from-html">')
-        .text('Преобразовать из кода редактора')
+        .text(app.t('tabs[.]Convert from the editor\'s code'))
         .appendTo(this.$tabsSettings)
         .on('click', function () {
             that.tabsHtmlToCondig($('#cs-motdtext').val());
@@ -1480,16 +1597,15 @@ cytubeEnhanced.setModule('navMenuTabs', function () {
         });
     };
 });
-//<div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 
-cytubeEnhanced.setModule('showVideoInfo', function () {
+cytubeEnhanced.setModule('showVideoInfo', function (app) {
     var that = this;
 
 
     this.$titleRow = $('<div id="titlerow" class="row">').insertBefore('#main');
 
 	this.$titleRowOuter = $('<div id="titlerow-outer" class="col-md-12" />')
-        .html($("#currenttitle").text($(".queue_active a").text() !== '' ? $("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:') : '').detach())
+        .html($("#currenttitle").text($(".queue_active a").text() !== '' ? $("#currenttitle").text().replace(/^Currently Playing:/, app.t('videoInfo[.]Now:')) : '').detach())
         .appendTo(this.$titleRow);
 
     this.$mediaInfo = $('<p id="mediainfo">').prependTo("#videowrap");
@@ -1514,13 +1630,13 @@ cytubeEnhanced.setModule('showVideoInfo', function () {
 //
 //		$mediaInfo.html('<marquee scrollamount="5">' + infoString + '</marquee>');
         if ($(".queue_active").length !== 0) {
-            $("#currenttitle").text($("#currenttitle").text().replace(/^Currently Playing:/, 'Сейчас:'));
+            $("#currenttitle").text($("#currenttitle").text().replace(/^Currently Playing:/, app.t('videoInfo[.]Now:')));
 
-            that.$mediaInfo.text($('.queue_active').attr('title').replace('Added by', 'Добавлено'));
+            that.$mediaInfo.text($('.queue_active').attr('title').replace('Added by', app.t('videoInfo[.]Added by')));
         } else {
             $("#currenttitle").text('');
 
-            that.$mediaInfo.text('Ничего не воспроизводится');
+            that.$mediaInfo.text(app.t('videoInfo[.]Nothing is playing now'));
         }
     };
 
@@ -1550,7 +1666,7 @@ cytubeEnhanced.setModule('smiles', function (app) {
     $('#emotelistbtn').hide();
 
 
-    this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="Показать смайлики">')
+    this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="' + app.t('emotes[.]Show emotes') + '">')
         .html('<i class="glyphicon glyphicon-picture"></i>')
         .prependTo('#chat-controls');
 
@@ -1613,26 +1729,26 @@ cytubeEnhanced.setModule('smiles', function (app) {
     };
 });
 
-cytubeEnhanced.setModule('uiTranslate', function () {
+cytubeEnhanced.setModule('standardUITranslate', function (app) {
     if ($('#newpollbtn').length !== 0) {
-        $('#newpollbtn').text('Создать опрос');
+        $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
     }
 
     if ($('#showmediaurl').length !== 0) {
-        $('#showmediaurl').html('Добавить видео')
-            .attr({title: 'Добавить видео по ссылке'})
+        $('#showmediaurl').html(app.t('standardUI[.]Add video'))
+            .attr({title: app.t('standardUI[.]Add video from url')})
             .detach()
             .insertBefore($('#showsearch'));
     }
 
     if ($('.navbar-brand').length !== 0) {
-        $('.navbar-brand').text('Анимач ТВ');
+        $('.navbar-brand').text(app.channelName);
     }
 
     if ($('#usercount').length !== 0) {
-        $('#usercount').text($('#usercount').text().replace('connected users', 'пользователей').replace('connected user', 'пользователь'));
+        $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
         socket.on('usercount', function () {
-            $('#usercount').text($('#usercount').text().replace('connected users', 'пользователей').replace('connected user', 'пользователь'));
+            $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
         });
     }
     calcUserBreakdown = (function (oldCalcUserBreakdown) {
@@ -1641,13 +1757,13 @@ cytubeEnhanced.setModule('uiTranslate', function () {
             var translatedChatInfo = {};
 
             var chatInfoTranslateMap = {
-                AFK: 'АФК',
-                Anonymous: 'Анонимных',
-                'Channel Admins': 'Администраторов канала',
-                Guests: 'Гостей',
-                Moderators: 'Модераторов',
-                'Regular Users': 'Обычных пользователей',
-                'Site Admins': 'Администраторов сайта'
+                AFK: app.t('standardUI[.]AFK'),
+                Anonymous: app.t('standardUI[.]Anonymous'),
+                'Channel Admins': app.t('standardUI[.]Channel Admins'),
+                Guests: app.t('standardUI[.]Guests'),
+                Moderators: app.t('standardUI[.]Moderators'),
+                'Regular Users': app.t('standardUI[.]Regular Users'),
+                'Site Admins': app.t('standardUI[.]Site Admins')
             };
 
             for (var chatInfoElement in chatInfo) {
@@ -1659,38 +1775,38 @@ cytubeEnhanced.setModule('uiTranslate', function () {
     })(calcUserBreakdown);
 
     if ($('#welcome').length !== 0) {
-        $('#welcome').text('Добро пожаловать, ' + CLIENT.name);
+        $('#welcome').text(app.t('standardUI[.]Welcome, ') + CLIENT.name);
     }
     if ($('#logout').length !== 0) {
-        $('#logout').text('Выйти');
+        $('#logout').text(app.t('standardUI[.]Log out'));
     }
     if ($('#username').length !== 0) {
-        $('#username').attr({placeholder: 'Логин'});
+        $('#username').attr({placeholder: app.t('standardUI[.]Login')});
     }
     if ($('#password').length !== 0) {
-        $('#password').attr({placeholder: 'Пароль'});
+        $('#password').attr({placeholder: app.t('standardUI[.]Password')});
     }
     if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
-        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text('Запомнить');
+        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text(app.t('standardUI[.]Remember me'));
     }
     if ($('#login')) {
-        $('#login').text('Вход');
+        $('#login').text(app.t('standardUI[.]Site login'));
     }
 
     var menuTranslateMap = {
-        Home: 'Домой',
-        Account: 'Аккаунт',
-        Logout: 'Выход',
-        Channels: 'Каналы',
-        Profile: 'Профиль',
-        'Change Password/Email': 'Изменить пароль/почту',
-        Login: 'Вход',
-        Register: 'Регистрация',
-        Options: 'Настройки',
-        'Channel Settings': 'Настройки канала',
-        Layout: 'Оформление',
-        'Chat Only': 'Только чат',
-        'Remove Video': 'Удалить видео'
+        Home: app.t('standardUI[.]Home'),
+        Account: app.t('standardUI[.]Account'),
+        Logout: app.t('standardUI[.]Logout'),
+        Channels: app.t('standardUI[.]Channels'),
+        Profile: app.t('standardUI[.]Profile'),
+        'Change Password/Email': app.t('standardUI[.]Change Password/Email'),
+        Login: app.t('standardUI[.]Log in'),
+        Register: app.t('standardUI[.]Register'),
+        Options: app.t('standardUI[.]Options'),
+        'Channel Settings': app.t('standardUI[.]Channel Settings'),
+        Layout: app.t('standardUI[.]Layout'),
+        'Chat Only': app.t('standardUI[.]Chat Only'),
+        'Remove Video': app.t('standardUI[.]Remove Video')
     };
     $('.navbar').find('.navbar-nav').children().each(function () {
         $(this).find('a').each(function () {
@@ -1701,42 +1817,42 @@ cytubeEnhanced.setModule('uiTranslate', function () {
     });
 
     if ($('#mediaurl').length !== 0) {
-        $('#mediaurl').attr('placeholder', 'Адрес видео');
+        $('#mediaurl').attr('placeholder', app.t('standardUI[.]Video url'));
     }
     if ($('#queue_next').length !== 0) {
-        $('#queue_next').text('Следующим');
+        $('#queue_next').text(app.t('standardUI[.]Next'));
     }
     if ($('#queue_end').length !== 0) {
-        $('#queue_end').text('В конец');
+        $('#queue_end').text(app.t('standardUI[.]At end'));
     }
 
     $('.qbtn-play').each(function () {
-        $(this).html($(this).html().replace('Play', ' Проиграть'));
+        $(this).html($(this).html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
     });
     $('.qbtn-next').each(function () {
-        $(this).html($(this).html().replace('Queue Next', ' Поставить следующим'));
+        $(this).html($(this).html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
     });
     $('.qbtn-tmp').each(function () {
-        $(this).html($(this).html().replace('Make Temporary', ' Сделать временным').replace('Make Permanent', 'Сделать постоянным'));
+        $(this).html($(this).html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
     });
     $('.qbtn-delete').each(function () {
-        $(this).html($(this).html().replace('Delete', ' Удалить'));
+        $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
     });
     addQueueButtons = (function (oldAddQueueButtons) {
         return function (li) {
             var result = oldAddQueueButtons(li);
 
             if (li.find('.qbtn-play').length !== 0) {
-                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace('Play', ' Проиграть'));
+                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
             }
             if (li.find('.qbtn-next').length !== 0) {
-                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace('Queue Next', ' Поставить следующим'));
+                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
             }
             if (li.find('.qbtn-tmp').length !== 0) {
-                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace('Make Temporary', ' Сделать временным').replace('Make Permanent', 'Сделать постоянным'));
+                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
             }
             if (li.find('.qbtn-delete').length !== 0) {
-                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace('Delete', ' Удалить'));
+                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
             }
 
             return result;
@@ -1747,26 +1863,19 @@ cytubeEnhanced.setModule('uiTranslate', function () {
 
         if(tmpBtn.length !== 0) {
             if(data.temp) {
-                tmpBtn.html(tmpBtn.html().replace('Сделать временным', 'Сделать постоянным'));
+                tmpBtn.html(tmpBtn.html().replace('Сделать временным', app.t('standardUI[.]Make Temporary')));
             }
             else {
-                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', 'Сделать временным'));
+                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
             }
         }
     });
 
-    // $('#queue').find('.queue_entry').each(function () {
-    //     $(this).attr('title', $(this).attr('title').replace('Added by', 'Добавлено'));
-    // });
-    // socket.on('queue', function () {
-    //     $('#queue').find('.queue_entry').last().attr('title', $('.queue_entry').last().attr('title').replace('Added by', 'Добавлено'));
-    // });
-
     if ($('#guestname').length !== 0) {
-        $('#guestname').attr('placeholder', 'Имя');
+        $('#guestname').attr('placeholder', app.t('standardUI[.]Name'));
     }
     if ($('#guestlogin')) {
-        $('#guestlogin').find('.input-group-addon').text('Гостевой вход');
+        $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
     }
 });
 
@@ -1783,36 +1892,36 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
     this.layoutOptions = {
         'hide-header': {
-            title: 'Скрывать шапку',
+            title: app.t('userConfig[.]Hide header'),
             'default': 'no',
             values: {
-                yes: 'Да',
-                no: 'Нет'
+                yes: app.t('userConfig[.]Yes'),
+                no: app.t('userConfig[.]No')
             }
         },
         'player-position': {
-            title: 'Положение плеера',
+            title: app.t('userConfig[.]Player position'),
             'default': 'right',
             values: {
-                left: 'Слева',
-                right: 'Справа',
-                center: 'По центру'
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right'),
+                center: app.t('userConfig[.]Center')
             }
         },
         'playlist-position': {
-            title: 'Положение плейлиста',
+            title: app.t('userConfig[.]Playlist position'),
             'default': 'right',
             values: {
-                left: 'Слева',
-                right: 'Справа'
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right')
             }
         },
         'userlist-position': {
-            title: 'Позиция списка пользователей чата',
+            title: app.t('userConfig[.]Chat\'s userlist position'),
             'default': 'left',
             values: {
-                left: 'Слева',
-                right: 'Справа'
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right')
             }
         }
     };
@@ -1954,7 +2063,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
                 $('#favourite-pictures-btn').addClass('btn-default');
                 $('#favourite-pictures-btn').removeClass('btn-success');
 
-                $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="Показать смайлики и избранные картинки">')
+                $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="' + app.t('userConfig[.]Show emotes and favorite images') + '">')
                     .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
                     .prependTo($('#chat-controls'))
                     .on('click', function () {
@@ -1993,7 +2102,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
     this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
-        .html('<span class="glyphicon glyphicon-cog"></span> Настройки')
+        .html('<span class="glyphicon glyphicon-cog"></span> ' + app.t('userConfig[.]Settings'))
         .appendTo('#leftcontrols')
         .on('click', function() {
             that.toggleConfigPanel();
@@ -2001,7 +2110,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
 
     this.$layoutForm = $('<div id="layout-config-form" class="form-group">').appendTo(this.$configBody)
-        .append($('<div class="col-lg-3 col-md-3 control-label">Оформление</div>'));
+        .append($('<div class="col-lg-3 col-md-3 control-label">' + app.t('userConfig[.]Layout') + '</div>'));
     this.$layoutWrapper = $('<div id="layout-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$layoutForm);
     this.$layoutBtnWrapper = $('<div id="layout-config-btn-wrapper" class="btn-group">').appendTo(this.$layoutWrapper);
     if (!settings.layoutConfigButton && !settings.minimizeButton) {
@@ -2029,7 +2138,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         }
 
         var $userCssWrapper = $('<div class="form-group">').appendTo($settingsWrapper);
-        var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">Пользовательское CSS</label>').appendTo($userCssWrapper);
+        var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
         var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
         var $userCssTextarea = $('<textarea id="user-css" class="form-control" rows="7">')
             .appendTo($userCssTextareaWrapper)
@@ -2037,12 +2146,12 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         var $btnWrapper = $('<div>');
 
-        $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">Отмена</button>').appendTo($btnWrapper);
+        $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">' + app.t('userConfig[.]User CSS') + '</button>').appendTo($btnWrapper);
 
-        $('<button type="button" id="reset-user-layout" class="btn btn-danger">Сбросить настройки</button>')
+        $('<button type="button" id="reset-user-layout" class="btn btn-danger">' + app.t('userConfig[.]Reset settings') + '</button>')
             .appendTo(this.$btnWrapper)
             .on('click', function () {
-                if (confirm('Все настройки, в том числе и пользовательское CSS будут сброшены, вы уверены?')) {
+                if (confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
                     for (var layoutOption in that.layoutOptions) {
                         userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
                     }
@@ -2054,7 +2163,8 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
                 }
             });
 
-        $('<button type="button" id="save-user-layout" class="btn btn-success">Сохранить</button>')
+        $('<button type="button" id="save-user-layout" class="btn btn-success">')
+            .text(app.t('userConfig[.]Save'))
             .appendTo($btnWrapper)
             .on('click', function () {
                 for (var layoutOption in that.layoutOptions) {
@@ -2074,10 +2184,11 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         var $modalWindow;
         app.getModule('utils').done(function (utilsModule) {
-            $modalWindow = utilsModule.createModalWindow('Настройки оформления', $settingsWrapper, $btnWrapper);
+            $modalWindow = utilsModule.createModalWindow(app.t('userConfig[.]Layout settings'), $settingsWrapper, $btnWrapper);
         });
     };
-    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">Настройка</button>')
+    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">')
+        .text(app.t('userConfig[.]Settings'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
             that.configUserLayout(that.userConfig);
@@ -2090,7 +2201,8 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         var isMinimized = userConfig.toggle('minimize');
         userConfig.configFunctions.minimize(isMinimized);
     };
-    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">Минимизировать</button>')
+    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">')
+        .text(app.t('userConfig[.]Minimize'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
             that.minifyInterface(that.userConfig);
@@ -2102,7 +2214,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
         $.when(app.getModule('smiles'), app.getModule('favouritePictures')).then(function () {
             that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
-                .append($('<div class="col-lg-3 col-md-3 control-label">Общее</div>'))
+                .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
                 .appendTo(that.$configBody);
             that.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(that.$commonConfigForm);
             that.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(that.$commonConfigWrapper);
@@ -2113,7 +2225,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
                 that.userConfig.configFunctions['smiles-and-pictures'](isTurnedOn);
             };
             that.$smilesAndPicturesBtn = $('<button id="common-config-smiles-and-pictures-btn" class="btn btn-default">')
-                .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
+                .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
                 .appendTo(that.$commonConfigBtnWrapper)
                 .on('click', function() {
                     that.toggleSmilesAndPictures();
@@ -2277,11 +2389,11 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
         }
 
         if (settings.showScriptInfo) {
-            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced · Copyright © 2015 kaba, RitE, anonimous321 · <a href="https://github.com/kaba99/cytube-enhanced">GitHub</a></p>');
+            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
         }
 
         setTimeout(function () {
-            handleWindowResize(); //chat height fix because our css loads later than cytube script calculates height
+            handleWindowResize(); //chat height fix
         }, 3000);
     };
 });
@@ -2320,7 +2432,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             that.videoURL += '&start=' + parseInt(data.currentTime, 10);
             that.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
             that.videoURL += '&playerapiid=' + that.videoId; //Give the video player the same name as the video for future reference
-            that.videoURL += '&cc_load_policy=0'; //No caption on this video (not supported for Google Drive Videos)
+            that.videoURL += '&cc_load_policy=0'; //No caption on this video (maybe not supported for Google Drive Videos)
 
             var atts = {
                 id: "ytapiplayer"
@@ -2433,7 +2545,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         PLAYER.id = '';
         socket.emit('playerReady');
     };
-    this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="Обновить видео">')
+    this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="' + app.t('video[.]Refresh video') + '">')
         .html('<i class="glyphicon glyphicon-refresh">')
         .appendTo(this.$topVideoControls)
         .on('click', function () {
@@ -2459,7 +2571,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             $hidePlayerBtn.addClass('btn-default');
         }
     };
-    this.$hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" title="Скрыть видео">')
+    this.$hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Hide video') + '">')
         .html('<i class="glyphicon glyphicon-ban-circle">')
         .appendTo(this.$topVideoControls)
         .on('click', function() {
@@ -2477,7 +2589,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         large: '480p',
         hd720: '720p',
         hd1080: '1080p',
-        highres: 'наивысшее'
+        highres: app.t('video[.]highres')
     };
 
     this.youtubeQualityMap = {
@@ -2485,7 +2597,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
     };
 
     this.$videoQualityBtnGroup = $('<div class="btn-group">')
-        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Качество: ' + this.qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
+        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + app.t('video[.]Quality') + ': ' + this.qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
         .appendTo(this.$topVideoControls);
 
     this.$videoQualityList = $('<ul class="dropdown-menu">');
@@ -2513,7 +2625,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
         that.$refreshVideoBtn.click();
 
-        that.$videoQualityBtnGroup.find('button').html('Качество: ' + $qualityLink.text() + ' <span class="caret"></span>');
+        that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + $qualityLink.text() + ' <span class="caret"></span>');
         $('.video-dropdown-toggle').dropdown();
     };
     this.$videoQualityBtnGroup.on('click', 'a', function () {
@@ -2531,23 +2643,6 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         $("#us-layout").val(USEROPTS.layout);
         $("#us-no-channelcss").prop("checked", USEROPTS.ignore_channelcss);
         $("#us-no-channeljs").prop("checked", USEROPTS.ignore_channeljs);
-        var conninfo = "<strong>Информация о соединении: </strong>" +
-                       "Connected to <code>" + IO_URL + "</code> (";
-        if (IO_V6) {
-            conninfo += "IPv6, ";
-        } else {
-            conninfo += "IPv4, ";
-        }
-
-        if (IO_URL === IO_URLS["ipv4-ssl"] || IO_URL === IO_URLS["ipv6-ssl"]) {
-            conninfo += "SSL)";
-        } else {
-            conninfo += "no SSL)";
-        }
-
-        conninfo += ".  SSL включено по умолчанию если оно поддерживается сервером.";
-        $("#us-conninfo").html(conninfo);
-
 
         $("#us-synch").prop("checked", USEROPTS.synch);
         $("#us-synch-accuracy").val(USEROPTS.sync_accuracy);
@@ -2586,7 +2681,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         that.$refreshVideoBtn.click();
     };
     this.$youtubeJavascriptPlayerBtn = $('<button id="youtube-javascript-player-btn" class="btn btn-sm btn-default">')
-        .text('Использовать Youtube JS Player')
+        .text(app.t('video[.]Use Youtube JS Player'))
         .appendTo(this.$topVideoControls)
         .on('click', function() {
             that.toggleGoogleDrivePlayer($(this));
@@ -2601,14 +2696,14 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         if ($expandPlaylistBtn.hasClass('btn-success')) {//expanded
             $('#queue').css('max-height', that.PLAYLIST_HEIGHT + 'px');
 
-            $expandPlaylistBtn.attr('title', 'Развернуть плейлист');
+            $expandPlaylistBtn.attr('title', app.t('video[.]Expand playlist'));
 
             $expandPlaylistBtn.removeClass('btn-success');
             $expandPlaylistBtn.addClass('btn-default');
         } else {//not expanded
             $('#queue').css('max-height', '100000px');
 
-            $expandPlaylistBtn.attr('title', 'Свернуть плейлист');
+            $expandPlaylistBtn.attr('title', app.t('video[.]Unexpand playlist'));
 
             $expandPlaylistBtn.removeClass('btn-default');
             $expandPlaylistBtn.addClass('btn-success');
@@ -2616,7 +2711,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             scrollQueue();
         }
     };
-    this.$expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="Развернуть плейлист">')
+    this.$expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="' + app.t('video[.]Expand playlist') + '">')
         .append('<span class="glyphicon glyphicon-resize-full">')
         .prependTo('#videocontrols')
         .on('click', function() {
@@ -2627,7 +2722,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
     }
 
 
-    this.$scrollToCurrentBtn = $('<button id="scroll-to-current-btn" class="btn btn-sm btn-default" title="Прокрутить плейлист к текущему видео">')
+    this.$scrollToCurrentBtn = $('<button id="scroll-to-current-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Scroll the playlist to the current video') + '">')
         .append('<span class="glyphicon glyphicon-hand-right">')
         .prependTo('#videocontrols')
         .on('click', function() {
@@ -2649,7 +2744,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             }
         });
 
-        $bodyWrapper.append($('<p>Всего добавлено: ' + ($("#queue .queue_entry").length + 1) + ' видео.</p>'));
+        $bodyWrapper.append($('<p>' + app.t('video[.]Video\'s count') + ': ' + ($("#queue .queue_entry").length + 1) + '</p>'));
 
         var $contributorsListOl = $('<ol>');
         for (var contributor in contributorsList) {
@@ -2658,10 +2753,10 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         $contributorsListOl.appendTo($bodyWrapper);
 
         app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow('Список пользователей, добавивших видео', $bodyWrapper);
+            utilsModule.createModalWindow(app.t('video[.]Contributors\' list'), $bodyWrapper);
         });
     };
-    this.$videoContributorsBtn = $('<button id="video-contributors-btn" class="btn btn-sm btn-default" title="Список пользователей, добавивших видео">')
+    this.$videoContributorsBtn = $('<button id="video-contributors-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Contributors\' list') + '">')
         .append('<span class="glyphicon glyphicon-user">')
         .prependTo('#videocontrols')
         .on('click', function() {
@@ -2703,4 +2798,109 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
 $(document).ready(function () {
     cytubeEnhanced.run();
+});
+
+cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {
+    commandsModule.randomQuotes = commandsModule.randomQuotes.concat([
+        'Не поддавайся сожалениям, о которых тебе напоминает прошлое.',
+        'Честно говоря, я всегда думал, что лучше умереть, чем жить в одиночестве...',
+        'Прошу прощения, но валите прочь.',
+        'По-настоящему силён лишь тот, кто знает свои слабости.',
+        'Быть умным и хорошо учиться — две разные вещи.',
+        'Когда я стану главнокомандующим, я заставлю всех девушек носить мини-юбки!',
+        'Тот кто правит временем, правит всем миром.',
+        'Я должен познакомить тебя с моими друзьями. Они еще те извращенцы, но они хорошие люди.',
+        'Победа не важна, если она лишь твоя.',
+        'Наркотики убивают в людях человечность.',
+        'Если бы меня волновало мнение других людей, то я давно бы уже покрасил волосы в другой цвет.',
+        'Слезы — кровотечение души....',
+        'Весело создавать что-то вместе.',
+        'Как ты не понимаешь, что есть люди, которые умрут от горя, если тебя не станет!',
+        'Я частенько слышал, что пары, которые внешне любят друг друга, частенько холодны внутри.',
+        'Если хочешь, что бы люди поверили в мечту, сначала поверь в нее сам.',
+        'Жизнь, в которой человек имеет всё, что желает, пуста и неинтересна.',
+        'Чтобы чего-то достичь, необходимо чем-то пожертвовать.',
+        'Я не одинока. Я просто люблю играть соло. Краситься, укорачивать юбку и заигрывать с парнями — это для потаскух.',
+        'Очень страшно, когда ты не помнишь, кто ты такая.',
+        'Больно помнить о своих слабостях.',
+        'Похоже, мудрость и алкоголь несовместимы.',
+        'Почему... Почему... Почему со мной вечно происходит какая-то херня?!',
+        'Красивое нельзя ненавидеть.',
+        'Если ты хочешь написать что-то плохое в комментариях в интернете, пиши, но это будет лишь выражением твоей зависти.',
+        'Хочешь сбежать от повседневности — не останавливайся в развитии.',
+        'Одинокие женщины ищут утешение в домашних животных.',
+        'В эпоху, когда информация правит миром, жить без компьютера совершенно непростительно!',
+        'Каждый человек одинок. Звезды в ночном небе тоже вроде бы все вместе, но на самом деле они разделены бездной. Холодной, тёмной, непреодолимой бездной.',
+        'Умные люди умны ещё до того, как начинают учиться.',
+        'Только те, у кого явные проблемы, говорят, что у них всё хорошо.',
+        'Не важно если меня победит другой, но... Себе я не проиграю!',
+        'Немногие способны на правильные поступки, когда это необходимо.',
+        'Я мечтаю о мире, где все смогут улыбаться и спать, когда им того захочется.',
+        'Девушке не обмануть меня… даже если она без трусиков!',
+        'Это не мир скучный, это я не выделяюсь.',
+        'С людьми без воображения одни проблемы.',
+        'Нечестно это — своей слабостью шантажировать.',
+        'То ли я уже не человек, то ли вы еще не люди.',
+        'Чего я действительно опасаюсь, так это не потери своей памяти, а исчезновения из памяти остальных.',
+        'Даже если небо погружено во тьму, и ничего не видно, где-то обязательно будет светиться звезда. Если она будет сиять ярче и ярче, её обязательно увидят...',
+        'Никто не может нырнуть в бездну и вынырнуть прежним.',
+        'Когда теряешь всё разом, мир начинает казаться довольно хреновым местечком.',
+        'Не хочу видеть, что будет, когда Маяка узнает, что её шоколад украли. Не люблю ужастики.',
+        'В мире есть добро потому, что есть кошки.',
+        'Девчата, пойте! Зажигайте свет вашей души!',
+        'И что ты собираешься делать, рождённый неизвестно зачем, и умирающий неизвестно за что?',
+        'А давай станем с тобой чудовищами, и поставим весь мир на уши?',
+        'Не забывай только, что и доброта может причинить боль.',
+        'Тяжело признать плохим то, за что отдал 20 баксов.',
+        'Говорят, в вере спасение… Но мне что-то никогда в это не верилось.',
+        'Клубничка — это сердце тортика!',
+        'Бабушка мне всегда говорила: «Юи-тян, ты запомнишь всё что угодно, но при этом ты забудешь всё остальное».',
+        'Как жаль, что люди начинают ценить что-то только тогда, когда теряют это.',
+        'У людей с холодными руками тёплое сердце.',
+        'Я всегда думала, что это здорово: Посмеяться перед серьёзным делом.',
+        'Мир не так жесток, как ты думаешь.',
+        'Даже отдав все свои силы, не каждый способен стать победителем.',
+        'Наше общество — просто стадо баранов.',
+        'Пока сами чего-то не сделаете, это ваше «однажды» никогда не наступит.',
+        'Чтобы что-то выбрать, нужно что-то потерять.',
+        'За каждой улыбкой, что ты увидишь, будут скрываться чьи-то слёзы.',
+        'Приключения — мечта настоящего мужчины!',
+        'Твоя хитрость всегда будет оценена по достоинству.',
+        'Я гораздо лучше орудую мечами, нежели словами.',
+        'Прошлое всегда сияет ярче настоящего.',
+        'Становиться взрослой так грустно...',
+        'Романтические чувства — всего лишь химическая реакция',
+        'Говорят, что в море ты или плывёшь, или тонешь.',
+        'Не важно как ты осторожен, всегда есть опасность споткнуться.',
+        'Я насилие не люблю, оно у меня само получается.',
+        'Когда я смотрю аниме от КёАни, Господь подымает меня над полом и приближает к себе.',
+        'Бака, бака, бака!',
+        'Ты так говоришь, будто это что-то плохое.',
+        'Мне вас жаль.',
+        'Ваше мнение очень важно для нас.',
+        'А в глубине души я всех вас ненавижу, как и весь этот мир.',
+        'А разгадка одна — безблагодатность.',
+        'Умерьте пыл.',
+        'Меня трудно найти, легко потерять и невозможно забыть....',
+        'Не твоя, вот ты и бесишься.',
+        'Ваш ребенок - аниме.',
+        'Здесь все твои друзья.',
+        'Мне 20 и я бородат'
+    ]);
+});
+
+cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {
+    commandsModule.randomQuotes = commandsModule.randomQuotes.concat([
+        'Ребята не стоит вскрывать эту тему. Вы молодые, шутливые, вам все легко. Это не то. Это не Чикатило и даже не архивы спецслужб. Сюда лучше не лезть. Серьезно, любой из вас будет жалеть. Лучше закройте тему и забудьте что тут писалось.',
+        'Ты понимаешь, что ты няшка? Уже всё. Не я, блин, няшка… не он, блин, а ты!',
+        'Меня твои истории просто невероятно заинтересовали уже, я уже могу их слушать часами, блин! Одна история няшней другой просто!',
+        'НАЧАЛЬНИК, БЛИН, ЭТОТ НЯША ОБКАВАИЛСЯ! ИДИТЕ МОЙТЕ ЕГО, Я С НИМ ЗДЕСЬ НЯШИТСЯ БУДУ!',
+        'ЧЕГО ВЫ МЕНЯ С НЯШЕЙ ПОСЕЛИЛИ, БЛИН, ОН ЖЕ КАВАЙ ПОЛНЫЙ, БЛИН!!!',
+        'Ну… Чаю выпил, блин, ну, бутылку, с одной тян. Ну, а потом под пледиком поняшились.',
+        'Хочешь я на одной ноге понякаю, а ты мне погону отдашь? Как нека, хочешь?',
+        'ЭТО ЗНАТЬ НАДО! ЭТО ЗОЛОТОЙ ФОНД, БЛИН!',
+        'Как п… как поспал, онии-чан? Проголодался, наверное! Онии-чан…',
+        'Ты что, обняшился что ли, няшка, блин?!',
+        'Не, я не обняшился. Я тебе покушать принёс, Онии-чан!'
+    ]);
 });

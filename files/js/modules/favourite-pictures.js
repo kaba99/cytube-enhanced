@@ -11,7 +11,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     }
 
 
-    this.$toggleFavouritePicturesPanelBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="Показать избранные картинки">')
+    this.$toggleFavouritePicturesPanelBtn = $('<button id="favourite-pictures-btn" class="btn btn-sm btn-default" title="' + app.t('favPics[.]Show your favorite images') + '">')
         .html('<i class="glyphicon glyphicon-th"></i>');
     if ($('#smiles-btn').length !== 0) {
         this.$toggleFavouritePicturesPanelBtn.insertAfter('#smiles-btn');
@@ -33,18 +33,18 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     this.$favouritePicturesControlPanelForm = $('<div class="col-md-12">')
         .html('<div class="input-group">' +
             '<span class="input-group-btn">' +
-                '<button id="export-pictures" class="btn btn-default" style="border-radius: 0;" type="button">Экспорт картинок</button>' +
+                '<button id="export-pictures" class="btn btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Export pictures') + '</button>' +
             '</span>' +
              '<span class="input-group-btn">' +
-                '<label for="import-pictures" class="btn btn-default" style="border-radius: 0;">Импорт картинок</label>' +
+                '<label for="import-pictures" class="btn btn-default" style="border-radius: 0;">' + app.t('favPics[.]Import pictures') + '</label>' +
                 '<input type="file" style="display: none" id="import-pictures" name="pictures-import">' +
             '</span>' +
-            '<input type="text" id="picture-address" class="form-control" placeholder="Адрес картинки">' +
+            '<input type="text" id="picture-address" class="form-control" placeholder="' + app.t('favPics[.]Picture address') + '">' +
             '<span class="input-group-btn">' +
-                '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">Добавить</button>' +
+                '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
             '<span class="input-group-btn">' +
-                '<button id="remove-picture-btn" class="btn btn-default" type="button">Удалить</button>' +
+                '<button id="remove-picture-btn" class="btn btn-default" type="button">' + app.t('favPics[.]Remove') + '</button>' +
             '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
@@ -130,7 +130,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
             var $openImageBtn = $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
                 .appendTo($modalPictureOptions);
 
-            var $searchByPictureBtn = $('<a href="https://www.google.nl/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+            var $searchByPictureBtn = $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
                 .appendTo($modalPictureOptions);
 
 
@@ -224,7 +224,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
                     favouritePictures.push($('#picture-address').val());
                 }
             } else {
-                makeAlert("Такая картинка уже была добавлена").prependTo(that.$favouritePicturesBodyPanel);
+                makeAlert(app.t('favPics[.]The image already exists')).prependTo(that.$favouritePicturesBodyPanel);
                 $('#picture-address').val('');
 
                 return false;
@@ -264,7 +264,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
         var $downloadLink = $('<a>')
             .attr({
                 href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(window.localStorage.getItem('favouritePictures') || JSON.stringify([])),
-                download: 'animach_images.txt'
+                download: 'cytube_enhanced_favourite_images.txt'
             })
             .hide()
             .appendTo($(document.body));

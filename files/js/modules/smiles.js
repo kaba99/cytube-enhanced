@@ -14,7 +14,7 @@ cytubeEnhanced.setModule('smiles', function (app) {
     $('#emotelistbtn').hide();
 
 
-    this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="Показать смайлики">')
+    this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="' + app.t('emotes[.]Show emotes') + '">')
         .html('<i class="glyphicon glyphicon-picture"></i>')
         .prependTo('#chat-controls');
 
