@@ -12,7 +12,7 @@ var shell = require('gulp-shell');
 gulp.task('default', ['combine-js', 'combine-css']);
 
 gulp.task('combine-js', function () {
-    return gulp.src(['./files/js/main/main-ru.js', './files/translations/ru.js', './files/js/jquery.mousewheel.js', './files/js/modules/*.js', './files/js/main-run.js', './files/extra/quotes_for_!q/ru/*'])
+    return gulp.src(['./files/js/main/main-ru.js', './files/translations/ru.js', './files/js/jquery.mousewheel.js', './files/js/modules/*.js', './files/js/main-run.js', './files/extra/quotes_for_!q/ru/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(concat('cytube-enhanced.js'))
