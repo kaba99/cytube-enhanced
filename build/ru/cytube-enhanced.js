@@ -2146,10 +2146,10 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         var $btnWrapper = $('<div>');
 
-        $('<button type="button" id="reset-user-layout" class="btn btn-info" data-dismiss="modal">' + app.t('userConfig[.]User CSS') + '</button>').appendTo($btnWrapper);
+        $('<button type="button" id="cancel-user-layout" class="btn btn-info" data-dismiss="modal">' + app.t('userConfig[.]Cancel') + '</button>').appendTo($btnWrapper);
 
         $('<button type="button" id="reset-user-layout" class="btn btn-danger">' + app.t('userConfig[.]Reset settings') + '</button>')
-            .appendTo(this.$btnWrapper)
+            .appendTo($btnWrapper)
             .on('click', function () {
                 if (confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
                     for (var layoutOption in that.layoutOptions) {
