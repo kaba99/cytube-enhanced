@@ -141,7 +141,7 @@ cytubeEnhanced.addTranslation('ru', {
     video: {
         'Refresh video': 'Обновить видео',
         'Hide video': 'Скрыть видео',
-        'highres': 'наивысшее',
+        'best': 'наивысшее',
         'Quality': 'Качество',
         'Use Youtube JS Player': 'Использовать Youtube JS Player',
         'Expand playlist': 'Развернуть плейлист',

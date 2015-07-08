@@ -210,5 +210,5 @@ var defaultModulesSettings = {
 cytubeEnhanced = new CytubeEnhanced(
     (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.channelName || 'Имя канала') : 'Имя канала'),
     (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.language || 'ru') : 'ru'),
-    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.modulesSettings || defaultModulesSettings) : defaultModulesSettings)
+    (typeof cytubeEnhancedSettings !== 'undefined' ? ($.extend(true, defaultModulesSettings, cytubeEnhancedSettings.modulesSettings)) : defaultModulesSettings)
 );

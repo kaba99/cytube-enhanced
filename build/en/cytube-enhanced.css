@@ -5036,7 +5036,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 }
 .chat-picture {
     max-height: 100px;
-    max-width: 100px;
+    max-width: 200px;
 }
 .spoiler .channel-emote, .spoiler .chat-picture, .spoiler a {
     visibility: hidden;

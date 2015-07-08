@@ -210,7 +210,7 @@ var defaultModulesSettings = {
 cytubeEnhanced = new CytubeEnhanced(
     (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.channelName || 'Имя канала') : 'Имя канала'),
     (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.language || 'ru') : 'ru'),
-    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.modulesSettings || defaultModulesSettings) : defaultModulesSettings)
+    (typeof cytubeEnhancedSettings !== 'undefined' ? ($.extend(true, defaultModulesSettings, cytubeEnhancedSettings.modulesSettings)) : defaultModulesSettings)
 );
 
 cytubeEnhanced.addTranslation('ru', {
@@ -356,7 +356,7 @@ cytubeEnhanced.addTranslation('ru', {
     video: {
         'Refresh video': 'Обновить видео',
         'Hide video': 'Скрыть видео',
-        'highres': 'наивысшее',
+        'best': 'наивысшее',
         'Quality': 'Качество',
         'Use Youtube JS Player': 'Использовать Youtube JS Player',
         'Expand playlist': 'Развернуть плейлист',
@@ -2541,9 +2541,12 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
 
     this.refreshVideo = function () {
-        PLAYER.type = '';
-        PLAYER.id = '';
-        socket.emit('playerReady');
+        PLAYER.mediaType = "";
+        PLAYER.mediaId = "";
+
+        // playerReady triggers the server to send a changeMedia.
+        // the changeMedia handler then reloads the player
+        socket.emit("playerReady");
     };
     this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="' + app.t('video[.]Refresh video') + '">')
         .html('<i class="glyphicon glyphicon-refresh">')
@@ -2584,12 +2587,12 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
     this.qualityLabelsTranslate = {
         auto: 'авто',
-        small: '240p',
-        medium: '360p',
-        large: '480p',
-        hd720: '720p',
-        hd1080: '1080p',
-        highres: app.t('video[.]highres')
+        240: '240p',
+        360: '360p',
+        480: '480p',
+        720: '720p',
+        1080: '1080p',
+        best: app.t('video[.]best')
     };
 
     this.youtubeQualityMap = {
@@ -2792,6 +2795,12 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
                 that.$refreshVideoBtn.click();
             }
+        }
+
+        if (settings.selectQualityOption) {
+            $("#us-default-quality").on('change', function () {
+                that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + that.qualityLabelsTranslate[$(this).val()] + ' <span class="caret"></span>');
+            });
         }
     };
 });

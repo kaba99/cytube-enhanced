@@ -2387,9 +2387,12 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
 
     this.refreshVideo = function () {
-        PLAYER.type = '';
-        PLAYER.id = '';
-        socket.emit('playerReady');
+        PLAYER.mediaType = "";
+        PLAYER.mediaId = "";
+
+        // playerReady triggers the server to send a changeMedia.
+        // the changeMedia handler then reloads the player
+        socket.emit("playerReady");
     };
     this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="' + app.t('video[.]Refresh video') + '">')
         .html('<i class="glyphicon glyphicon-refresh">')
@@ -2430,12 +2433,12 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
     this.qualityLabelsTranslate = {
         auto: 'авто',
-        small: '240p',
-        medium: '360p',
-        large: '480p',
-        hd720: '720p',
-        hd1080: '1080p',
-        highres: app.t('video[.]highres')
+        240: '240p',
+        360: '360p',
+        480: '480p',
+        720: '720p',
+        1080: '1080p',
+        best: app.t('video[.]best')
     };
 
     this.youtubeQualityMap = {
@@ -2638,6 +2641,12 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
                 that.$refreshVideoBtn.click();
             }
+        }
+
+        if (settings.selectQualityOption) {
+            $("#us-default-quality").on('change', function () {
+                that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + that.qualityLabelsTranslate[$(this).val()] + ' <span class="caret"></span>');
+            });
         }
     };
 });
