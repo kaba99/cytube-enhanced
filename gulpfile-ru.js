@@ -12,7 +12,7 @@ var shell = require('gulp-shell');
 gulp.task('default', ['combine-js', 'combine-css']);
 
 gulp.task('combine-js', function () {
-    return gulp.src(['./src/js/main/main.js', './src/js/main/main-ru.js', './src/translations/ru.js', './src/js/jquery.mousewheel.js', './src/js/modules/*.js', './src/extra/quotes_for_!q/ru/*.js'])
+    return gulp.src(['./src/js/main/main.js', './src/js/main/main-ru.js', './src/translations/ru.js', './node_modules/jquery-mousewheel/jquery.mousewheel.js', './src/js/modules/*.js', './src/extra/quotes_for_!q/ru/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(concat('cytube-enhanced.js'))
@@ -23,7 +23,7 @@ gulp.task('combine-js', function () {
 });
 
 gulp.task('combine-css', function () {
-    return gulp.src(['./src/css/cytube-enhanced.css'])
+    return gulp.src(['./src/css/*.css'])
         .pipe(concat('cytube-enhanced.css'))
         .pipe(autoprefixer({
             browsers: ['last 2 versions'],

@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "gulpfile.js",
-  "dependencies": {},
+  "dependencies": {
+    "jquery-mousewheel": "^3.1.13"
+  },
   "devDependencies": {
     "cssunminifier": "0.0.2",
     "gulp": "^3.9.0",

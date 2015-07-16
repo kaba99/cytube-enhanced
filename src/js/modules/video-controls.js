@@ -66,18 +66,17 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
         1080: '1080p',
         best: app.t('video[.]best')
     };
+    var qualityLabelsTranslateOrder = ['auto', 240, 360, 480, 720, 1080, 'best'];
 
     this.$videoQualityBtnGroup = $('<div class="btn-group">')
         .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + app.t('video[.]Quality') + ': ' + this.qualityLabelsTranslate[window.USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
         .appendTo(this.$topVideoControls);
 
     this.$videoQualityList = $('<ul class="dropdown-menu">');
-    for (var qualityName in this.qualityLabelsTranslate) {
-        if (this.qualityLabelsTranslate.hasOwnProperty(qualityName)) {
-            $('<li>')
-                .html('<a href="#" data-quality="' + qualityName + '">' + this.qualityLabelsTranslate[qualityName] + '</a>')
-                .appendTo(this.$videoQualityList);
-        }
+    for (var labelIndex = 0, labelsLength = qualityLabelsTranslateOrder.length; labelIndex < labelsLength; labelIndex++) {
+        $('<li>')
+            .html('<a href="#" data-quality="' + qualityLabelsTranslateOrder[labelIndex] + '">' + this.qualityLabelsTranslate[qualityLabelsTranslateOrder[labelIndex]] + '</a>')
+            .appendTo(this.$videoQualityList);
     }
     this.$videoQualityList.appendTo(this.$videoQualityBtnGroup);
 

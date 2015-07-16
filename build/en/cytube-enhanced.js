@@ -124,10 +124,10 @@ window.cytubeEnhanced = new CytubeEnhanced(
 );
 
 /*!
- * jQuery Mousewheel 3.1.12
+ * jQuery Mousewheel 3.1.13
  *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
+ * Copyright jQuery Foundation and other contributors
+ * Released under the MIT license
  * http://jquery.org/license
  */
 
@@ -2223,18 +2223,17 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
         1080: '1080p',
         best: app.t('video[.]best')
     };
+    var qualityLabelsTranslateOrder = ['auto', 240, 360, 480, 720, 1080, 'best'];
 
     this.$videoQualityBtnGroup = $('<div class="btn-group">')
         .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + app.t('video[.]Quality') + ': ' + this.qualityLabelsTranslate[window.USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
         .appendTo(this.$topVideoControls);
 
     this.$videoQualityList = $('<ul class="dropdown-menu">');
-    for (var qualityName in this.qualityLabelsTranslate) {
-        if (this.qualityLabelsTranslate.hasOwnProperty(qualityName)) {
-            $('<li>')
-                .html('<a href="#" data-quality="' + qualityName + '">' + this.qualityLabelsTranslate[qualityName] + '</a>')
-                .appendTo(this.$videoQualityList);
-        }
+    for (var labelIndex = 0, labelsLength = qualityLabelsTranslateOrder.length; labelIndex < labelsLength; labelIndex++) {
+        $('<li>')
+            .html('<a href="#" data-quality="' + qualityLabelsTranslateOrder[labelIndex] + '">' + this.qualityLabelsTranslate[qualityLabelsTranslateOrder[labelIndex]] + '</a>')
+            .appendTo(this.$videoQualityList);
     }
     this.$videoQualityList.appendTo(this.$videoQualityBtnGroup);
 
@@ -2366,4 +2365,51 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     if (!settings.showVideoContributorsOption) {
         this.$videoContributorsBtn.hide();
     }
+});
+
+/**
+ * Fork of https://github.com/mickey/videojs-progressTips
+ */
+window.cytubeEnhanced.addModule('videojsProgress', function () {
+    'use strict';
+
+
+    function handleProgress() {
+        if (window.PLAYER instanceof window.VideoJSPlayer) {
+            if (window.PLAYER.player.techName === "Html5" || window.PLAYER.player.Ua === "Html5") { //Ua is uglifier mangle
+                $(".vjs-progress-control").after($("<div id='vjs-tip'><div id='vjs-tip-arrow'></div><div id='vjs-tip-inner'></div></div>"));
+
+                $(".vjs-progress-control").on("mousemove", function(e) {
+                    var seekBar = window.PLAYER.player.controlBar.progressControl.seekBar;
+                    var mousePosition = (e.pageX - $(seekBar.el()).offset().left) / seekBar.width();
+
+                    var timeInSeconds = mousePosition * window.PLAYER.player.duration();
+                    if (timeInSeconds === window.PLAYER.player.duration()) {
+                        timeInSeconds = timeInSeconds - 0.1;
+                    }
+
+                    var minutes = Math.floor(timeInSeconds / 60);
+                    var seconds = Math.floor(timeInSeconds - minutes * 60);
+                    if (seconds < 10) {
+                        seconds = "0" + seconds;
+                    }
+
+                    $('#vjs-tip-inner').html("" + minutes + ":" + seconds);
+
+                    var barHeight = $('.vjs-control-bar').height();
+                    $("#vjs-tip").css("top", "" + (e.pageY - $(this).offset().top - barHeight - 20) + "px").css("left", "" + (e.pageX - $(this).offset().left - 20) + "px").css("visibility", "visible");
+                });
+
+                $(".vjs-progress-control, .vjs-play-control").on("mouseout", function() {
+                    $("#vjs-tip").css("visibility", "hidden");
+                });
+            }
+        }
+    }
+
+
+    handleProgress();
+    window.socket.on('changeMedia', function () {
+        handleProgress();
+    });
 });
