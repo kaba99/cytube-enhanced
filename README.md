@@ -60,3 +60,7 @@ Like so:
 ```
 npm install && gulp --gulpfile ./gulpfile-en.js
 ```
+
+## License
+
+Licensed under MIT. See LICENSE for the full license text.
