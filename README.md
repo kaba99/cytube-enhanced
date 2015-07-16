@@ -36,14 +36,14 @@ cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule
             return true;
         }
     };
-})
+});
 ```
 
 ## Creating module
 
 ```javascript
 window.cytubeEnhanced.configureModule('greetingMessage', {
-    message: 'Добро пожаловать на канал'
+    message: 'Welcome to'
 });
 
 window.cytubeEnhanced.addModule('greetingMessage', function (app, settings) {
