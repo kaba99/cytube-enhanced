@@ -12,7 +12,7 @@ var shell = require('gulp-shell');
 gulp.task('default', ['combine-js', 'combine-css']);
 
 gulp.task('combine-js', function () {
-    return gulp.src(['./files/js/main/main-en.js', './files/js/jquery.mousewheel.js', './files/js/modules/*.js', './files/js/main-run.js', './files/extra/quotes_for_!q/en/*.js'])
+    return gulp.src(['./src/js/main/main.js', './src/js/main/main-en.js', './src/js/jquery.mousewheel.js', './src/js/modules/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(concat('cytube-enhanced.js'))
@@ -23,7 +23,7 @@ gulp.task('combine-js', function () {
 });
 
 gulp.task('combine-css', function () {
-    return gulp.src(['./files/css/cytube-enhanced.css'])
+    return gulp.src(['./src/css/cytube-enhanced.css'])
         .pipe(concat('cytube-enhanced.css'))
         .pipe(autoprefixer({
             browsers: ['last 2 versions'],
@@ -40,13 +40,13 @@ gulp.task('combine-css', function () {
 
 
 gulp.task('clean-css', function () {
-    return gulp.src(['./files/css/*.css'])
+    return gulp.src(['./src/css/*.css'])
         .pipe(minifyCss({
             compatibility: 'ie8',
             keepBreaks: true,
             keepSpecialComments: '*'
         }))
-        .pipe(gulp.dest('./files/css'))
+        .pipe(gulp.dest('./src/css'))
         .pipe(shell([
             './node_modules/.bin/cssunminifier <%= file.path %> <%= file.path %>'
         ]));

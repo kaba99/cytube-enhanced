@@ -1,12 +1,15 @@
-cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
+window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
-        additionalPermittedCommands: ['*']
+        permittedCommands: ['*']
     };
-    settings = $.extend(defaultSettings, settings);
-    function isAdditionalCommandPermitted(commandName) {
-        return $(settings.additionalPermittedCommands).not(['*']).length === 0 && $(['*']).not(settings.additionalPermittedCommands).length === 0 || settings.additionalPermittedCommands.indexOf(commandName) !== -1 || false;
+    settings = $.extend({}, defaultSettings, settings);
+
+    function isCommandPermitted(commandName) {
+        return settings.permittedCommands.indexOf('*') !== -1 || settings.permittedCommands.indexOf(commandName) !== -1 || false;
     }
 
 
@@ -16,24 +19,26 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     this.randomQuotes = [];
 
 
+    /**
+     *The list of commands
+     *
+     * Every command must have method value(message) which returns command's message.
+     * Commands can also have description property for chatCommandsHelp module and isAvailable method which returns false if command is not permitted (by default returns true)
+     *
+     * @type {object}
+     */
     this.commandsList = {
         '!pick ': {
             description: app.t('chatCommands[.]random option from the list of options (!pick option1, option2, option3)'),
             value: function (msg) {
                 var variants = msg.replace('!pick ', '').split(',');
                 return variants[Math.floor(Math.random() * (variants.length - 1))].trim();
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!ask ': {
             description: app.t('chatCommands[.]asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)'),
             value: function () {
                 return that.askAnswers[Math.floor(Math.random() * (that.askAnswers.length - 1))];
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!time': {
@@ -50,18 +55,12 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }
 
                 return app.t('chatCommands[.]current time') + ': ' + h + ':' + m;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!dice': {
             description: app.t('chatCommands[.]throw a dice'),
             value: function () {
                 return Math.floor(Math.random() * 5) + 1;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!roll': {
@@ -76,9 +75,6 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }
 
                 return randomNumber;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!q': {
@@ -91,60 +87,58 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }
 
                 return msg;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!skip': {
             description: app.t('chatCommands[.]vote for the video skip'),
             value: function (msg) {
-                socket.emit("voteskip");
+                window.socket.emit("voteskip");
                 msg = app.t('chatCommands[.]you have been voted for the video skip');
 
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('voteskip');
+                return window.hasPermission('voteskip');
             }
         },
         '!next': {
             description: app.t('chatCommands[.]play the next video'),
             value: function (msg) {
-                socket.emit("playNext");
+                window.socket.emit("playNext");
                 msg = app.t('chatCommands[.]the next video is playing');
 
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('playlistjump');
+                return window.hasPermission('playlistjump');
             }
         },
         '!bump': {
             description: app.t('chatCommands[.]bump the last video'),
             value: function (msg) {
-                var last = $("#queue").children().length;
-                var uid = $("#queue .queue_entry:nth-child("+last+")").data("uid");
-                var title = $("#queue .queue_entry:nth-child("+last+") .qe_title").html();
-                socket.emit("moveMedia", {from: uid, after: PL_CURRENT});
+                var $lastEntry = $('#queue').find('.queue_entry').last();
+                var uid = $lastEntry.data("uid");
+                var title = $lastEntry.find('.qe_title').html();
+
+                window.socket.emit("moveMedia", {from: uid, after: window.PL_CURRENT});
 
                 msg = app.t('chatCommands[.]the last video was bumped') + title;
 
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('playlistmove');
+                return window.hasPermission('playlistmove');
             }
         },
         '!add': {
             description: app.t('chatCommands[.]adds the video to the end of the playlist (e.g. <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)'),
             value: function (msg) {
-                var parsed = parseMediaLink(msg.split("!add ")[1]);
+                var parsed = window.parseMediaLink(msg.split("!add ")[1]);
 
                 if (parsed.id === null) {
                     msg = app.t('chatCommands[.]error: the wrong link');
                 } else {
-                    socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
+                    window.socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
                     msg = app.t('chatCommands[.]the video was added');
                 }
 
@@ -152,29 +146,23 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('playlistadd');
+                return window.hasPermission('playlistadd');
             }
         },
         '!now': {
             description: app.t('chatCommands[.]show the current video\'s name'),
             value: function () {
                 return app.t('chatCommands[.]now: ') + $(".queue_active a").html();
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!sm': {
             description: app.t('chatCommands[.]show the random emote'),
             value: function () {
-                var smilesArray = CHANNEL.emotes.map(function (smile) {
+                var smilesArray = window.CHANNEL.emotes.map(function (smile) {
                     return smile.name;
                 });
 
                 return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!yoba': {
@@ -184,7 +172,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
 
                 var IMBA = new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
-                IMBA.volume=0.6;
+                IMBA.volume = 0.6;
                 IMBA.play();
                 var BGCHANGE = 0;
                 var inbix = setInterval(function() {
@@ -199,7 +187,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }, 200);
 
                 setTimeout(function() {
-                    var BGCHANGE=0;
+                    BGCHANGE = 0;
                     clearInterval(inbix);
                     $("body").css({'background-image':'', 'background-color':''});
                     $yoba.remove();
@@ -207,9 +195,6 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
 
 
                 return 'YOBA';
-            },
-            isAvailable: function () {
-                return true;
             }
         }
     };
@@ -219,12 +204,12 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     this.prepareMessage = function (msg) {
         IS_COMMAND = false;
 
-        for (var command in that.commandsList) {
-            if (msg.indexOf(command) === 0) {
-                if (isAdditionalCommandPermitted(command) && that.commandsList[command].isAvailable()) {
+        for (var command in this.commandsList) {
+            if (this.commandsList.hasOwnProperty(command) && msg.indexOf(command) === 0) {
+                if (isCommandPermitted(command) && (this.commandsList[command].isAvailable ? this.commandsList[command].isAvailable() : true)) {
                     IS_COMMAND = true;
 
-                    msg = that.commandsList[command].value(msg);
+                    msg = this.commandsList[command].value(msg);
                 }
 
                 break;
@@ -237,7 +222,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
 
     this.sendUserChatMessage = function (e) {
         if(e.keyCode === 13) {
-            if (CHATTHROTTLE) {
+            if (window.CHATTHROTTLE) {
                 return;
             }
 
@@ -246,59 +231,56 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             if(msg !== '') {
                 var meta = {};
 
-                if (USEROPTS.adminhat && CLIENT.rank >= 255) {
+                if (window.USEROPTS.adminhat && window.CLIENT.rank >= 255) {
                     msg = "/a " + msg;
-                } else if (USEROPTS.modhat && CLIENT.rank >= Rank.Moderator) {
-                    meta.modflair = CLIENT.rank;
+                } else if (window.USEROPTS.modhat && window.CLIENT.rank >= window.Rank.Moderator) {
+                    meta.modflair = window.CLIENT.rank;
                 }
 
                 // The /m command no longer exists, so emulate it clientside
-                if (CLIENT.rank >= 2 && msg.indexOf("/m ") === 0) {
-                    meta.modflair = CLIENT.rank;
+                if (window.CLIENT.rank >= 2 && msg.indexOf("/m ") === 0) {
+                    meta.modflair = window.CLIENT.rank;
                     msg = msg.substring(3);
                 }
 
 
-                var msgForCommand = that.prepareMessage(msg);
+                var msgForCommand = this.prepareMessage(msg);
 
                 if (IS_COMMAND) {
-                    socket.emit("chatMsg", {msg: msg, meta: meta});
-                    socket.emit("chatMsg", {msg: 'Сырно: ' + msgForCommand});
+                    window.socket.emit("chatMsg", {msg: msg, meta: meta});
+                    window.socket.emit("chatMsg", {msg: 'Сырно: ' + msgForCommand});
 
                     IS_COMMAND = false;
                 } else {
-                    socket.emit("chatMsg", {msg: msg, meta: meta});
+                    window.socket.emit("chatMsg", {msg: msg, meta: meta});
                 }
 
 
-                CHATHIST.push($("#chatline").val());
-                CHATHISTIDX = CHATHIST.length;
+                window.CHATHIST.push($("#chatline").val());
+                window.CHATHISTIDX = window.CHATHIST.length;
                 $("#chatline").val('');
             }
 
             return;
-        }
-        else if(e.keyCode === 9) { // Tab completion
-            chatTabComplete();
+        } else if(e.keyCode === 9) { // Tab completion
+            window.chatTabComplete();
             e.preventDefault();
             return false;
-        }
-        else if(e.keyCode === 38) { // Up arrow (input history)
-            if(CHATHISTIDX == CHATHIST.length) {
-                CHATHIST.push($("#chatline").val());
+        } else if(e.keyCode === 38) { // Up arrow (input history)
+            if(window.CHATHISTIDX === window.CHATHIST.length) {
+                window.CHATHIST.push($("#chatline").val());
             }
-            if(CHATHISTIDX > 0) {
-                CHATHISTIDX--;
-                $("#chatline").val(CHATHIST[CHATHISTIDX]);
+            if(window.CHATHISTIDX > 0) {
+                window.CHATHISTIDX--;
+                $("#chatline").val(window.CHATHIST[window.CHATHISTIDX]);
             }
 
             e.preventDefault();
             return false;
-        }
-        else if(e.keyCode === 40) { // Down arrow (input history)
-            if(CHATHISTIDX < CHATHIST.length - 1) {
-                CHATHISTIDX++;
-                $("#chatline").val(CHATHIST[CHATHISTIDX]);
+        } else if(e.keyCode === 40) { // Down arrow (input history)
+            if(window.CHATHISTIDX < window.CHATHIST.length - 1) {
+                window.CHATHISTIDX++;
+                $("#chatline").val(window.CHATHIST[window.CHATHISTIDX]);
             }
 
             e.preventDefault();
@@ -307,14 +289,13 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     };
 
 
-    this.run = function () {
-        $('#chatline, #chatbtn').unbind();
+    $('#chatline, #chatbtn').off();
 
-        $('#chatline').on('keydown', function (e) {
-            that.sendUserChatMessage(e);
-        });
-        $('#chatbtn').on('click', function (e) {
-            that.sendUserChatMessage(e);
-        });
-    };
+    $('#chatline').on('keydown', function (e) {
+        that.sendUserChatMessage(e);
+    });
+
+    $('#chatbtn').on('click', function (e) {
+        that.sendUserChatMessage(e);
+    });
 });

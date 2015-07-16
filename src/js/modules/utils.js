@@ -1,4 +1,6 @@
-cytubeEnhanced.setModule('utils', function (app, settings) {
+window.cytubeEnhanced.addModule('utils', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
@@ -6,7 +8,7 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
         insertUsernameOnClick: true,
         showScriptInfo: true
     };
-    settings = $.extend(defaultSettings, settings);
+    settings = $.extend({}, defaultSettings, settings);
 
 
     /**
@@ -64,17 +66,16 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
     };
 
 
-    this.run = function () {
-        if (settings.unfixedTopNavbar) {
-            $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
-        }
 
-        if (settings.showScriptInfo) {
-            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
-        }
+    if (settings.unfixedTopNavbar) {
+        $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
+    }
 
-        setTimeout(function () {
-            handleWindowResize(); //chat height fix
-        }, 3000);
-    };
+    if (settings.showScriptInfo) {
+        $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
+    }
+
+    setTimeout(function () {
+        window.handleWindowResize(); //chat height fix
+    }, 3000);
 });

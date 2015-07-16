@@ -67,7 +67,7 @@ cytubeEnhanced.addTranslation('ru', {
         'Remove the last tab': 'Удалить последнюю вкладку',
         'Convert to the editor\'s code': 'Преобразовать в код редактора',
         'The code in the editor will be replaced with the new code, continue?': 'Код в редакторе будет удалён и заменен новым, продолжить?',
-        'The wrong content for the dropdown': 'Содержимое для выпадающего списка: ',
+        'Wrong content for the dropdown': 'Неправильное содержимое для выпадающего списка: ',
         'Convert from the editor\'s code': 'Преобразовать из кода редактора'
     },
     emotes: {

@@ -1,4 +1,6 @@
-cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
+window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -7,9 +9,9 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
     }
 
 
-    that.commands = {};
+    this.commands = {};
 
-    that.commands[app.t('Standard commands')] = {
+    this.commands[app.t('Standard commands')] = {
         '/me': app.t('chatCommands[.]%username% action (e.g: <i>/me is dancing</i>)'),
         '/sp': app.t('chatCommands[.]spoiler'),
         '/afk': app.t('chatCommands[.]sets the "AFK" status')
@@ -19,9 +21,9 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
         app.getModule('additionalChatCommands').done(function (commandsModule) {
             var additionalCommands = {};
 
-            for (var commandName in commandsModule.commandsList) {
-                if (commandsModule.commandsList[commandName].isAvailable()) {
-                    additionalCommands[commandName] = commandsModule.commandsList[commandName].description;
+            for (var command in commandsModule.commandsList) {
+                if (commandsModule.commandsList.hasOwnProperty(command) && (commandsModule.commandsList[command].isAvailable ? commandsModule.commandsList[command].isAvailable() : true)) {
+                    additionalCommands[command] = commandsModule.commandsList[command].description || '';
                 }
             }
 
@@ -33,15 +35,19 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
     this.handleChatHelpBtn = function (commands) {
         var $bodyWrapper = $('<div>');
 
-        for (var commandsPartName in commands) {
-            $('<h3>').html(commandsPartName).appendTo($bodyWrapper);
+        for (var commandsPart in commands) {
+            if (commands.hasOwnProperty(commandsPart)) {
+                $('<h3>').html(commandsPart).appendTo($bodyWrapper);
 
-            var $ul = $('<ul>');
-            for (var command in commands[commandsPartName]) {
-                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command] + '.').appendTo($ul);
+                var $ul = $('<ul>');
+                for (var command in commands[commandsPart]) {
+                    if (commands[commandsPart].hasOwnProperty(command)) {
+                        $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPart][command] + '.').appendTo($ul);
+                    }
+                }
+
+                $ul.appendTo($bodyWrapper);
             }
-
-            $ul.appendTo($bodyWrapper);
         }
 
         app.getModule('utils').done(function (utilsModule) {

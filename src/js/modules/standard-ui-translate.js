@@ -1,4 +1,6 @@
-cytubeEnhanced.setModule('standardUITranslate', function (app) {
+window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
+    'use strict';
+
     if ($('#newpollbtn').length !== 0) {
         $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
     }
@@ -16,11 +18,11 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
 
     if ($('#usercount').length !== 0) {
         $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
-        socket.on('usercount', function () {
+        window.socket.on('usercount', function () {
             $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
         });
     }
-    calcUserBreakdown = (function (oldCalcUserBreakdown) {
+    window.calcUserBreakdown = (function (oldCalcUserBreakdown) {
         return function () {
             var chatInfo = oldCalcUserBreakdown();
             var translatedChatInfo = {};
@@ -36,15 +38,17 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
             };
 
             for (var chatInfoElement in chatInfo) {
-                translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+                if (chatInfo.hasOwnProperty(chatInfoElement)) {
+                    translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+                }
             }
 
             return translatedChatInfo;
         };
-    })(calcUserBreakdown);
+    })(window.calcUserBreakdown);
 
     if ($('#welcome').length !== 0) {
-        $('#welcome').text(app.t('standardUI[.]Welcome, ') + CLIENT.name);
+        $('#welcome').text(app.t('standardUI[.]Welcome, ') + window.CLIENT.name);
     }
     if ($('#logout').length !== 0) {
         $('#logout').text(app.t('standardUI[.]Log out'));
@@ -80,7 +84,9 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
     $('.navbar').find('.navbar-nav').children().each(function () {
         $(this).find('a').each(function () {
             for (var elementToTranslate in menuTranslateMap) {
-                $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+                if (menuTranslateMap.hasOwnProperty(elementToTranslate)) {
+                    $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+                }
             }
         });
     });
@@ -107,7 +113,7 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
     $('.qbtn-delete').each(function () {
         $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
     });
-    addQueueButtons = (function (oldAddQueueButtons) {
+    window.addQueueButtons = (function (oldAddQueueButtons) {
         return function (li) {
             var result = oldAddQueueButtons(li);
 
@@ -126,8 +132,8 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
 
             return result;
         };
-    })(addQueueButtons);
-    socket.on('setTemp', function (data) {
+    })(window.addQueueButtons);
+    window.socket.on('setTemp', function (data) {
         var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
 
         if(tmpBtn.length !== 0) {

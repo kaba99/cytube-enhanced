@@ -1,4 +1,6 @@
-cytubeEnhanced.setModule('userConfig', function (app, settings) {
+window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
@@ -6,7 +8,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         smilesAndPicturesTogetherButton: true,
         minimizeButton: true
     };
-    settings = $.extend(defaultSettings, settings);
+    settings = $.extend({}, defaultSettings, settings);
 
 
     this.layoutOptions = {
@@ -60,7 +62,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
          */
         this.set = function (name, value) {
             this.options[name] = value;
-            setOpt(CHANNEL.name + "_config-" + name, value);
+            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
         };
 
         /**
@@ -95,7 +97,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
          * @returns {*}
          */
         this.loadOption = function (name, defaultValue) {
-            var option = getOrDefault(CHANNEL.name + "_config-" + name, defaultValue);
+            var option = window.getOrDefault(window.CHANNEL.name + "_config-" + name, defaultValue);
 
             if (this.configFunctions[name] !== undefined) {
                 this.configFunctions[name](option);
@@ -132,7 +134,9 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         if (settings.layoutConfigButton) {
             for (var layoutOption in that.layoutOptions) {
-                options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
+                if (that.layoutOptions.hasOwnProperty(layoutOption)) {
+                    options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
+                }
             }
 
             options['user-css'] = this.loadOption('user-css', '');
@@ -216,7 +220,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
 
     this.toggleConfigPanel = function () {
-        that.$configWrapper.toggle();
+        this.$configWrapper.toggle();
     };
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
@@ -239,27 +243,31 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     this.configUserLayout = function (userConfig) {
         var $settingsWrapper = $('<div class="form-horizontal">');
 
-        for (var layoutOption in that.layoutOptions) {
-            var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
+        for (var layoutOption in this.layoutOptions) {
+            if (this.layoutOptions.hasOwnProperty(layoutOption)) {
+                var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
 
-            var $label = $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + that.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
+                $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + that.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
 
-            var $selectWrapper = $('<div class="col-sm-10">').appendTo($formGroup);
-            var $select = $('<select id="' + layoutOption + '" class="form-control">').appendTo($selectWrapper);
+                var $selectWrapper = $('<div class="col-sm-10">').appendTo($formGroup);
+                var $select = $('<select id="' + layoutOption + '" class="form-control">').appendTo($selectWrapper);
 
-            for (var selectOption in that.layoutOptions[layoutOption].values) {
-                var $selectOption = $('<option value="' + selectOption + '">' + that.layoutOptions[layoutOption].values[selectOption] + '</option>').appendTo($select);
+                for (var selectOption in this.layoutOptions[layoutOption].values) {
+                    if (this.layoutOptions[layoutOption].values.hasOwnProperty(selectOption)) {
+                        $('<option value="' + selectOption + '">' + this.layoutOptions[layoutOption].values[selectOption] + '</option>').appendTo($select);
 
-                if (selectOption === userConfig.get(layoutOption)) {
-                    $select.val(selectOption);
+                        if (selectOption === userConfig.get(layoutOption)) {
+                            $select.val(selectOption);
+                        }
+                    }
                 }
             }
         }
 
         var $userCssWrapper = $('<div class="form-group">').appendTo($settingsWrapper);
-        var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
+        $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
         var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
-        var $userCssTextarea = $('<textarea id="user-css" class="form-control" rows="7">')
+        $('<textarea id="user-css" class="form-control" rows="7">')
             .appendTo($userCssTextareaWrapper)
             .val(userConfig.get('user-css'));
 
@@ -270,9 +278,11 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         $('<button type="button" id="reset-user-layout" class="btn btn-danger">' + app.t('userConfig[.]Reset settings') + '</button>')
             .appendTo($btnWrapper)
             .on('click', function () {
-                if (confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
+                if (window.confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
                     for (var layoutOption in that.layoutOptions) {
-                        userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
+                        if (that.layoutOptions.hasOwnProperty(layoutOption)) {
+                            userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
+                        }
                     }
 
                     userConfig.set('user-css', '');
@@ -331,7 +341,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     }
 
     if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        $.when(app.getModule('smiles'), app.getModule('favouritePictures')).then(function () {
+        $.when(app.getModule('smiles'), app.getModule('favouritePictures')).done(function () {
             that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
                 .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
                 .appendTo(that.$configBody);
@@ -427,11 +437,12 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     };
 
 
-    this.run = function () {
-        that.userConfig.loadDefaults();
 
-        if (settings.layoutConfigButton) {
-            that.applyLayoutSettings(that.userConfig);
-        }
-    };
+
+
+    this.userConfig.loadDefaults();
+
+    if (settings.layoutConfigButton) {
+        this.applyLayoutSettings(this.userConfig);
+    }
 });

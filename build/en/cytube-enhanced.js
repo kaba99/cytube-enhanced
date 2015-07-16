@@ -1,13 +1,10 @@
 function CytubeEnhanced(channelName, language, modulesSettings) {
-    var that = this;
+    'use strict';
 
     this.channelName = channelName;
 
     var translations = {};
-    this.language = language || 'en';
 
-    this.modulesSettings = modulesSettings || {};
-    var modulesConstructors = {};
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 10000; //ms
     var MODULE_LOAD_PERIOD = 100; //ms
@@ -16,7 +13,7 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
     /**
      * Gets the module
      *
-     * Returns the $.Deferred() object or throws exception if timeout
+     * Returns $.Deferred() object and throws error exception if timeout
      *
      * @param {string} moduleName The name of the module
      * @returns {object}
@@ -28,7 +25,7 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
         (function getModuleRecursive() {
             if (modules[moduleName] !== undefined) {
                 promise.resolve(modules[moduleName]);
-            } else if (time === 0) {
+            } else if (time <= 0) {
                 throw new Error("Load timeout for module " + moduleName + '.');
             } else {
                 time -= MODULE_LOAD_PERIOD;
@@ -42,41 +39,31 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
 
 
     /**
-     * Sets the module
+     * Adds the module
      *
      * @param {string} moduleName The name of the module
-     * @param moduleConstructor The name of the module's constructor
+     * @param moduleConstructor The module's constructor
      */
-    this.setModule = function (moduleName, moduleConstructor) {
-        modulesConstructors[moduleName] = moduleConstructor;
+    this.addModule = function (moduleName, ModuleConstructor) {
+        if (this.isModulePermitted(moduleName)) {
+            var moduleSettings = modulesSettings[moduleName] || {};
+
+            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
+            modules[moduleName].settings = moduleSettings;
+        }
     };
 
 
     /**
-     * Runs the module if it is permitted
+     * Configures the module
      *
-     * Module may have method run() to run its main features. You can bind events before and after run in global cytubeEnhancedSettings object
-     * Example of cytubeEnhancedSettings for binds: cytubeEnhancedSettings = {binds: {'myModuleName1': {beforeRun: function (module) {}, afterRun: function (module) {}}, 'myModuleName2': {beforeRun: function (module) {}, afterRun: function (module) {}}}};
+     * Previous options don't reset.
      *
-     * @param {string} moduleName The name of the module
+     * @param {string} moduleName  The name of the module
+     * @param moduleOptions The module's options
      */
-    this.runModule = function (moduleName) {
-        if (this.isModulePermitted(moduleName)) {
-            modules[moduleName] = new modulesConstructors[moduleName](this, this.modulesSettings[moduleName]);
-            modules[moduleName].settings = modulesSettings[moduleName];
-
-            if (typeof cytubeEnhancedSettings !== 'undefined' && cytubeEnhancedSettings.binds !== undefined && cytubeEnhancedSettings.binds[moduleName] !== undefined && cytubeEnhancedSettings.binds[moduleName].beforeRun !== undefined) {
-                cytubeEnhancedSettings.binds[moduleName].beforeRun(modules[moduleName]);
-            }
-
-            if (modules[moduleName].run !== undefined) {
-                modules[moduleName].run();
-            }
-
-            if (typeof cytubeEnhancedSettings !== 'undefined' && cytubeEnhancedSettings.binds !== undefined && cytubeEnhancedSettings.binds[moduleName] !== undefined && cytubeEnhancedSettings.binds[moduleName].afterRun !== undefined) {
-                cytubeEnhancedSettings.binds[moduleName].afterRun(modules[moduleName]);
-            }
-        }
+    this.configureModule = function (moduleName, moduleOptions) {
+        $.extend(true, modulesSettings[moduleName], moduleOptions);
     };
 
 
@@ -87,20 +74,9 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
      * @returns {boolean}
      */
     this.isModulePermitted = function (moduleName) {
-        return this.modulesSettings[moduleName] !== undefined ?
-            (this.modulesSettings[moduleName].enabled || false) :
-            false;
-    };
-
-
-    /**
-     * Configures the module
-     *
-     * @param moduleName The name of the module to check
-     * @param moduleSettings The settings of the module, settings must contain enabled key with true value to be able to execute.
-     */
-    this.configureModule = function (moduleName, moduleSettings) {
-        this.modulesSettings[moduleName] = moduleSettings;
+        return modulesSettings[moduleName] ?
+            (modulesSettings[moduleName].enabled || true) :
+            true;
     };
 
 
@@ -122,95 +98,29 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
     this.t = function (text) {
         var translatedText = text;
 
-        if (this.language !== 'en' && translations[this.language] !== undefined) {
+        if (language !== 'en' && translations[language] !== undefined) {
             if (text.indexOf('[.]') !== -1) {
                 var textWithNamespaces = text.split('[.]');
 
-                translatedText = translations[this.language][textWithNamespaces[0]];
+                translatedText = translations[language][textWithNamespaces[0]];
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
                 }
             } else {
-                translatedText = translations[this.language][text];
+                translatedText = translations[language][text];
             }
-        } else if (text.indexOf('[.]') !== -1) { //English
+        } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
         }
 
         return translatedText;
     };
-
-
-    /**
-     * Runs the application
-     */
-    this.run = function () {
-        for (var moduleName in modulesConstructors) {
-            this.runModule(moduleName);
-        }
-    };
 }
 
-
-
-
-var defaultModulesSettings = {
-    utils: {
-        enabled: true,
-        unfixedTopNavbar: true,
-        insertUsernameOnClick: true,
-        showScriptInfo: true
-    },
-    favouritePictures: {
-        enabled: true
-    },
-    smiles: {
-        enabled: true
-    },
-    videoControls: {
-        enabled: true,
-        turnOffVideoOption: true,
-        selectQualityOption: true,
-        youtubeFlashPlayerForGoogleDocsOption: true,
-        expandPlaylistOption: true,
-        showVideoContributorsOption: true
-    },
-    showVideoInfo: {
-        enabled: true
-    },
-    chatCommandsHelp: {
-        enabled: true
-    },
-    additionalChatCommands: {
-        enabled: true,
-        additionalPermittedCommands: ['*']
-    },
-    chatControls: {
-        enabled: true,
-        afkButton: true,
-        clearChatButton: true
-    },
-    standardUITranslate: {
-        enabled: true
-    },
-    navMenuTabs: {
-        enabled: true
-    },
-    userConfig: {
-        enabled: true,
-        layoutConfigButton: true,
-        smilesAndPicturesTogetherButton: true,
-        minimizeButton: true
-    }
-};
-
-
-
-
-cytubeEnhanced = new CytubeEnhanced(
-    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.channelName || 'Channel name') : 'Channel name'),
-    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.language || 'en') : 'en'),
-    (typeof cytubeEnhancedSettings !== 'undefined' ? (cytubeEnhancedSettings.modulesSettings || defaultModulesSettings) : defaultModulesSettings)
+window.cytubeEnhanced = new CytubeEnhanced(
+    $('title').text(),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
 );
 
 /*!
@@ -435,15 +345,18 @@ cytubeEnhanced = new CytubeEnhanced(
 
 }));
 
-cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
+window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
-        additionalPermittedCommands: ['*']
+        permittedCommands: ['*']
     };
-    settings = $.extend(defaultSettings, settings);
-    function isAdditionalCommandPermitted(commandName) {
-        return $(settings.additionalPermittedCommands).not(['*']).length === 0 && $(['*']).not(settings.additionalPermittedCommands).length === 0 || settings.additionalPermittedCommands.indexOf(commandName) !== -1 || false;
+    settings = $.extend({}, defaultSettings, settings);
+
+    function isCommandPermitted(commandName) {
+        return settings.permittedCommands.indexOf('*') !== -1 || settings.permittedCommands.indexOf(commandName) !== -1 || false;
     }
 
 
@@ -453,24 +366,26 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     this.randomQuotes = [];
 
 
+    /**
+     *The list of commands
+     *
+     * Every command must have method value(message) which returns command's message.
+     * Commands can also have description property for chatCommandsHelp module and isAvailable method which returns false if command is not permitted (by default returns true)
+     *
+     * @type {object}
+     */
     this.commandsList = {
         '!pick ': {
             description: app.t('chatCommands[.]random option from the list of options (!pick option1, option2, option3)'),
             value: function (msg) {
                 var variants = msg.replace('!pick ', '').split(',');
                 return variants[Math.floor(Math.random() * (variants.length - 1))].trim();
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!ask ': {
             description: app.t('chatCommands[.]asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)'),
             value: function () {
                 return that.askAnswers[Math.floor(Math.random() * (that.askAnswers.length - 1))];
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!time': {
@@ -487,18 +402,12 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }
 
                 return app.t('chatCommands[.]current time') + ': ' + h + ':' + m;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!dice': {
             description: app.t('chatCommands[.]throw a dice'),
             value: function () {
                 return Math.floor(Math.random() * 5) + 1;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!roll': {
@@ -513,9 +422,6 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }
 
                 return randomNumber;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!q': {
@@ -528,60 +434,58 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }
 
                 return msg;
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!skip': {
             description: app.t('chatCommands[.]vote for the video skip'),
             value: function (msg) {
-                socket.emit("voteskip");
+                window.socket.emit("voteskip");
                 msg = app.t('chatCommands[.]you have been voted for the video skip');
 
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('voteskip');
+                return window.hasPermission('voteskip');
             }
         },
         '!next': {
             description: app.t('chatCommands[.]play the next video'),
             value: function (msg) {
-                socket.emit("playNext");
+                window.socket.emit("playNext");
                 msg = app.t('chatCommands[.]the next video is playing');
 
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('playlistjump');
+                return window.hasPermission('playlistjump');
             }
         },
         '!bump': {
             description: app.t('chatCommands[.]bump the last video'),
             value: function (msg) {
-                var last = $("#queue").children().length;
-                var uid = $("#queue .queue_entry:nth-child("+last+")").data("uid");
-                var title = $("#queue .queue_entry:nth-child("+last+") .qe_title").html();
-                socket.emit("moveMedia", {from: uid, after: PL_CURRENT});
+                var $lastEntry = $('#queue').find('.queue_entry').last();
+                var uid = $lastEntry.data("uid");
+                var title = $lastEntry.find('.qe_title').html();
+
+                window.socket.emit("moveMedia", {from: uid, after: window.PL_CURRENT});
 
                 msg = app.t('chatCommands[.]the last video was bumped') + title;
 
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('playlistmove');
+                return window.hasPermission('playlistmove');
             }
         },
         '!add': {
             description: app.t('chatCommands[.]adds the video to the end of the playlist (e.g. <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)'),
             value: function (msg) {
-                var parsed = parseMediaLink(msg.split("!add ")[1]);
+                var parsed = window.parseMediaLink(msg.split("!add ")[1]);
 
                 if (parsed.id === null) {
                     msg = app.t('chatCommands[.]error: the wrong link');
                 } else {
-                    socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
+                    window.socket.emit("queue", {id: parsed.id, pos: "end", type: parsed.type});
                     msg = app.t('chatCommands[.]the video was added');
                 }
 
@@ -589,29 +493,23 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 return msg;
             },
             isAvailable: function () {
-                return hasPermission('playlistadd');
+                return window.hasPermission('playlistadd');
             }
         },
         '!now': {
             description: app.t('chatCommands[.]show the current video\'s name'),
             value: function () {
                 return app.t('chatCommands[.]now: ') + $(".queue_active a").html();
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!sm': {
             description: app.t('chatCommands[.]show the random emote'),
             value: function () {
-                var smilesArray = CHANNEL.emotes.map(function (smile) {
+                var smilesArray = window.CHANNEL.emotes.map(function (smile) {
                     return smile.name;
                 });
 
                 return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
-            },
-            isAvailable: function () {
-                return true;
             }
         },
         '!yoba': {
@@ -621,7 +519,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
 
                 var IMBA = new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
-                IMBA.volume=0.6;
+                IMBA.volume = 0.6;
                 IMBA.play();
                 var BGCHANGE = 0;
                 var inbix = setInterval(function() {
@@ -636,7 +534,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
                 }, 200);
 
                 setTimeout(function() {
-                    var BGCHANGE=0;
+                    BGCHANGE = 0;
                     clearInterval(inbix);
                     $("body").css({'background-image':'', 'background-color':''});
                     $yoba.remove();
@@ -644,9 +542,6 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
 
 
                 return 'YOBA';
-            },
-            isAvailable: function () {
-                return true;
             }
         }
     };
@@ -656,12 +551,12 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     this.prepareMessage = function (msg) {
         IS_COMMAND = false;
 
-        for (var command in that.commandsList) {
-            if (msg.indexOf(command) === 0) {
-                if (isAdditionalCommandPermitted(command) && that.commandsList[command].isAvailable()) {
+        for (var command in this.commandsList) {
+            if (this.commandsList.hasOwnProperty(command) && msg.indexOf(command) === 0) {
+                if (isCommandPermitted(command) && (this.commandsList[command].isAvailable ? this.commandsList[command].isAvailable() : true)) {
                     IS_COMMAND = true;
 
-                    msg = that.commandsList[command].value(msg);
+                    msg = this.commandsList[command].value(msg);
                 }
 
                 break;
@@ -674,7 +569,7 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
 
     this.sendUserChatMessage = function (e) {
         if(e.keyCode === 13) {
-            if (CHATTHROTTLE) {
+            if (window.CHATTHROTTLE) {
                 return;
             }
 
@@ -683,59 +578,56 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
             if(msg !== '') {
                 var meta = {};
 
-                if (USEROPTS.adminhat && CLIENT.rank >= 255) {
+                if (window.USEROPTS.adminhat && window.CLIENT.rank >= 255) {
                     msg = "/a " + msg;
-                } else if (USEROPTS.modhat && CLIENT.rank >= Rank.Moderator) {
-                    meta.modflair = CLIENT.rank;
+                } else if (window.USEROPTS.modhat && window.CLIENT.rank >= window.Rank.Moderator) {
+                    meta.modflair = window.CLIENT.rank;
                 }
 
                 // The /m command no longer exists, so emulate it clientside
-                if (CLIENT.rank >= 2 && msg.indexOf("/m ") === 0) {
-                    meta.modflair = CLIENT.rank;
+                if (window.CLIENT.rank >= 2 && msg.indexOf("/m ") === 0) {
+                    meta.modflair = window.CLIENT.rank;
                     msg = msg.substring(3);
                 }
 
 
-                var msgForCommand = that.prepareMessage(msg);
+                var msgForCommand = this.prepareMessage(msg);
 
                 if (IS_COMMAND) {
-                    socket.emit("chatMsg", {msg: msg, meta: meta});
-                    socket.emit("chatMsg", {msg: 'Сырно: ' + msgForCommand});
+                    window.socket.emit("chatMsg", {msg: msg, meta: meta});
+                    window.socket.emit("chatMsg", {msg: 'Сырно: ' + msgForCommand});
 
                     IS_COMMAND = false;
                 } else {
-                    socket.emit("chatMsg", {msg: msg, meta: meta});
+                    window.socket.emit("chatMsg", {msg: msg, meta: meta});
                 }
 
 
-                CHATHIST.push($("#chatline").val());
-                CHATHISTIDX = CHATHIST.length;
+                window.CHATHIST.push($("#chatline").val());
+                window.CHATHISTIDX = window.CHATHIST.length;
                 $("#chatline").val('');
             }
 
             return;
-        }
-        else if(e.keyCode === 9) { // Tab completion
-            chatTabComplete();
+        } else if(e.keyCode === 9) { // Tab completion
+            window.chatTabComplete();
             e.preventDefault();
             return false;
-        }
-        else if(e.keyCode === 38) { // Up arrow (input history)
-            if(CHATHISTIDX == CHATHIST.length) {
-                CHATHIST.push($("#chatline").val());
+        } else if(e.keyCode === 38) { // Up arrow (input history)
+            if(window.CHATHISTIDX === window.CHATHIST.length) {
+                window.CHATHIST.push($("#chatline").val());
             }
-            if(CHATHISTIDX > 0) {
-                CHATHISTIDX--;
-                $("#chatline").val(CHATHIST[CHATHISTIDX]);
+            if(window.CHATHISTIDX > 0) {
+                window.CHATHISTIDX--;
+                $("#chatline").val(window.CHATHIST[window.CHATHISTIDX]);
             }
 
             e.preventDefault();
             return false;
-        }
-        else if(e.keyCode === 40) { // Down arrow (input history)
-            if(CHATHISTIDX < CHATHIST.length - 1) {
-                CHATHISTIDX++;
-                $("#chatline").val(CHATHIST[CHATHISTIDX]);
+        } else if(e.keyCode === 40) { // Down arrow (input history)
+            if(window.CHATHISTIDX < window.CHATHIST.length - 1) {
+                window.CHATHISTIDX++;
+                $("#chatline").val(window.CHATHIST[window.CHATHISTIDX]);
             }
 
             e.preventDefault();
@@ -744,19 +636,20 @@ cytubeEnhanced.setModule('additionalChatCommands', function (app, settings) {
     };
 
 
-    this.run = function () {
-        $('#chatline, #chatbtn').unbind();
+    $('#chatline, #chatbtn').off();
 
-        $('#chatline').on('keydown', function (e) {
-            that.sendUserChatMessage(e);
-        });
-        $('#chatbtn').on('click', function (e) {
-            that.sendUserChatMessage(e);
-        });
-    };
+    $('#chatline').on('keydown', function (e) {
+        that.sendUserChatMessage(e);
+    });
+
+    $('#chatbtn').on('click', function (e) {
+        that.sendUserChatMessage(e);
+    });
 });
 
-cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
+window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -765,9 +658,9 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
     }
 
 
-    that.commands = {};
+    this.commands = {};
 
-    that.commands[app.t('Standard commands')] = {
+    this.commands[app.t('Standard commands')] = {
         '/me': app.t('chatCommands[.]%username% action (e.g: <i>/me is dancing</i>)'),
         '/sp': app.t('chatCommands[.]spoiler'),
         '/afk': app.t('chatCommands[.]sets the "AFK" status')
@@ -777,9 +670,9 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
         app.getModule('additionalChatCommands').done(function (commandsModule) {
             var additionalCommands = {};
 
-            for (var commandName in commandsModule.commandsList) {
-                if (commandsModule.commandsList[commandName].isAvailable()) {
-                    additionalCommands[commandName] = commandsModule.commandsList[commandName].description;
+            for (var command in commandsModule.commandsList) {
+                if (commandsModule.commandsList.hasOwnProperty(command) && (commandsModule.commandsList[command].isAvailable ? commandsModule.commandsList[command].isAvailable() : true)) {
+                    additionalCommands[command] = commandsModule.commandsList[command].description || '';
                 }
             }
 
@@ -791,15 +684,19 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
     this.handleChatHelpBtn = function (commands) {
         var $bodyWrapper = $('<div>');
 
-        for (var commandsPartName in commands) {
-            $('<h3>').html(commandsPartName).appendTo($bodyWrapper);
+        for (var commandsPart in commands) {
+            if (commands.hasOwnProperty(commandsPart)) {
+                $('<h3>').html(commandsPart).appendTo($bodyWrapper);
 
-            var $ul = $('<ul>');
-            for (var command in commands[commandsPartName]) {
-                $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPartName][command] + '.').appendTo($ul);
+                var $ul = $('<ul>');
+                for (var command in commands[commandsPart]) {
+                    if (commands[commandsPart].hasOwnProperty(command)) {
+                        $('<li>').html('<code>' + command + '</code> - ' + commands[commandsPart][command] + '.').appendTo($ul);
+                    }
+                }
+
+                $ul.appendTo($bodyWrapper);
             }
-
-            $ul.appendTo($bodyWrapper);
         }
 
         app.getModule('utils').done(function (utilsModule) {
@@ -814,18 +711,20 @@ cytubeEnhanced.setModule('chatCommandsHelp', function (app) {
         });
 });
 
-cytubeEnhanced.setModule('chatControls', function (app, settings) {
+window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
         afkButton: true,
         clearChatButton: true
     };
-    settings = $.extend(defaultSettings, settings);
+    settings = $.extend({}, defaultSettings, settings);
 
 
     this.handleAfk = function (data) {
-        if (data.name === CLIENT.name) {
+        if (data.name === window.CLIENT.name) {
             if (data.afk) {
                 that.$afkBtn.removeClass('label-default');
                 that.$afkBtn.addClass('label-success');
@@ -836,9 +735,8 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
         }
     };
 
-
     this.handleAfkBtn = function () {
-        socket.emit('chatMsg', {msg: '/afk'});
+        window.socket.emit('chatMsg', {msg: '/afk'});
     };
     this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
         .text(app.t('AFK'))
@@ -846,47 +744,44 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
         .on('click', function () {
             that.handleAfkBtn();
         });
-    if (!settings.afkButton) {
+
+    if (settings.afkButton) {
+        window.socket.on('setAFK', function (data) {
+            that.handleAfk(data);
+        });
+    } else {
         this.$afkBtn.hide();
     }
 
 
     this.handleClearBtn = function () {
-        if (confirm(app.t('Are you sure, that you want to clear the chat?'))) {
-            socket.emit("chatMsg", {msg: '/clear'});
+        if (window.confirm(app.t('Are you sure, that you want to clear the chat?'))) {
+            window.socket.emit("chatMsg", {msg: '/clear'});
         }
     };
     this.$clearChatBtn = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">')
         .text(app.t('Clear chat'))
-        .insertAfter(that.$afkBtn)
+        .insertAfter(this.$afkBtn)
         .on('click', function () {
             that.handleClearBtn();
         });
-    if (!hasPermission("chatclear") || !settings.clearChatButton) {
+
+    if (window.hasPermission("chatclear") && settings.clearChatButton) {
+        window.socket.on('setUserRank', function () {
+            if (window.hasPermission("chatclear")) {
+                that.$clearChatBtn.show();
+            } else {
+                that.$clearChatBtn.hide();
+            }
+        });
+    } else {
         this.$clearChatBtn.hide();
     }
-
-
-    this.run = function () {
-        if (settings.afkButton) {
-            socket.on('setAFK', function (data) {
-                that.handleAfk(data);
-            });
-        }
-
-        if (settings.clearChatButton) {
-            socket.on('setUserRank', function () {
-                if (hasPermission("chatclear")) {
-                    that.$clearChatBtn.show();
-                } else {
-                    that.$clearChatBtn.hide();
-                }
-            });
-        }
-    };
 });
 
-cytubeEnhanced.setModule('favouritePictures', function (app) {
+window.cytubeEnhanced.addModule('favouritePictures', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -946,17 +841,17 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
         "'": '&#39;'
     };
     this.replaceUnsafeSymbol = function (symbol) {
-        return that.entityMap[symbol];
+        return this.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
         var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
-        that.$favouritePicturesBodyPanel.empty();
+        this.$favouritePicturesBodyPanel.empty();
 
         for (var n = 0, favouritePicturesLen = favouritePictures.length; n < favouritePicturesLen; n++) {
-            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, that.replaceUnsafeSymbol);
+            var escapedAddress = favouritePictures[n].replace(/[&<>"']/g, this.replaceUnsafeSymbol);
 
-            $('<img class="favourite-picture-on-panel">').attr({src: escapedAddress}).appendTo(that.$favouritePicturesBodyPanel);
+            $('<img class="favourite-picture-on-panel">').attr({src: escapedAddress}).appendTo(this.$favouritePicturesBodyPanel);
         }
     };
 
@@ -972,13 +867,13 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
 
 
     this.handleFavouritePicturesPanel = function ($toggleFavouritePicturesPanelBtn) {
-        var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
+        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
 
         if ($('#smiles-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#smiles-panel').hide();
         }
 
-        that.$favouritePicturesPanel.toggle();
+        this.$favouritePicturesPanel.toggle();
 
 
         if (!smilesAndPicturesTogether) {
@@ -1001,108 +896,6 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     });
 
 
-    this.showPicturePreview = function (address) {
-        $picture = $('<img src="' + address + '">');
-
-        $picture.ready(function () {
-            var $modalPictureOverlay = $('<div id="modal-picture-overlay">').appendTo($(document.body));
-            var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
-
-            var pictureWidth = $picture.prop('width');
-            var pictureHeight = $picture.prop('height');
-
-
-            var $modalPictureOptions = $('<div id="modal-picture-options">');
-            $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
-
-            var $openImageBtn = $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
-                .appendTo($modalPictureOptions);
-
-            var $searchByPictureBtn = $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
-                .appendTo($modalPictureOptions);
-
-
-            var scaleFactor = 1;
-            if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
-                if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
-                    scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-                } else {
-                    scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-                }
-            } else if (pictureHeight > document.documentElement.clientHeight) {
-                scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-            } else if (pictureWidth > document.documentElement.clientWidth) {
-                scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-            }
-
-            pictureHeight /= scaleFactor;
-            pictureWidth /= scaleFactor;
-
-            $modalPicture.css({
-                width: pictureWidth,
-                height: pictureHeight,
-                marginLeft: -(pictureWidth / 2),
-                marginTop: -(pictureHeight / 2),
-            });
-
-
-            $picture.appendTo($modalPicture);
-        });
-    };
-    $(document.body).on('click', '.chat-picture', function () {
-        that.showPicturePreview($(this).prop('src'));
-    });
-
-
-    this.ZOOM_CONST = 0.15;
-    this.handleModalPictureMouseWheel = function (e) {
-        var pictureWidth = parseInt($('#modal-picture').css('width'), 10);
-        var pictureHeight = parseInt($('#modal-picture').css('height'), 10);
-        var pictureMarginLeft = parseInt($('#modal-picture').css('marginLeft'), 10);
-        var pictureMarginTop = parseInt($('#modal-picture').css('marginTop'), 10);
-
-        if (e.deltaY > 0) { //up
-            $('#modal-picture').css({
-                width: pictureWidth * (1 + that.ZOOM_CONST),
-                height: pictureHeight * (1 + that.ZOOM_CONST),
-                marginLeft: pictureMarginLeft + (-pictureWidth * that.ZOOM_CONST / 2),
-                marginTop: pictureMarginTop + (-pictureHeight * that.ZOOM_CONST / 2),
-            });
-        } else { //down
-            $('#modal-picture').css({
-                width: pictureWidth * (1 - that.ZOOM_CONST),
-                height: pictureHeight * (1 - that.ZOOM_CONST),
-                marginLeft: pictureMarginLeft + (pictureWidth * that.ZOOM_CONST / 2),
-                marginTop: pictureMarginTop + (pictureHeight * that.ZOOM_CONST / 2),
-            });
-        }
-    };
-    $(document.body).on('mousewheel', '#modal-picture', function (e) {
-        that.handleModalPictureMouseWheel(e);
-
-        return false;
-    });
-
-
-    this.closePictureByClick = function () {
-        $('#modal-picture-overlay').remove();
-        $('#modal-picture').remove();
-    };
-    $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
-        that.closePictureByClick();
-    });
-
-    this.closePictureByEscape = function (e) {
-        if (e.which === 27 && $('#modal-picture').length !== 0) {
-            $('#modal-picture-overlay').remove();
-            $('#modal-picture').remove();
-        }
-    };
-    $(document.body).on('keydown', function (e) {
-        that.closePictureByEscape(e);
-    });
-
-
     this.addFavouritePicture = function () {
         if ($('#picture-address').val() !== '') {
             var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
@@ -1112,7 +905,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
                     favouritePictures.push($('#picture-address').val());
                 }
             } else {
-                makeAlert(app.t('favPics[.]The image already exists')).prependTo(that.$favouritePicturesBodyPanel);
+                window.makeAlert(app.t('favPics[.]The image already exists')).prependTo(this.$favouritePicturesBodyPanel);
                 $('#picture-address').val('');
 
                 return false;
@@ -1121,7 +914,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
 
             window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
 
-            that.renderFavouritePictures();
+            this.renderFavouritePictures();
         }
     };
     $('#add-picture-btn').on('click', function () {
@@ -1138,7 +931,7 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
 
             window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
 
-            that.renderFavouritePictures();
+            this.renderFavouritePictures();
         }
 
         $('#picture-address').val('');
@@ -1181,13 +974,126 @@ cytubeEnhanced.setModule('favouritePictures', function (app) {
     });
 
 
-    this.run = function () {
-        that.renderFavouritePictures();
-    };
+    this.renderFavouritePictures();
 });
 
-//Example of tabs html for the editor: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
-cytubeEnhanced.setModule('navMenuTabs', function (app) {
+window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
+    'use strict';
+
+    var that = this;
+
+    var defaultSettings = {
+        selectorsToPreview: '.chat-picture', // 'selector1, selector2'. Every selector's node must have attribute src
+        zoom: 0.15
+    };
+    settings = $.extend({}, defaultSettings, settings);
+
+    this.showPicturePreview = function (address) {
+        var $picture = $('<img src="' + address + '">');
+
+        $picture.ready(function () {
+            $('<div id="modal-picture-overlay">').appendTo($(document.body));
+            var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
+
+            var pictureWidth = $picture.prop('width');
+            var pictureHeight = $picture.prop('height');
+
+
+            var $modalPictureOptions = $('<div id="modal-picture-options">');
+            $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
+
+            $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
+                .appendTo($modalPictureOptions);
+            $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+                .appendTo($modalPictureOptions);
+
+
+            var scaleFactor = 1;
+            if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
+                if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
+                    scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+                } else {
+                    scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
+                }
+            } else if (pictureHeight > document.documentElement.clientHeight) {
+                scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+            } else if (pictureWidth > document.documentElement.clientWidth) {
+                scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
+            }
+
+            pictureHeight /= scaleFactor;
+            pictureWidth /= scaleFactor;
+
+            $modalPicture.css({
+                width: pictureWidth,
+                height: pictureHeight,
+                marginLeft: -(pictureWidth / 2),
+                marginTop: -(pictureHeight / 2)
+            });
+
+
+            $picture.appendTo($modalPicture);
+        });
+    };
+    $(document.body).on('click', function () {
+        if ($(event.target).is(settings.selectorsToPreview)) {
+            that.showPicturePreview($(event.target).attr('src'));
+        }
+    });
+
+
+    this.handleModalPictureMouseWheel = function (e) {
+        var pictureWidth = parseInt($('#modal-picture').css('width'), 10);
+        var pictureHeight = parseInt($('#modal-picture').css('height'), 10);
+        var pictureMarginLeft = parseInt($('#modal-picture').css('marginLeft'), 10);
+        var pictureMarginTop = parseInt($('#modal-picture').css('marginTop'), 10);
+
+        if (e.deltaY > 0) { //up
+            $('#modal-picture').css({
+                width: pictureWidth * (1 + settings.zoom),
+                height: pictureHeight * (1 + settings.zoom),
+                marginLeft: pictureMarginLeft + (-pictureWidth * settings.zoom / 2),
+                marginTop: pictureMarginTop + (-pictureHeight * settings.zoom / 2)
+            });
+        } else { //down
+            $('#modal-picture').css({
+                width: pictureWidth * (1 - settings.zoom),
+                height: pictureHeight * (1 - settings.zoom),
+                marginLeft: pictureMarginLeft + (pictureWidth * settings.zoom / 2),
+                marginTop: pictureMarginTop + (pictureHeight * settings.zoom / 2)
+            });
+        }
+    };
+    $(document.body).on('mousewheel', '#modal-picture', function (e) {
+        that.handleModalPictureMouseWheel(e);
+
+        return false;
+    });
+
+
+    this.closePictureByClick = function () {
+        $('#modal-picture-overlay').remove();
+        $('#modal-picture').remove();
+    };
+    $(document.body).on('click', '#modal-picture-overlay, #modal-picture', function () {
+        that.closePictureByClick();
+    });
+
+    this.closePictureByEscape = function (e) {
+        if (e.which === 27 && $('#modal-picture').length !== 0) {
+            $('#modal-picture-overlay').remove();
+            $('#modal-picture').remove();
+        }
+    };
+    $(document.body).on('keydown', function (e) {
+        that.closePictureByEscape(e);
+    });
+});
+
+//You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
+window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -1199,14 +1105,14 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
 
         var $tabNameWrapperOfWrapper = $('<div class="col-sm-4 col-md-3">').appendTo($wrapper);
         var $tabNameWrapper = $('<div class="form-group">').appendTo($tabNameWrapperOfWrapper);
-        var $tabNameInput = $('<input name="title" type="text" class="form-control" placeholder="' + app.t('tabs[.]Title') + '">')
+        $('<input name="title" type="text" class="form-control" placeholder="' + app.t('tabs[.]Title') + '">')
             .val(tabName)
             .appendTo($tabNameWrapper);
 
 
         var $tabValueWrapperOfWrapper = $('<div class="col-sm-8 col-md-9">').appendTo($wrapper);
         var $tabValueWrapper = $('<div class="form-group">').appendTo($tabValueWrapperOfWrapper);
-        var $tabValueInput = $('<input name="content" type="text" class="form-control" placeholder="' + app.t('tabs[.]Content') + '">')
+        $('<input name="content" type="text" class="form-control" placeholder="' + app.t('tabs[.]Content') + '">')
             .val(tabValue)
             .appendTo($tabValueWrapper);
     };
@@ -1234,7 +1140,7 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
             for (var tabIndex = 0, tabsLength = tabsConfig.length; tabIndex < tabsLength; tabIndex++) {
                 if (tabsConfig[tabIndex][TAB_TITLE].indexOf('!dropdown!') === 0) {
                     var $dropdownWrapper = $('<div class="btn-group">');
-                    var $dropdownBtn = $('<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">')
+                    $('<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">')
                         .html(tabsConfig[tabIndex][TAB_TITLE].replace('!dropdown!', '') + ' <span class="caret"></span>')
                         .appendTo($dropdownWrapper);
                     var $dropdownMenu = $('<ul class="dropdown-menu">')
@@ -1265,7 +1171,7 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
 
 
     this.tabsHtmlToCondig = function (htmlCode) {
-        that.$tabsArea.empty();
+        this.$tabsArea.empty();
 
         var $tabsTree = $('<div>').html(htmlCode);
         var $tabsTreeNavBtns = $tabsTree.find('#motd-tabs').children();
@@ -1299,7 +1205,9 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
     this.fixMotdCut = function () {
         $('#motd-tabs-content').find('.motd-tab-content').each(function () {
             for (var tag in that.motdCutMap) {
-                $(this).html($(this).html().replace(that.motdCutMap[tag], tag));
+                if (that.motdCutMap.hasOwnProperty(tag)) {
+                    $(this).html($(this).html().replace(that.motdCutMap[tag], tag));
+                }
             }
         });
     };
@@ -1361,7 +1269,7 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
         .text(app.t('tabs[.]Convert to the editor\'s code'))
         .appendTo(this.$tabsSettings)
         .on('click', function () {
-            if (confirm(app.t('tabs[.]The code in the editor will be replaced with the new code, continue?'))) {
+            if (window.confirm(app.t('tabs[.]The code in the editor will be replaced with the new code, continue?'))) {
                 var tabsConfig = []; //list of arrays like [tabTitle, tabContent]
 
                 that.$tabsArea.find('.tab-option-wrapper').each(function () {
@@ -1370,7 +1278,7 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
 
                     if (tabName.indexOf('!dropdown!') === 0) {
                         if (!/^(?:\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\][ ]*,[ ]*)*\[n\](.+?)\[\/n\]\[a\](.+?)\[\/a\]$/.test(tabContent)) {
-                            alert(app.t('tabs[.]The wrong content for the dropdown') + tabName.replace('!dropdown!', '') + '.');
+                            window.alert(app.t('tabs[.]Wrong content for the dropdown') + tabName.replace('!dropdown!', '') + '.');
                             return;
                         }
 
@@ -1433,18 +1341,19 @@ cytubeEnhanced.setModule('navMenuTabs', function (app) {
     });
 
 
-    this.run = function () {
-        that.tabsHtmlToCondig($('#cs-motdtext').val());
 
+
+    this.tabsHtmlToCondig($('#cs-motdtext').val());
+
+    this.fixMotdCut();
+    window.socket.on('setMotd', function () {
         that.fixMotdCut();
-
-        socket.on('setMotd', function () {
-            that.fixMotdCut();
-        });
-    };
+    });
 });
 
-cytubeEnhanced.setModule('showVideoInfo', function (app) {
+window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -1458,45 +1367,29 @@ cytubeEnhanced.setModule('showVideoInfo', function (app) {
 
 
     this.showPlaylistInfo = function () {
-//        $("#currenttitle").text($("#currenttitle").text().replace('Currently Playing:', 'Сейчас: '));
-//
-//        var infoString = 'СЛЕДУЩЕЕ:';
-//
-//        var $currentItem = $(".queue_active");
-//        for (var position = 1; position <= 3; position++) {
-//            $currentItem = $currentItem.next();
-//            if ($currentItem.length !== 0) {
-//                infoString += ' ' + position + ' ▸ ' + $currentItem.children('a').html() + ' (' + $currentItem.prop('title').replace('Added by: ', '') + ')';
-//            }
-//        }
-//
-//        if ($currentItem.length === 0) {
-//            infoString += ' // КОНЕЦ ПЛЕЙЛИСТА //';
-//        }
-//
-//		$mediaInfo.html('<marquee scrollamount="5">' + infoString + '</marquee>');
         if ($(".queue_active").length !== 0) {
             $("#currenttitle").text($("#currenttitle").text().replace(/^Currently Playing:/, app.t('videoInfo[.]Now:')));
 
-            that.$mediaInfo.text($('.queue_active').attr('title').replace('Added by', app.t('videoInfo[.]Added by')));
+            this.$mediaInfo.text($('.queue_active').attr('title').replace('Added by', app.t('videoInfo[.]Added by')));
         } else {
             $("#currenttitle").text('');
 
-            that.$mediaInfo.text(app.t('videoInfo[.]Nothing is playing now'));
+            this.$mediaInfo.text(app.t('videoInfo[.]Nothing is playing now'));
         }
     };
 
 
-    this.run = function () {
-        that.showPlaylistInfo();
 
-        socket.on("changeMedia", function () {
-            that.showPlaylistInfo();
-        });
-    };
+
+    this.showPlaylistInfo();
+    window.socket.on("changeMedia", function () {
+        that.showPlaylistInfo();
+    });
 });
 
-cytubeEnhanced.setModule('smiles', function (app) {
+window.cytubeEnhanced.addModule('smiles', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -1523,13 +1416,13 @@ cytubeEnhanced.setModule('smiles', function (app) {
 
 
     this.renderSmiles = function () {
-        var smiles = CHANNEL.emotes;
+        var smiles = window.CHANNEL.emotes;
 
         for (var smileIndex = 0, smilesLen = smiles.length; smileIndex < smilesLen; smileIndex++) {
             $('<img class="smile-on-panel">')
                 .attr({src: smiles[smileIndex].image})
                 .data('name', smiles[smileIndex].name)
-                .appendTo(that.$smilesPanel);
+                .appendTo(this.$smilesPanel);
         }
     };
 
@@ -1570,12 +1463,14 @@ cytubeEnhanced.setModule('smiles', function (app) {
     });
 
 
-    this.run = function () {
-        that.renderSmiles();
-    };
+
+
+    this.renderSmiles();
 });
 
-cytubeEnhanced.setModule('standardUITranslate', function (app) {
+window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
+    'use strict';
+
     if ($('#newpollbtn').length !== 0) {
         $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
     }
@@ -1593,11 +1488,11 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
 
     if ($('#usercount').length !== 0) {
         $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
-        socket.on('usercount', function () {
+        window.socket.on('usercount', function () {
             $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
         });
     }
-    calcUserBreakdown = (function (oldCalcUserBreakdown) {
+    window.calcUserBreakdown = (function (oldCalcUserBreakdown) {
         return function () {
             var chatInfo = oldCalcUserBreakdown();
             var translatedChatInfo = {};
@@ -1613,15 +1508,17 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
             };
 
             for (var chatInfoElement in chatInfo) {
-                translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+                if (chatInfo.hasOwnProperty(chatInfoElement)) {
+                    translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+                }
             }
 
             return translatedChatInfo;
         };
-    })(calcUserBreakdown);
+    })(window.calcUserBreakdown);
 
     if ($('#welcome').length !== 0) {
-        $('#welcome').text(app.t('standardUI[.]Welcome, ') + CLIENT.name);
+        $('#welcome').text(app.t('standardUI[.]Welcome, ') + window.CLIENT.name);
     }
     if ($('#logout').length !== 0) {
         $('#logout').text(app.t('standardUI[.]Log out'));
@@ -1657,7 +1554,9 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
     $('.navbar').find('.navbar-nav').children().each(function () {
         $(this).find('a').each(function () {
             for (var elementToTranslate in menuTranslateMap) {
-                $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+                if (menuTranslateMap.hasOwnProperty(elementToTranslate)) {
+                    $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+                }
             }
         });
     });
@@ -1684,7 +1583,7 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
     $('.qbtn-delete').each(function () {
         $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
     });
-    addQueueButtons = (function (oldAddQueueButtons) {
+    window.addQueueButtons = (function (oldAddQueueButtons) {
         return function (li) {
             var result = oldAddQueueButtons(li);
 
@@ -1703,8 +1602,8 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
 
             return result;
         };
-    })(addQueueButtons);
-    socket.on('setTemp', function (data) {
+    })(window.addQueueButtons);
+    window.socket.on('setTemp', function (data) {
         var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
 
         if(tmpBtn.length !== 0) {
@@ -1725,7 +1624,9 @@ cytubeEnhanced.setModule('standardUITranslate', function (app) {
     }
 });
 
-cytubeEnhanced.setModule('userConfig', function (app, settings) {
+window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
@@ -1733,7 +1634,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         smilesAndPicturesTogetherButton: true,
         minimizeButton: true
     };
-    settings = $.extend(defaultSettings, settings);
+    settings = $.extend({}, defaultSettings, settings);
 
 
     this.layoutOptions = {
@@ -1787,7 +1688,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
          */
         this.set = function (name, value) {
             this.options[name] = value;
-            setOpt(CHANNEL.name + "_config-" + name, value);
+            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
         };
 
         /**
@@ -1822,7 +1723,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
          * @returns {*}
          */
         this.loadOption = function (name, defaultValue) {
-            var option = getOrDefault(CHANNEL.name + "_config-" + name, defaultValue);
+            var option = window.getOrDefault(window.CHANNEL.name + "_config-" + name, defaultValue);
 
             if (this.configFunctions[name] !== undefined) {
                 this.configFunctions[name](option);
@@ -1859,7 +1760,9 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
         if (settings.layoutConfigButton) {
             for (var layoutOption in that.layoutOptions) {
-                options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
+                if (that.layoutOptions.hasOwnProperty(layoutOption)) {
+                    options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
+                }
             }
 
             options['user-css'] = this.loadOption('user-css', '');
@@ -1943,7 +1846,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
 
 
     this.toggleConfigPanel = function () {
-        that.$configWrapper.toggle();
+        this.$configWrapper.toggle();
     };
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
@@ -1966,27 +1869,31 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     this.configUserLayout = function (userConfig) {
         var $settingsWrapper = $('<div class="form-horizontal">');
 
-        for (var layoutOption in that.layoutOptions) {
-            var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
+        for (var layoutOption in this.layoutOptions) {
+            if (this.layoutOptions.hasOwnProperty(layoutOption)) {
+                var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
 
-            var $label = $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + that.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
+                $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + that.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
 
-            var $selectWrapper = $('<div class="col-sm-10">').appendTo($formGroup);
-            var $select = $('<select id="' + layoutOption + '" class="form-control">').appendTo($selectWrapper);
+                var $selectWrapper = $('<div class="col-sm-10">').appendTo($formGroup);
+                var $select = $('<select id="' + layoutOption + '" class="form-control">').appendTo($selectWrapper);
 
-            for (var selectOption in that.layoutOptions[layoutOption].values) {
-                var $selectOption = $('<option value="' + selectOption + '">' + that.layoutOptions[layoutOption].values[selectOption] + '</option>').appendTo($select);
+                for (var selectOption in this.layoutOptions[layoutOption].values) {
+                    if (this.layoutOptions[layoutOption].values.hasOwnProperty(selectOption)) {
+                        $('<option value="' + selectOption + '">' + this.layoutOptions[layoutOption].values[selectOption] + '</option>').appendTo($select);
 
-                if (selectOption === userConfig.get(layoutOption)) {
-                    $select.val(selectOption);
+                        if (selectOption === userConfig.get(layoutOption)) {
+                            $select.val(selectOption);
+                        }
+                    }
                 }
             }
         }
 
         var $userCssWrapper = $('<div class="form-group">').appendTo($settingsWrapper);
-        var $userCssLabel = $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
+        $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
         var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
-        var $userCssTextarea = $('<textarea id="user-css" class="form-control" rows="7">')
+        $('<textarea id="user-css" class="form-control" rows="7">')
             .appendTo($userCssTextareaWrapper)
             .val(userConfig.get('user-css'));
 
@@ -1997,9 +1904,11 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
         $('<button type="button" id="reset-user-layout" class="btn btn-danger">' + app.t('userConfig[.]Reset settings') + '</button>')
             .appendTo($btnWrapper)
             .on('click', function () {
-                if (confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
+                if (window.confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
                     for (var layoutOption in that.layoutOptions) {
-                        userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
+                        if (that.layoutOptions.hasOwnProperty(layoutOption)) {
+                            userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
+                        }
                     }
 
                     userConfig.set('user-css', '');
@@ -2058,7 +1967,7 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     }
 
     if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        $.when(app.getModule('smiles'), app.getModule('favouritePictures')).then(function () {
+        $.when(app.getModule('smiles'), app.getModule('favouritePictures')).done(function () {
             that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
                 .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
                 .appendTo(that.$configBody);
@@ -2154,16 +2063,19 @@ cytubeEnhanced.setModule('userConfig', function (app, settings) {
     };
 
 
-    this.run = function () {
-        that.userConfig.loadDefaults();
 
-        if (settings.layoutConfigButton) {
-            that.applyLayoutSettings(that.userConfig);
-        }
-    };
+
+
+    this.userConfig.loadDefaults();
+
+    if (settings.layoutConfigButton) {
+        this.applyLayoutSettings(this.userConfig);
+    }
 });
 
-cytubeEnhanced.setModule('utils', function (app, settings) {
+window.cytubeEnhanced.addModule('utils', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
@@ -2171,7 +2083,7 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
         insertUsernameOnClick: true,
         showScriptInfo: true
     };
-    settings = $.extend(defaultSettings, settings);
+    settings = $.extend({}, defaultSettings, settings);
 
 
     /**
@@ -2229,170 +2141,41 @@ cytubeEnhanced.setModule('utils', function (app, settings) {
     };
 
 
-    this.run = function () {
-        if (settings.unfixedTopNavbar) {
-            $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
-        }
 
-        if (settings.showScriptInfo) {
-            $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
-        }
+    if (settings.unfixedTopNavbar) {
+        $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
+    }
 
-        setTimeout(function () {
-            handleWindowResize(); //chat height fix
-        }, 3000);
-    };
+    if (settings.showScriptInfo) {
+        $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
+    }
+
+    setTimeout(function () {
+        window.handleWindowResize(); //chat height fix
+    }, 3000);
 });
 
-cytubeEnhanced.setModule('videoControls', function (app, settings) {
+window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
         turnOffVideoOption: true,
         selectQualityOption: true,
-        youtubeFlashPlayerForGoogleDocsOption: true,
         expandPlaylistOption: true,
-        showVideoContributorsOption: true
+        showVideoContributorsOption: true,
+        playlistHeight: 500
     };
-    settings = $.extend(defaultSettings, settings);
-
-
-    //Only for Google drive
-    //https://developers.google.com/youtube/js_api_reference
-    this.youtubeJavascriptPlayerForGoogleDrive = function (data) {
-        var that = this;
-
-        that.videoId = data.id;
-        that.videoLength = data.seconds;
-
-        that.init = function () {
-            removeOld();
-
-            that.videoURL = 'https://video.google.com/get_player?wmode=opaque&ps=docs&partnerid=30&version=3'; //Basic URL to the Player
-            that.videoURL += '&docid=' + that.videoId; //Specify the fileID of the file to show
-            that.videoURL += '&autoplay=1';
-            that.videoURL += '&fs=1';
-            that.videoURL += '&showinfo=0';
-            that.videoURL += '&rel=0';
-            that.videoURL += '&vq=' + (USEROPTS.default_quality || "auto");
-            that.videoURL += '&start=' + parseInt(data.currentTime, 10);
-            that.videoURL += '&enablejsapi=1'; //Enable Youtube Js API to interact with the video editor
-            that.videoURL += '&playerapiid=' + that.videoId; //Give the video player the same name as the video for future reference
-            that.videoURL += '&cc_load_policy=0'; //No caption on this video (maybe not supported for Google Drive Videos)
-
-            var atts = {
-                id: "ytapiplayer"
-            };
-            var params = {
-                allowScriptAccess: "always",
-                allowFullScreen: "true"
-            };
-            swfobject.embedSWF(that.videoURL,
-                "ytapiplayer",
-                VWIDTH,
-                VHEIGHT,
-                "8",
-                null,
-                null,
-                params,
-                atts);
-
-            onYouTubePlayerReady = function (playerId) {
-                that.player = $('#ytapiplayer')[0];
-                that.player.addEventListener("onStateChange", "onytplayerStateChange");
-            };
-
-            onytplayerStateChange = function (newState) {
-                var statesMap = {
-                    '-1': 'beforeVideo',
-                    0: 'end',
-                    1: 'play',
-                    2: 'pause',
-                    3: 'buf',
-                    5: 'queue'
-                };
-
-
-                if (statesMap[newState] === 'beforeVideo') {
-                    that.setVolume(VOLUME);
-                } else if (statesMap[newState] === 'play') {
-                    PLAYER.paused = false;
-
-                    if (CLIENT.leader) {
-                        sendVideoUpdate();
-                    }
-                } else if (statesMap[newState] === 'pause') {
-                    PLAYER.paused = true;
-
-                    if (CLIENT.leader) {
-                        sendVideoUpdate();
-                    }
-                } else if (statesMap[newState] === 'end') {
-                    if (CLIENT.leader) {
-                        socket.emit("playNext");
-                    }
-                }
-            };
-        };
-
-        that.load = function (data) {
-            that.videoId = data.id;
-            that.videoLength = data.seconds;
-            that.init();
-        };
-
-        that.pause = function () {
-            if (that.player && that.player.pauseVideo) {
-                that.player.pauseVideo();
-            }
-        };
-
-        that.play = function () {
-            if (that.player && that.player.playVideo) {
-                that.player.playVideo();
-            }
-        };
-
-        that.getTime = function (callback) {
-            if (that.player && that.player.getCurrentTime) {
-                var t = parseFloat(that.player.getCurrentTime());
-                callback(t);
-            }
-        };
-
-        that.seek = function (time) {
-            if (that.player.seekTo) {
-                that.player.seekTo(time);
-            }
-        };
-
-        that.getVolume = function (callback) {
-            if (that.player && that.player.getVolume) {
-                callback(that.player.getVolume() / 100);
-            }
-        };
-
-        that.setVolume = function (volume) {
-            that.player.setVolume(volume * 100);
-        };
-
-        that.init();
-    };
-
+    settings = $.extend({}, defaultSettings, settings);
 
     $('#mediarefresh').hide();
 
 
     this.$topVideoControls = $('<div id="top-video-controls" class="btn-group">').appendTo("#videowrap");
 
-
     this.refreshVideo = function () {
-        PLAYER.mediaType = "";
-        PLAYER.mediaId = "";
-
-        // playerReady triggers the server to send a changeMedia.
-        // the changeMedia handler then reloads the player
-        socket.emit("playerReady");
+        $('#mediarefresh').click();
     };
     this.$refreshVideoBtn = $('<button id="refresh-video" class="btn btn-sm btn-default" title="' + app.t('video[.]Refresh video') + '">')
         .html('<i class="glyphicon glyphicon-refresh">')
@@ -2441,40 +2224,28 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         best: app.t('video[.]best')
     };
 
-    this.youtubeQualityMap = {
-        auto: 'default'
-    };
-
     this.$videoQualityBtnGroup = $('<div class="btn-group">')
-        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + app.t('video[.]Quality') + ': ' + this.qualityLabelsTranslate[USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
+        .html('<button type="button" class="btn btn-default btn-sm video-dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + app.t('video[.]Quality') + ': ' + this.qualityLabelsTranslate[window.USEROPTS.default_quality || 'auto'] + ' <span class="caret"></span></button>')
         .appendTo(this.$topVideoControls);
 
     this.$videoQualityList = $('<ul class="dropdown-menu">');
-    for (var qualityName in that.qualityLabelsTranslate) {
-        $('<li>')
-            .html('<a href="#" data-quality="' + qualityName + '">' + this.qualityLabelsTranslate[qualityName] + '</a>')
-            .appendTo(this.$videoQualityList);
+    for (var qualityName in this.qualityLabelsTranslate) {
+        if (this.qualityLabelsTranslate.hasOwnProperty(qualityName)) {
+            $('<li>')
+                .html('<a href="#" data-quality="' + qualityName + '">' + this.qualityLabelsTranslate[qualityName] + '</a>')
+                .appendTo(this.$videoQualityList);
+        }
     }
     this.$videoQualityList.appendTo(this.$videoQualityBtnGroup);
 
     this.changeVideoQuality = function ($qualityLink) {
-        if (that.YOUTUBE_JS_PLAYER_NOW) {
-            var quality = $qualityLink.data('quality');
-
-            quality = that.youtubeQualityMap[quality] !== undefined ?
-                that.youtubeQualityMap[quality] :
-                quality;
-
-            PLAYER.player.setPlaybackQuality(quality);
-        }
-
-        that.settingsFix();
+        this.settingsFix();
         $("#us-default-quality").val($qualityLink.data('quality'));
-        saveUserOptions();
+        window.saveUserOptions();
 
-        that.$refreshVideoBtn.click();
+        this.$refreshVideoBtn.click();
 
-        that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + $qualityLink.text() + ' <span class="caret"></span>');
+        this.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + $qualityLink.text() + ' <span class="caret"></span>');
         $('.video-dropdown-toggle').dropdown();
     };
     this.$videoQualityBtnGroup.on('click', 'a', function () {
@@ -2482,68 +2253,47 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
         return false;
     });
+
+    $("#us-default-quality").on('change', function () {
+        that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + that.qualityLabelsTranslate[$(this).val()] + ' <span class="caret"></span>');
+    });
+
     if (!settings.selectQualityOption) {
         this.$videoQualityBtnGroup.hide();
     }
 
 
     this.settingsFix = function () {
-        $("#us-theme").val(USEROPTS.theme);
-        $("#us-layout").val(USEROPTS.layout);
-        $("#us-no-channelcss").prop("checked", USEROPTS.ignore_channelcss);
-        $("#us-no-channeljs").prop("checked", USEROPTS.ignore_channeljs);
+        $("#us-theme").val(window.USEROPTS.theme);
+        $("#us-layout").val(window.USEROPTS.layout);
+        $("#us-no-channelcss").prop("checked", window.USEROPTS.ignore_channelcss);
+        $("#us-no-channeljs").prop("checked", window.USEROPTS.ignore_channeljs);
 
-        $("#us-synch").prop("checked", USEROPTS.synch);
-        $("#us-synch-accuracy").val(USEROPTS.sync_accuracy);
-        $("#us-wmode-transparent").prop("checked", USEROPTS.wmode_transparent);
-        $("#us-hidevideo").prop("checked", USEROPTS.hidevid);
-        $("#us-playlistbuttons").prop("checked", USEROPTS.qbtn_hide);
-        $("#us-oldbtns").prop("checked", USEROPTS.qbtn_idontlikechange);
-        $("#us-default-quality").val(USEROPTS.default_quality || "auto");
+        $("#us-synch").prop("checked", window.USEROPTS.synch);
+        $("#us-synch-accuracy").val(window.USEROPTS.sync_accuracy);
+        $("#us-wmode-transparent").prop("checked", window.USEROPTS.wmode_transparent);
+        $("#us-hidevideo").prop("checked", window.USEROPTS.hidevid);
+        $("#us-playlistbuttons").prop("checked", window.USEROPTS.qbtn_hide);
+        $("#us-oldbtns").prop("checked", window.USEROPTS.qbtn_idontlikechange);
+        $("#us-default-quality").val(window.USEROPTS.default_quality || "auto");
 
-        $("#us-chat-timestamp").prop("checked", USEROPTS.show_timestamps);
-        $("#us-sort-rank").prop("checked", USEROPTS.sort_rank);
-        $("#us-sort-afk").prop("checked", USEROPTS.sort_afk);
-        $("#us-blink-title").val(USEROPTS.blink_title);
-        $("#us-ping-sound").val(USEROPTS.boop);
-        $("#us-sendbtn").prop("checked", USEROPTS.chatbtn);
-        $("#us-no-emotes").prop("checked", USEROPTS.no_emotes);
+        $("#us-chat-timestamp").prop("checked", window.USEROPTS.show_timestamps);
+        $("#us-sort-rank").prop("checked", window.USEROPTS.sort_rank);
+        $("#us-sort-afk").prop("checked", window.USEROPTS.sort_afk);
+        $("#us-blink-title").val(window.USEROPTS.blink_title);
+        $("#us-ping-sound").val(window.USEROPTS.boop);
+        $("#us-sendbtn").prop("checked", window.USEROPTS.chatbtn);
+        $("#us-no-emotes").prop("checked", window.USEROPTS.no_emotes);
 
-        $("#us-modflair").prop("checked", USEROPTS.modhat);
-        $("#us-joinmessage").prop("checked", USEROPTS.joinmessage);
-        $("#us-shadowchat").prop("checked", USEROPTS.show_shadowchat);
+        $("#us-modflair").prop("checked", window.USEROPTS.modhat);
+        $("#us-joinmessage").prop("checked", window.USEROPTS.joinmessage);
+        $("#us-shadowchat").prop("checked", window.USEROPTS.show_shadowchat);
     };
 
 
-    this.toggleGoogleDrivePlayer = function ($youtubeJavascriptPlayerBtn) {
-        that.YOUTUBE_JS_PLAYER_TURNED_ON = !that.YOUTUBE_JS_PLAYER_TURNED_ON;
-        setOpt(CHANNEL.name + '_config-yt-js-player', that.YOUTUBE_JS_PLAYER_TURNED_ON);
-
-        if (that.YOUTUBE_JS_PLAYER_TURNED_ON) {
-            $youtubeJavascriptPlayerBtn.removeClass('btn-default');
-            $youtubeJavascriptPlayerBtn.addClass('btn-success');
-        } else {
-            $youtubeJavascriptPlayerBtn.removeClass('btn-success');
-            $youtubeJavascriptPlayerBtn.addClass('btn-default');
-        }
-
-        that.$refreshVideoBtn.click();
-    };
-    this.$youtubeJavascriptPlayerBtn = $('<button id="youtube-javascript-player-btn" class="btn btn-sm btn-default">')
-        .text(app.t('video[.]Use Youtube JS Player'))
-        .appendTo(this.$topVideoControls)
-        .on('click', function() {
-            that.toggleGoogleDrivePlayer($(this));
-        });
-    if (!settings.youtubeFlashPlayerForGoogleDocsOption) {
-        this.$youtubeJavascriptPlayerBtn.hide();
-    }
-
-
-    this.PLAYLIST_HEIGHT = 500;
     this.expandPlaylist = function ($expandPlaylistBtn) {
         if ($expandPlaylistBtn.hasClass('btn-success')) {//expanded
-            $('#queue').css('max-height', that.PLAYLIST_HEIGHT + 'px');
+            $('#queue').css('max-height', settings.playlistHeight + 'px');
 
             $expandPlaylistBtn.attr('title', app.t('video[.]Expand playlist'));
 
@@ -2557,7 +2307,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
             $expandPlaylistBtn.removeClass('btn-default');
             $expandPlaylistBtn.addClass('btn-success');
 
-            scrollQueue();
+            window.scrollQueue();
         }
     };
     this.$expandPlaylistBtn = $('<button id="expand-playlist-btn" class="btn btn-sm btn-default" data-expanded="0" title="' + app.t('video[.]Expand playlist') + '">')
@@ -2575,7 +2325,7 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
         .append('<span class="glyphicon glyphicon-hand-right">')
         .prependTo('#videocontrols')
         .on('click', function() {
-            scrollQueue();
+            window.scrollQueue();
         });
 
 
@@ -2597,7 +2347,9 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
 
         var $contributorsListOl = $('<ol>');
         for (var contributor in contributorsList) {
-            $contributorsListOl.append($('<li>' + contributor + ': ' + contributorsList[contributor] + '.</li>'));
+            if (contributorsList.hasOwnProperty(contributor)) {
+                $contributorsListOl.append($('<li>' + contributor + ': ' + contributorsList[contributor] + '.</li>'));
+            }
         }
         $contributorsListOl.appendTo($bodyWrapper);
 
@@ -2614,43 +2366,4 @@ cytubeEnhanced.setModule('videoControls', function (app, settings) {
     if (!settings.showVideoContributorsOption) {
         this.$videoContributorsBtn.hide();
     }
-
-
-    this.handleGoogleDrivePlayer = function (data) {
-        if (that.YOUTUBE_JS_PLAYER_TURNED_ON && data.type === 'fi' && /google/.test(data.url)) {
-            that.YOUTUBE_JS_PLAYER_NOW = true;
-
-            PLAYER = new that.youtubeJavascriptPlayerForGoogleDrive(data);
-            PLAYER.type = data.type;
-        } else {
-            that.YOUTUBE_JS_PLAYER_NOW = false;
-        }
-    };
-
-    this.run = function () {
-        if (settings.youtubeFlashPlayerForGoogleDocsOption) {
-            that.YOUTUBE_JS_PLAYER_TURNED_ON = getOrDefault(CHANNEL.name + '_config-yt-js-player', false);
-
-            socket.on('changeMedia', function (data) {
-                that.handleGoogleDrivePlayer(data);
-            });
-
-            if (that.YOUTUBE_JS_PLAYER_TURNED_ON) {
-                that.$youtubeJavascriptPlayerBtn.removeClass('btn-default');
-                that.$youtubeJavascriptPlayerBtn.addClass('btn-success');
-
-                that.$refreshVideoBtn.click();
-            }
-        }
-
-        if (settings.selectQualityOption) {
-            $("#us-default-quality").on('change', function () {
-                that.$videoQualityBtnGroup.find('button').html(app.t('video[.]Quality') + ': ' + that.qualityLabelsTranslate[$(this).val()] + ' <span class="caret"></span>');
-            });
-        }
-    };
-});
-
-$(document).ready(function () {
-    cytubeEnhanced.run();
 });

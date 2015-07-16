@@ -1,15 +1,17 @@
-cytubeEnhanced.setModule('chatControls', function (app, settings) {
+window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
+    'use strict';
+
     var that = this;
 
     var defaultSettings = {
         afkButton: true,
         clearChatButton: true
     };
-    settings = $.extend(defaultSettings, settings);
+    settings = $.extend({}, defaultSettings, settings);
 
 
     this.handleAfk = function (data) {
-        if (data.name === CLIENT.name) {
+        if (data.name === window.CLIENT.name) {
             if (data.afk) {
                 that.$afkBtn.removeClass('label-default');
                 that.$afkBtn.addClass('label-success');
@@ -20,9 +22,8 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
         }
     };
 
-
     this.handleAfkBtn = function () {
-        socket.emit('chatMsg', {msg: '/afk'});
+        window.socket.emit('chatMsg', {msg: '/afk'});
     };
     this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
         .text(app.t('AFK'))
@@ -30,42 +31,37 @@ cytubeEnhanced.setModule('chatControls', function (app, settings) {
         .on('click', function () {
             that.handleAfkBtn();
         });
-    if (!settings.afkButton) {
+
+    if (settings.afkButton) {
+        window.socket.on('setAFK', function (data) {
+            that.handleAfk(data);
+        });
+    } else {
         this.$afkBtn.hide();
     }
 
 
     this.handleClearBtn = function () {
-        if (confirm(app.t('Are you sure, that you want to clear the chat?'))) {
-            socket.emit("chatMsg", {msg: '/clear'});
+        if (window.confirm(app.t('Are you sure, that you want to clear the chat?'))) {
+            window.socket.emit("chatMsg", {msg: '/clear'});
         }
     };
     this.$clearChatBtn = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">')
         .text(app.t('Clear chat'))
-        .insertAfter(that.$afkBtn)
+        .insertAfter(this.$afkBtn)
         .on('click', function () {
             that.handleClearBtn();
         });
-    if (!hasPermission("chatclear") || !settings.clearChatButton) {
+
+    if (window.hasPermission("chatclear") && settings.clearChatButton) {
+        window.socket.on('setUserRank', function () {
+            if (window.hasPermission("chatclear")) {
+                that.$clearChatBtn.show();
+            } else {
+                that.$clearChatBtn.hide();
+            }
+        });
+    } else {
         this.$clearChatBtn.hide();
     }
-
-
-    this.run = function () {
-        if (settings.afkButton) {
-            socket.on('setAFK', function (data) {
-                that.handleAfk(data);
-            });
-        }
-
-        if (settings.clearChatButton) {
-            socket.on('setUserRank', function () {
-                if (hasPermission("chatclear")) {
-                    that.$clearChatBtn.show();
-                } else {
-                    that.$clearChatBtn.hide();
-                }
-            });
-        }
-    };
 });

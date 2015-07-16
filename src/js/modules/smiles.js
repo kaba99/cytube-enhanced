@@ -1,4 +1,6 @@
-cytubeEnhanced.setModule('smiles', function (app) {
+window.cytubeEnhanced.addModule('smiles', function (app) {
+    'use strict';
+
     var that = this;
 
 
@@ -25,13 +27,13 @@ cytubeEnhanced.setModule('smiles', function (app) {
 
 
     this.renderSmiles = function () {
-        var smiles = CHANNEL.emotes;
+        var smiles = window.CHANNEL.emotes;
 
         for (var smileIndex = 0, smilesLen = smiles.length; smileIndex < smilesLen; smileIndex++) {
             $('<img class="smile-on-panel">')
                 .attr({src: smiles[smileIndex].image})
                 .data('name', smiles[smileIndex].name)
-                .appendTo(that.$smilesPanel);
+                .appendTo(this.$smilesPanel);
         }
     };
 
@@ -72,7 +74,7 @@ cytubeEnhanced.setModule('smiles', function (app) {
     });
 
 
-    this.run = function () {
-        that.renderSmiles();
-    };
+
+
+    this.renderSmiles();
 });
