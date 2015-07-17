@@ -11,43 +11,6 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     settings = $.extend({}, defaultSettings, settings);
 
 
-    this.layoutOptions = {
-        'hide-header': {
-            title: app.t('userConfig[.]Hide header'),
-            'default': 'no',
-            values: {
-                yes: app.t('userConfig[.]Yes'),
-                no: app.t('userConfig[.]No')
-            }
-        },
-        'player-position': {
-            title: app.t('userConfig[.]Player position'),
-            'default': 'right',
-            values: {
-                left: app.t('userConfig[.]Left'),
-                right: app.t('userConfig[.]Right'),
-                center: app.t('userConfig[.]Center')
-            }
-        },
-        'playlist-position': {
-            title: app.t('userConfig[.]Playlist position'),
-            'default': 'right',
-            values: {
-                left: app.t('userConfig[.]Left'),
-                right: app.t('userConfig[.]Right')
-            }
-        },
-        'userlist-position': {
-            title: app.t('userConfig[.]Chat\'s userlist position'),
-            'default': 'left',
-            values: {
-                left: app.t('userConfig[.]Left'),
-                right: app.t('userConfig[.]Right')
-            }
-        }
-    };
-
-
     this.UserConfig = function () {
         /**
          * UserConfig options
@@ -74,6 +37,10 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
          * @returns {*}
          */
         this.get = function (name) {
+            if (!this.options.hasOwnProperty(name)) {
+                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+            }
+
             return this.options[name];
         };
 
@@ -89,147 +56,27 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
 
             return result;
         };
-
-        /**
-         * Get the option from cookies and run the related function
-         * @param name Option's name
-         * @param defaultValue The value to be set if option not exists
-         * @returns {*}
-         */
-        this.loadOption = function (name, defaultValue) {
-            var option = window.getOrDefault(window.CHANNEL.name + "_config-" + name, defaultValue);
-
-            if (this.configFunctions[name] !== undefined) {
-                this.configFunctions[name](option);
-            }
-
-            return option;
-        };
     };
-
 
     this.userConfig = new this.UserConfig();
 
-    this.userConfig.loadDefaults = function () {
-        var options = this.options;
-
-
-        if (settings.minimizeButton) {
-            options.minimize = this.loadOption('minimize', false);
-        }
-
-
-        if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-            options['smiles-and-pictures'] = this.loadOption('smiles-and-pictures', false);
-
-            app.getModule('smiles').done(function (smilesModule) {
-                smilesModule.smilesAndPicturesTogether = options['smiles-and-pictures'];
-            });
-
-            app.getModule('favouritePictures').done(function (favouritePicturesModule) {
-                favouritePicturesModule.smilesAndPicturesTogether = options['smiles-and-pictures'];
-            });
-        }
-
-
-        if (settings.layoutConfigButton) {
-            for (var layoutOption in that.layoutOptions) {
-                if (that.layoutOptions.hasOwnProperty(layoutOption)) {
-                    options[layoutOption] = this.loadOption(layoutOption, that.layoutOptions[layoutOption].default || false);
-                }
-            }
-
-            options['user-css'] = this.loadOption('user-css', '');
-        }
-    };
-
-
-    this.userConfig.configFunctions = {
-        minimize: function (isMinimized) {
-            if (isMinimized) {
-                $('#motdrow').hide();
-                $('#queue').parent().hide();
-                that.$configWrapper.hide();
-
-                that.$minBtn.removeClass('btn-default');
-                that.$minBtn.addClass('btn-success');
-            } else {
-                $('#motdrow').show();
-                $('#queue').parent().show();
-                that.$configWrapper.show();
-
-                that.$minBtn.removeClass('btn-success');
-                that.$minBtn.addClass('btn-default');
-            }
-        },
-        'smiles-and-pictures': function (isTurnedOn) {
-            app.getModule('smiles').done(function (smilesModule) {
-                smilesModule.smilesAndPicturesTogether = isTurnedOn;
-            });
-
-            app.getModule('favouritePictures').done(function (favouritePicturesModule) {
-                favouritePicturesModule.smilesAndPicturesTogether = isTurnedOn;
-            });
-
-
-            if (isTurnedOn) {
-                that.$smilesAndPicturesBtn.removeClass('btn-default');
-                that.$smilesAndPicturesBtn.addClass('btn-success');
-
-                $('#smiles-btn').hide();
-                $('#smiles-panel').hide();
-                $('#smiles-btn').addClass('btn-default');
-                $('#smiles-btn').removeClass('btn-success');
-
-                $('#favourite-pictures-btn').hide();
-                $('#favourite-pictures-panel').hide();
-                $('#favourite-pictures-btn').addClass('btn-default');
-                $('#favourite-pictures-btn').removeClass('btn-success');
-
-                $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="' + app.t('userConfig[.]Show emotes and favorite images') + '">')
-                    .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
-                    .prependTo($('#chat-controls'))
-                    .on('click', function () {
-                        $('#smiles-btn').click();
-                        $('#favourite-pictures-btn').click();
-
-                        if ($(this).hasClass('btn-default')) {
-                            $(this).removeClass('btn-default');
-                            $(this).addClass('btn-success');
-                        } else {
-                            $(this).removeClass('btn-success');
-                            $(this).addClass('btn-default');
-                        }
-                    });
-            } else {
-                if ($('#smiles-and-picture-btn').length !== 0) {
-                    $('#smiles-and-picture-btn').remove();
-                }
-
-                that.$smilesAndPicturesBtn.removeClass('btn-success');
-                that.$smilesAndPicturesBtn.addClass('btn-default');
-
-                $('#smiles-btn').show();
-                $('#favourite-pictures-btn').show();
-
-                $('#smiles-panel').hide();
-                $('#favourite-pictures-panel').hide();
-            }
-        }
-    };
-
-
-    this.toggleConfigPanel = function () {
-        this.$configWrapper.toggle();
-    };
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
     this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
         .html('<span class="glyphicon glyphicon-cog"></span> ' + app.t('userConfig[.]Settings'))
         .appendTo('#leftcontrols')
         .on('click', function() {
-            that.toggleConfigPanel();
+            that.userConfig.toggle('hide-config-panel');
+            that.$configWrapper.toggle();
         });
+
+    if (this.userConfig.get('hide-config-panel')) {
+        this.$configWrapper.hide();
+    } else {
+        this.$configWrapper.show();
+    }
+
+
 
 
     this.$layoutForm = $('<div id="layout-config-form" class="form-group">').appendTo(this.$configBody)
@@ -240,14 +87,51 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         this.$layoutForm.hide();
     }
 
-    this.configUserLayout = function (userConfig) {
+
+    this.layoutOptions = {
+        'hide-header': {
+            title: app.t('userConfig[.]Hide header'),
+            default: 'no',
+            values: {
+                yes: app.t('userConfig[.]Yes'),
+                no: app.t('userConfig[.]No')
+            }
+        },
+        'player-position': {
+            title: app.t('userConfig[.]Player position'),
+            default: 'right',
+            values: {
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right'),
+                center: app.t('userConfig[.]Center')
+            }
+        },
+        'playlist-position': {
+            title: app.t('userConfig[.]Playlist position'),
+            default: 'right',
+            values: {
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right')
+            }
+        },
+        'userlist-position': {
+            title: app.t('userConfig[.]Chat\'s userlist position'),
+            default: 'left',
+            values: {
+                left: app.t('userConfig[.]Left'),
+                right: app.t('userConfig[.]Right')
+            }
+        }
+    };
+
+    this.configUserLayout = function (layoutValues) {
         var $settingsWrapper = $('<div class="form-horizontal">');
 
         for (var layoutOption in this.layoutOptions) {
             if (this.layoutOptions.hasOwnProperty(layoutOption)) {
                 var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
 
-                $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + that.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
+                $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + this.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
 
                 var $selectWrapper = $('<div class="col-sm-10">').appendTo($formGroup);
                 var $select = $('<select id="' + layoutOption + '" class="form-control">').appendTo($selectWrapper);
@@ -255,11 +139,13 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
                 for (var selectOption in this.layoutOptions[layoutOption].values) {
                     if (this.layoutOptions[layoutOption].values.hasOwnProperty(selectOption)) {
                         $('<option value="' + selectOption + '">' + this.layoutOptions[layoutOption].values[selectOption] + '</option>').appendTo($select);
-
-                        if (selectOption === userConfig.get(layoutOption)) {
-                            $select.val(selectOption);
-                        }
                     }
+                }
+
+                if (layoutValues.hasOwnProperty(layoutOption)) {
+                    $select.val(layoutValues[layoutOption]);
+                } else {
+                    $select.val(this.layoutOptions[layoutOption].default);
                 }
             }
         }
@@ -269,7 +155,8 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
         $('<textarea id="user-css" class="form-control" rows="7">')
             .appendTo($userCssTextareaWrapper)
-            .val(userConfig.get('user-css'));
+            .val(layoutValues['user-css'] || '');
+
 
         var $btnWrapper = $('<div>');
 
@@ -281,13 +168,16 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
                 if (window.confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
                     for (var layoutOption in that.layoutOptions) {
                         if (that.layoutOptions.hasOwnProperty(layoutOption)) {
-                            userConfig.set(layoutOption, that.layoutOptions[layoutOption].default);
+                            layoutValues[layoutOption] = that.layoutOptions[layoutOption].default;
                         }
                     }
+                    layoutValues['user-css'] = '';
 
-                    userConfig.set('user-css', '');
 
-                    that.applyLayoutSettings(userConfig);
+                    that.userConfig.set('layout', JSON.stringify(layoutValues));
+
+                    that.applyLayoutSettings(layoutValues);
+
                     $modalWindow.modal('hide');
                 }
             });
@@ -297,16 +187,25 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
             .appendTo($btnWrapper)
             .on('click', function () {
                 for (var layoutOption in that.layoutOptions) {
-                    if ($('#' + layoutOption).length !== 0) {
-                        userConfig.set(layoutOption, $('#' + layoutOption).val());
+                    if (that.layoutOptions.hasOwnProperty(layoutOption)) {
+                        if ($('#' + layoutOption).length !== 0) {
+                            layoutValues[layoutOption] = $('#' + layoutOption).val();
+                        } else {
+                            layoutValues[layoutOption] = that.layoutOptions[layoutOption].default;
+                        }
                     }
                 }
-
                 if ($('#user-css').length !== 0) {
-                    userConfig.set('user-css', $('#user-css').val());
+                    layoutValues['user-css'] = $('#user-css').val();
+                } else {
+                    layoutValues['user-css'] = '';
                 }
 
-                that.applyLayoutSettings(userConfig);
+
+                that.userConfig.set('layout', JSON.stringify(layoutValues));
+
+                that.applyLayoutSettings(layoutValues);
+
                 $modalWindow.modal('hide');
             });
 
@@ -316,67 +215,19 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
             $modalWindow = utilsModule.createModalWindow(app.t('userConfig[.]Layout settings'), $settingsWrapper, $btnWrapper);
         });
     };
-    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">')
-        .text(app.t('userConfig[.]Settings'))
-        .appendTo(this.$layoutBtnWrapper)
-        .on('click', function() {
-            that.configUserLayout(that.userConfig);
-        });
-    if (!settings.layoutConfigButton) {
-        this.$layoutConfigBtn.hide();
-    }
 
-    this.minifyInterface = function (userConfig) {
-        var isMinimized = userConfig.toggle('minimize');
-        userConfig.configFunctions.minimize(isMinimized);
-    };
-    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">')
-        .text(app.t('userConfig[.]Minimize'))
-        .appendTo(this.$layoutBtnWrapper)
-        .on('click', function() {
-            that.minifyInterface(that.userConfig);
-        });
-    if (!settings.minimizeButton) {
-        this.$minBtn.hide();
-    }
-
-    if (app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        $.when(app.getModule('smiles'), app.getModule('favouritePictures')).done(function () {
-            that.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
-                .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
-                .appendTo(that.$configBody);
-            that.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(that.$commonConfigForm);
-            that.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(that.$commonConfigWrapper);
-
-
-            that.toggleSmilesAndPictures = function () {
-                var isTurnedOn = that.userConfig.toggle('smiles-and-pictures');
-                that.userConfig.configFunctions['smiles-and-pictures'](isTurnedOn);
-            };
-            that.$smilesAndPicturesBtn = $('<button id="common-config-smiles-and-pictures-btn" class="btn btn-default">')
-                .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
-                .appendTo(that.$commonConfigBtnWrapper)
-                .on('click', function() {
-                    that.toggleSmilesAndPictures();
-                });
-
-
-            if (!settings.smilesAndPicturesTogetherButton) {
-                that.$smilesAndPicturesBtn.hide();
-                that.$commonConfigForm.hide();
-            }
-        });
-    }
-
-
-    this.applyLayoutSettings = function (userConfig) {
-        if (userConfig.get('hide-header') === 'yes') {
+    this.applyLayoutSettings = function (layoutValues) {
+        if (layoutValues['hide-header'] === 'yes') {
             $('#motdrow').hide();
+            $('#motdrow').data('hiddenByLayout', '1');
         } else {
-            $('#motdrow').show();
+            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
+                $('#motdrow').show();
+            }
+            $('#motdrow').data('hiddenByLayout', '0');
         }
 
-        if (userConfig.get('player-position') === 'left') {
+        if (layoutValues['player-position'] === 'left') {
             if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
                 $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
                 $('#chatwrap').addClass('col-lg-5 col-md-5');
@@ -387,7 +238,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
             }
 
             $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (userConfig.get('player-position') === 'center') {
+        } else if (layoutValues['player-position'] === 'center') {
             $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
                 return (css.match(/(\s)*col-(\S)+/g) || []).join('');
             });
@@ -412,7 +263,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
             $('#chatwrap').detach().insertBefore($('#videowrap'));
         }
 
-        if (userConfig.get('playlist-position') === 'left') {
+        if (layoutValues['playlist-position'] === 'left') {
             $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
             $('#rightpane').detach().insertBefore($('#leftpane'));
         } else { //right
@@ -420,13 +271,13 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
             $('#leftpane').detach().insertBefore($('#rightpane'));
         }
 
-        if (userConfig.get('userlist-position') === 'right') {
+        if (layoutValues['userlist-position'] === 'right') {
             $('#userlist').addClass('pull-right');
-        } else {
+        } else { //left
             $('#userlist').removeClass('pull-right');
         }
 
-        if (userConfig.get('user-css') !== '') {
+        if (layoutValues.hasOwnProperty('user-css') && layoutValues['user-css'] !== '') {
             $("head").append('<style id="user-style" type="text/css">' + userConfig.get('user-css') + '</style>');
         } else if ($('#user-style').length !== 0) {
             $('#user-style').remove();
@@ -436,13 +287,148 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         $('#refresh-video').click();
     };
 
+    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">')
+        .text(app.t('userConfig[.]Settings'))
+        .appendTo(this.$layoutBtnWrapper)
+        .on('click', function() {
+            var layoutValues;
+            try {
+                layoutValues = window.JSON.parse(that.userConfig.get('layout')) || {};
+            } catch (e) {
+                layoutValues = {};
+            }
 
+            that.configUserLayout(layoutValues);
+        });
 
-
-
-    this.userConfig.loadDefaults();
-
+    var userLayout;
     if (settings.layoutConfigButton) {
-        this.applyLayoutSettings(this.userConfig);
+        try {
+            userLayout = JSON.parse(this.userConfig.get('layout')) || {};
+        } catch (e) {
+            userLayout = {};
+        }
+
+        this.applyLayoutSettings(userLayout);
+    } else {
+        this.$layoutConfigBtn.hide();
+    }
+
+
+
+
+    this.applyMinimize = function (isMinimized) {
+        if (isMinimized) {
+            $('#motdrow').data('hiddenByMinimize', '1');
+            $('#motdrow').hide();
+            $('#queue').parent().hide();
+
+            that.$minBtn.removeClass('btn-default');
+            that.$minBtn.addClass('btn-success');
+        } else {
+            if ($('#motdrow').data('hiddenByLayout') !== '1') {
+                $('#motdrow').show();
+            }
+            $('#motdrow').data('hiddenByMinimize', '0');
+            $('#queue').parent().show();
+
+            that.$minBtn.removeClass('btn-success');
+            that.$minBtn.addClass('btn-default');
+        }
+    };
+
+    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">')
+        .text(app.t('userConfig[.]Minimize'))
+        .appendTo(this.$layoutBtnWrapper)
+        .on('click', function() {
+            that.applyMinimize(that.userConfig.toggle('isMinimized'));
+        });
+
+    if (settings.minimizeButton) {
+        this.applyMinimize(this.userConfig.get('isMinimized'));
+    } else {
+        this.$minBtn.hide();
+    }
+
+
+
+
+    this.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
+        .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
+        .appendTo(this.$configBody);
+    this.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$commonConfigForm);
+    this.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(this.$commonConfigWrapper);
+
+    if (!(settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures'))) {
+        this.$commonConfigForm.hide();
+    }
+
+
+    this.applySmilesAndPictures = function (isTurnedOn) {
+        app.getModule('smiles').done(function (smilesModule) {
+            smilesModule.smilesAndPicturesTogether = isTurnedOn;
+        });
+
+        app.getModule('favouritePictures').done(function (favouritePicturesModule) {
+            favouritePicturesModule.smilesAndPicturesTogether = isTurnedOn;
+        });
+
+
+        if (isTurnedOn) {
+            that.$smilesAndPicturesBtn.removeClass('btn-default');
+            that.$smilesAndPicturesBtn.addClass('btn-success');
+
+            $('#smiles-btn').hide();
+            $('#smiles-panel').hide();
+            $('#smiles-btn').addClass('btn-default');
+            $('#smiles-btn').removeClass('btn-success');
+
+            $('#favourite-pictures-btn').hide();
+            $('#favourite-pictures-panel').hide();
+            $('#favourite-pictures-btn').addClass('btn-default');
+            $('#favourite-pictures-btn').removeClass('btn-success');
+
+            $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="' + app.t('userConfig[.]Show emotes and favorite images') + '">')
+                .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
+                .prependTo($('#chat-controls'))
+                .on('click', function () {
+                    $('#smiles-btn').click();
+                    $('#favourite-pictures-btn').click();
+
+                    if ($(this).hasClass('btn-default')) {
+                        $(this).removeClass('btn-default');
+                        $(this).addClass('btn-success');
+                    } else {
+                        $(this).removeClass('btn-success');
+                        $(this).addClass('btn-default');
+                    }
+                });
+        } else {
+            if ($('#smiles-and-picture-btn').length !== 0) {
+                $('#smiles-and-picture-btn').remove();
+            }
+
+            that.$smilesAndPicturesBtn.removeClass('btn-success');
+            that.$smilesAndPicturesBtn.addClass('btn-default');
+
+            $('#smiles-btn').show();
+            $('#favourite-pictures-btn').show();
+
+            $('#smiles-panel').hide();
+            $('#favourite-pictures-panel').hide();
+        }
+    };
+
+    this.$smilesAndPicturesBtn = $('<button id="common-config-smiles-and-pictures-btn" class="btn btn-default">')
+        .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
+        .appendTo(that.$commonConfigBtnWrapper)
+        .on('click', function() {
+            that.applySmilesAndPictures(that.userConfig.toggle('smiles-and-pictures'));
+        });
+
+    if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
+        that.applySmilesAndPictures(that.userConfig.get('smiles-and-pictures'));
+    } else {
+        this.$smilesAndPicturesBtn.hide();
     }
 });

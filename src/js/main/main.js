@@ -74,8 +74,8 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
      * @returns {boolean}
      */
     this.isModulePermitted = function (moduleName) {
-        return modulesSettings[moduleName] ?
-            (modulesSettings[moduleName].enabled || true) :
+        return modulesSettings.hasOwnProperty('moduleName') ?
+            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
             true;
     };
 
