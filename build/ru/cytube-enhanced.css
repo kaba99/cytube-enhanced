@@ -5185,6 +5185,10 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     margin-right: 2px;
 }
 
+#chatheader, #chatline {
+    border-radius: 0;
+}
+
 /**
 * Fork of https://github.com/mickey/videojs-progressTips
 */

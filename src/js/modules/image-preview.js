@@ -58,7 +58,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
             });
         }
     };
-    $(document.body).on('click', function () {
+    $(document.body).on('click', function (event) {
         that.showPicturePreview(event.target);
     });
 

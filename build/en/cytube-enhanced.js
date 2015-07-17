@@ -1048,7 +1048,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
             });
         }
     };
-    $(document.body).on('click', function () {
+    $(document.body).on('click', function (event) {
         that.showPicturePreview(event.target);
     });
 
@@ -1099,6 +1099,10 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     $(document.body).on('keydown', function (e) {
         that.closePictureByEscape(e);
     });
+});
+
+window.cytubeEnhanced.addModule('markdownHelper', function (app) {
+    'use strict';
 });
 
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
@@ -1480,166 +1484,6 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
 
 
     this.renderSmiles();
-});
-
-window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
-    'use strict';
-
-    if ($('#newpollbtn').length !== 0) {
-        $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
-    }
-
-    if ($('#showmediaurl').length !== 0) {
-        $('#showmediaurl').html(app.t('standardUI[.]Add video'))
-            .attr({title: app.t('standardUI[.]Add video from url')})
-            .detach()
-            .insertBefore($('#showsearch'));
-    }
-
-    if ($('.navbar-brand').length !== 0) {
-        $('.navbar-brand').text(app.channelName);
-    }
-
-    if ($('#usercount').length !== 0) {
-        $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
-        window.socket.on('usercount', function () {
-            $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
-        });
-    }
-    window.calcUserBreakdown = (function (oldCalcUserBreakdown) {
-        return function () {
-            var chatInfo = oldCalcUserBreakdown();
-            var translatedChatInfo = {};
-
-            var chatInfoTranslateMap = {
-                AFK: app.t('standardUI[.]AFK'),
-                Anonymous: app.t('standardUI[.]Anonymous'),
-                'Channel Admins': app.t('standardUI[.]Channel Admins'),
-                Guests: app.t('standardUI[.]Guests'),
-                Moderators: app.t('standardUI[.]Moderators'),
-                'Regular Users': app.t('standardUI[.]Regular Users'),
-                'Site Admins': app.t('standardUI[.]Site Admins')
-            };
-
-            for (var chatInfoElement in chatInfo) {
-                if (chatInfo.hasOwnProperty(chatInfoElement)) {
-                    translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
-                }
-            }
-
-            return translatedChatInfo;
-        };
-    })(window.calcUserBreakdown);
-
-    if ($('#welcome').length !== 0) {
-        $('#welcome').text(app.t('standardUI[.]Welcome, ') + window.CLIENT.name);
-    }
-    if ($('#logout').length !== 0) {
-        $('#logout').text(app.t('standardUI[.]Log out'));
-    }
-    if ($('#username').length !== 0) {
-        $('#username').attr({placeholder: app.t('standardUI[.]Login')});
-    }
-    if ($('#password').length !== 0) {
-        $('#password').attr({placeholder: app.t('standardUI[.]Password')});
-    }
-    if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
-        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text(app.t('standardUI[.]Remember me'));
-    }
-    if ($('#login')) {
-        $('#login').text(app.t('standardUI[.]Site login'));
-    }
-
-    var menuTranslateMap = {
-        Home: app.t('standardUI[.]Home'),
-        Account: app.t('standardUI[.]Account'),
-        Logout: app.t('standardUI[.]Logout'),
-        Channels: app.t('standardUI[.]Channels'),
-        Profile: app.t('standardUI[.]Profile'),
-        'Change Password/Email': app.t('standardUI[.]Change Password/Email'),
-        Login: app.t('standardUI[.]Log in'),
-        Register: app.t('standardUI[.]Register'),
-        Options: app.t('standardUI[.]Options'),
-        'Channel Settings': app.t('standardUI[.]Channel Settings'),
-        Layout: app.t('standardUI[.]Layout'),
-        'Chat Only': app.t('standardUI[.]Chat Only'),
-        'Remove Video': app.t('standardUI[.]Remove Video')
-    };
-    $('.navbar').find('.navbar-nav').children().each(function () {
-        $(this).find('a').each(function () {
-            for (var elementToTranslate in menuTranslateMap) {
-                if (menuTranslateMap.hasOwnProperty(elementToTranslate)) {
-                    $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
-                }
-            }
-        });
-    });
-
-    if ($('#mediaurl').length !== 0) {
-        $('#mediaurl').attr('placeholder', app.t('standardUI[.]Video url'));
-    }
-    if ($('#queue_next').length !== 0) {
-        $('#queue_next').text(app.t('standardUI[.]Next'));
-    }
-    if ($('#queue_end').length !== 0) {
-        $('#queue_end').text(app.t('standardUI[.]At end'));
-    }
-
-    $('.qbtn-play').each(function () {
-        $(this).html($(this).html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
-    });
-    $('.qbtn-next').each(function () {
-        $(this).html($(this).html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
-    });
-    $('.qbtn-tmp').each(function () {
-        $(this).html($(this).html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
-    });
-    $('.qbtn-delete').each(function () {
-        $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
-    });
-    window.addQueueButtons = (function (oldAddQueueButtons) {
-        return function (li) {
-            var result = oldAddQueueButtons(li);
-
-            if (li.find('.qbtn-play').length !== 0) {
-                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
-            }
-            if (li.find('.qbtn-next').length !== 0) {
-                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
-            }
-            if (li.find('.qbtn-tmp').length !== 0) {
-                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
-            }
-            if (li.find('.qbtn-delete').length !== 0) {
-                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
-            }
-
-            return result;
-        };
-    })(window.addQueueButtons);
-
-    this.handleTemp = function (data) {
-        var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
-
-        if(tmpBtn.length !== 0) {
-            if(data.temp) {
-                tmpBtn.html(tmpBtn.html().replace('Сделать временным', app.t('standardUI[.]Make Temporary')));
-            }
-            else {
-                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
-            }
-        }
-    };
-    window.socket.on('setTemp', function (data) {
-        that.handleTemp(data);
-    });
-
-    if ($('#guestname').length !== 0) {
-        $('#guestname').attr('placeholder', app.t('standardUI[.]Name'));
-    }
-    if ($('#guestlogin')) {
-        $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
-    }
 });
 
 window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
@@ -2418,8 +2262,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
                         $tipInner.text(minutes + ":" + seconds);
                     }
 
-                    $tipWrapper
-                        .css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
+                    $tipWrapper.css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
                         .css('left', (e.pageX - $('.vjs-control-bar').offset().left - $tipInner.outerWidth() / 2)+ 'px')
                         .show();
                 });

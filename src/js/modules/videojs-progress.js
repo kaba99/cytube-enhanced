@@ -38,8 +38,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
                         $tipInner.text(minutes + ":" + seconds);
                     }
 
-                    $tipWrapper
-                        .css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
+                    $tipWrapper.css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
                         .css('left', (e.pageX - $('.vjs-control-bar').offset().left - $tipInner.outerWidth() / 2)+ 'px')
                         .show();
                 });
