@@ -2538,40 +2538,52 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
 window.cytubeEnhanced.addModule('videojsProgress', function () {
     'use strict';
 
-
     function handleProgress() {
         if (window.PLAYER instanceof window.VideoJSPlayer) {
-            if (window.PLAYER.player.techName === "Html5" || window.PLAYER.player.Ua === "Html5") { //Ua is uglifier mangle
-                $(".vjs-progress-control").after($("<div id='vjs-tip'><div id='vjs-tip-arrow'></div><div id='vjs-tip-inner'></div></div>"));
+            if (window.PLAYER.player.techName === 'Html5' || window.PLAYER.player.Ua === 'Html5') { //Ua is uglifier mangle
+                var $tipWrapper = $('<div class="vjs-tip">').insertAfter('.vjs-progress-control');
+                var $tipBody = $('<div class="vjs-tip-body">').appendTo($tipWrapper);
+                $('<div class="vjs-tip-body-arrow">').appendTo($tipBody);
+                var $tipInner = $('<div class="vjs-tip-body-inner">').appendTo($tipBody);
 
-                $(".vjs-progress-control").on("mousemove", function(e) {
-                    var seekBar = window.PLAYER.player.controlBar.progressControl.seekBar;
-                    var mousePosition = (e.pageX - $(seekBar.el()).offset().left) / seekBar.width();
+                $('.vjs-progress-control').on('mousemove', function(e) {
+                    var $seekBar = $(window.PLAYER.player.controlBar.progressControl.seekBar.el());
+                    var pixelsInSecond = $seekBar.outerWidth() / window.PLAYER.player.duration();
+                    var mousePositionInPlayer = e.pageX - $seekBar.offset().left;
 
-                    var timeInSeconds = mousePosition * window.PLAYER.player.duration();
-                    if (timeInSeconds === window.PLAYER.player.duration()) {
-                        timeInSeconds = timeInSeconds - 0.1;
+                    var timeInSeconds = mousePositionInPlayer / pixelsInSecond;
+
+
+                    var hours = Math.floor(timeInSeconds / 3600);
+
+                    var minutes = hours > 0 ? Math.floor((timeInSeconds % 3600) / 60) : Math.floor(timeInSeconds / 60);
+                    if (minutes < 10 && hours > 0) {
+                        minutes = '0' + minutes;
                     }
 
-                    var minutes = Math.floor(timeInSeconds / 60);
-                    var seconds = Math.floor(timeInSeconds - minutes * 60);
+                    var seconds = Math.floor(timeInSeconds % 60);
                     if (seconds < 10) {
-                        seconds = "0" + seconds;
+                        seconds = '0' + seconds;
                     }
 
-                    $('#vjs-tip-inner').html("" + minutes + ":" + seconds);
+                    if (hours > 0) {
+                        $tipInner.text(hours + ':' + minutes + ':' + seconds);
+                    } else {
+                        $tipInner.text(minutes + ":" + seconds);
+                    }
 
-                    var barHeight = $('.vjs-control-bar').height();
-                    $("#vjs-tip").css("top", "" + (e.pageY - $(this).offset().top - barHeight - 20) + "px").css("left", "" + (e.pageX - $(this).offset().left - 20) + "px").css("visibility", "visible");
+                    $tipWrapper
+                        .css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
+                        .css('left', (e.pageX - $('.vjs-control-bar').offset().left - $tipInner.outerWidth() / 2)+ 'px')
+                        .show();
                 });
 
-                $(".vjs-progress-control, .vjs-play-control").on("mouseout", function() {
-                    $("#vjs-tip").css("visibility", "hidden");
+                $('.vjs-progress-control, .vjs-play-control').on('mouseout', function() {
+                    $tipWrapper.hide();
                 });
             }
         }
     }
-
 
     handleProgress();
     window.socket.on('changeMedia', function () {

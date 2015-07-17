@@ -723,6 +723,20 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     settings = $.extend({}, defaultSettings, settings);
 
 
+
+
+    this.handleAfkBtn = function () {
+        window.socket.emit('chatMsg', {msg: '/afk'});
+    };
+    this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
+        .text(app.t('AFK'))
+        .appendTo('#chatheader')
+        .on('click', function () {
+            that.handleAfkBtn();
+        });
+
+
+
     this.handleAfk = function (data) {
         if (data.name === window.CLIENT.name) {
             if (data.afk) {
@@ -735,16 +749,6 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
         }
     };
 
-    this.handleAfkBtn = function () {
-        window.socket.emit('chatMsg', {msg: '/afk'});
-    };
-    this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
-        .text(app.t('AFK'))
-        .appendTo('#chatheader')
-        .on('click', function () {
-            that.handleAfkBtn();
-        });
-
     if (settings.afkButton) {
         window.socket.on('setAFK', function (data) {
             that.handleAfk(data);
@@ -752,6 +756,8 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     } else {
         this.$afkBtn.hide();
     }
+
+
 
 
     this.handleClearBtn = function () {
@@ -766,17 +772,22 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
             that.handleClearBtn();
         });
 
-    if (window.hasPermission("chatclear") && settings.clearChatButton) {
-        window.socket.on('setUserRank', function () {
-            if (window.hasPermission("chatclear")) {
-                that.$clearChatBtn.show();
-            } else {
-                that.$clearChatBtn.hide();
-            }
-        });
-    } else {
+    if (!window.hasPermission("chatclear")) {
         this.$clearChatBtn.hide();
     }
+
+
+    this.handleChatClear = function () {
+        if (window.hasPermission("chatclear") && settings.clearChatButton) {
+            that.$clearChatBtn.show();
+        } else {
+            that.$clearChatBtn.hide();
+        }
+    };
+
+    window.socket.on('setUserRank', function () {
+        that.handleChatClear();
+    });
 });
 
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
@@ -988,57 +999,57 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    this.showPicturePreview = function (address) {
-        var $picture = $('<img src="' + address + '">');
+    this.showPicturePreview = function (pictureToPreview) {
+        if ($(pictureToPreview).is(settings.selectorsToPreview)) {
+            var $picture = $('<img src="' + $(pictureToPreview).attr('src') + '">');
 
-        $picture.ready(function () {
-            $('<div id="modal-picture-overlay">').appendTo($(document.body));
-            var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
+            $picture.ready(function () {
+                $('<div id="modal-picture-overlay">').appendTo($(document.body));
+                var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
 
-            var pictureWidth = $picture.prop('width');
-            var pictureHeight = $picture.prop('height');
-
-
-            var $modalPictureOptions = $('<div id="modal-picture-options">');
-            $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
-
-            $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
-                .appendTo($modalPictureOptions);
-            $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
-                .appendTo($modalPictureOptions);
+                var pictureWidth = $picture.prop('width');
+                var pictureHeight = $picture.prop('height');
 
 
-            var scaleFactor = 1;
-            if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
-                if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
+                var $modalPictureOptions = $('<div id="modal-picture-options">');
+                $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
+
+                $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
+                    .appendTo($modalPictureOptions);
+                $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+                    .appendTo($modalPictureOptions);
+
+
+                var scaleFactor = 1;
+                if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
+                    if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
+                        scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+                    } else {
+                        scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
+                    }
+                } else if (pictureHeight > document.documentElement.clientHeight) {
                     scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-                } else {
+                } else if (pictureWidth > document.documentElement.clientWidth) {
                     scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
                 }
-            } else if (pictureHeight > document.documentElement.clientHeight) {
-                scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-            } else if (pictureWidth > document.documentElement.clientWidth) {
-                scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-            }
 
-            pictureHeight /= scaleFactor;
-            pictureWidth /= scaleFactor;
+                pictureHeight /= scaleFactor;
+                pictureWidth /= scaleFactor;
 
-            $modalPicture.css({
-                width: pictureWidth,
-                height: pictureHeight,
-                marginLeft: -(pictureWidth / 2),
-                marginTop: -(pictureHeight / 2)
+                $modalPicture.css({
+                    width: pictureWidth,
+                    height: pictureHeight,
+                    marginLeft: -(pictureWidth / 2),
+                    marginTop: -(pictureHeight / 2)
+                });
+
+
+                $picture.appendTo($modalPicture);
             });
-
-
-            $picture.appendTo($modalPicture);
-        });
+        }
     };
     $(document.body).on('click', function () {
-        if ($(event.target).is(settings.selectorsToPreview)) {
-            that.showPicturePreview($(event.target).attr('src'));
-        }
+        that.showPicturePreview(event.target);
     });
 
 
@@ -1437,29 +1448,32 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     });
 
 
-    this.$smilesBtn.on('click', function() {
-        var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
+    this.handleSmileBtn = function ($smilesBtn) {
+        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
 
         if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#favourite-pictures-panel').hide();
         }
 
-        that.$smilesPanel.toggle();
+        this.$smilesPanel.toggle();
 
         if (!smilesAndPicturesTogether) {
-            if ($(this).hasClass('btn-default')) {
+            if ($smilesBtn.hasClass('btn-default')) {
                 if ($('#favourite-pictures-btn').length !== 0 && $('#favourite-pictures-btn').hasClass('btn-success')) {
                     $('#favourite-pictures-btn').removeClass('btn-success');
                     $('#favourite-pictures-btn').addClass('btn-default');
                 }
 
-                $(this).removeClass('btn-default');
-                $(this).addClass('btn-success');
+                $smilesBtn.removeClass('btn-default');
+                $smilesBtn.addClass('btn-success');
             } else {
-                $(this).removeClass('btn-success');
-                $(this).addClass('btn-default');
+                $smilesBtn.removeClass('btn-success');
+                $smilesBtn.addClass('btn-default');
             }
         }
+    };
+    this.$smilesBtn.on('click', function() {
+        that.handleSmileBtn($(this));
     });
 
 
@@ -1603,7 +1617,8 @@ window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
             return result;
         };
     })(window.addQueueButtons);
-    window.socket.on('setTemp', function (data) {
+
+    this.handleTemp = function (data) {
         var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
 
         if(tmpBtn.length !== 0) {
@@ -1614,6 +1629,9 @@ window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
                 tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
             }
         }
+    };
+    window.socket.on('setTemp', function (data) {
+        that.handleTemp(data);
     });
 
     if ($('#guestname').length !== 0) {
@@ -1688,12 +1706,16 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
 
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
+
+    this.handleConfigBtn = function () {
+        this.userConfig.toggle('hide-config-panel');
+        this.$configWrapper.toggle();
+    };
     this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
         .html('<span class="glyphicon glyphicon-cog"></span> ' + app.t('userConfig[.]Settings'))
         .appendTo('#leftcontrols')
         .on('click', function() {
-            that.userConfig.toggle('hide-config-panel');
-            that.$configWrapper.toggle();
+            that.handleConfigBtn();
         });
 
     if (this.userConfig.get('hide-config-panel')) {
@@ -1913,24 +1935,27 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         $('#refresh-video').click();
     };
 
+    this.handleLayout = function () {
+        var userLayout;
+        try {
+            userLayout = window.JSON.parse(this.userConfig.get('layout')) || {};
+        } catch (e) {
+            userLayout = {};
+        }
+
+        this.configUserLayout(userLayout);
+    };
     this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">')
         .text(app.t('userConfig[.]Settings'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
-            var layoutValues;
-            try {
-                layoutValues = window.JSON.parse(that.userConfig.get('layout')) || {};
-            } catch (e) {
-                layoutValues = {};
-            }
-
-            that.configUserLayout(layoutValues);
+            that.handleLayout();
         });
 
     var userLayout;
     if (settings.layoutConfigButton) {
         try {
-            userLayout = JSON.parse(this.userConfig.get('layout')) || {};
+            userLayout = window.JSON.parse(this.userConfig.get('layout')) || {};
         } catch (e) {
             userLayout = {};
         }
@@ -2053,7 +2078,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         });
 
     if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        that.applySmilesAndPictures(that.userConfig.get('smiles-and-pictures'));
+        this.applySmilesAndPictures(this.userConfig.get('smiles-and-pictures'));
     } else {
         this.$smilesAndPicturesBtn.hide();
     }
@@ -2359,40 +2384,52 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
 window.cytubeEnhanced.addModule('videojsProgress', function () {
     'use strict';
 
-
     function handleProgress() {
         if (window.PLAYER instanceof window.VideoJSPlayer) {
-            if (window.PLAYER.player.techName === "Html5" || window.PLAYER.player.Ua === "Html5") { //Ua is uglifier mangle
-                $(".vjs-progress-control").after($("<div id='vjs-tip'><div id='vjs-tip-arrow'></div><div id='vjs-tip-inner'></div></div>"));
+            if (window.PLAYER.player.techName === 'Html5' || window.PLAYER.player.Ua === 'Html5') { //Ua is uglifier mangle
+                var $tipWrapper = $('<div class="vjs-tip">').insertAfter('.vjs-progress-control');
+                var $tipBody = $('<div class="vjs-tip-body">').appendTo($tipWrapper);
+                $('<div class="vjs-tip-body-arrow">').appendTo($tipBody);
+                var $tipInner = $('<div class="vjs-tip-body-inner">').appendTo($tipBody);
 
-                $(".vjs-progress-control").on("mousemove", function(e) {
-                    var seekBar = window.PLAYER.player.controlBar.progressControl.seekBar;
-                    var mousePosition = (e.pageX - $(seekBar.el()).offset().left) / seekBar.width();
+                $('.vjs-progress-control').on('mousemove', function(e) {
+                    var $seekBar = $(window.PLAYER.player.controlBar.progressControl.seekBar.el());
+                    var pixelsInSecond = $seekBar.outerWidth() / window.PLAYER.player.duration();
+                    var mousePositionInPlayer = e.pageX - $seekBar.offset().left;
 
-                    var timeInSeconds = mousePosition * window.PLAYER.player.duration();
-                    if (timeInSeconds === window.PLAYER.player.duration()) {
-                        timeInSeconds = timeInSeconds - 0.1;
+                    var timeInSeconds = mousePositionInPlayer / pixelsInSecond;
+
+
+                    var hours = Math.floor(timeInSeconds / 3600);
+
+                    var minutes = hours > 0 ? Math.floor((timeInSeconds % 3600) / 60) : Math.floor(timeInSeconds / 60);
+                    if (minutes < 10 && hours > 0) {
+                        minutes = '0' + minutes;
                     }
 
-                    var minutes = Math.floor(timeInSeconds / 60);
-                    var seconds = Math.floor(timeInSeconds - minutes * 60);
+                    var seconds = Math.floor(timeInSeconds % 60);
                     if (seconds < 10) {
-                        seconds = "0" + seconds;
+                        seconds = '0' + seconds;
                     }
 
-                    $('#vjs-tip-inner').html("" + minutes + ":" + seconds);
+                    if (hours > 0) {
+                        $tipInner.text(hours + ':' + minutes + ':' + seconds);
+                    } else {
+                        $tipInner.text(minutes + ":" + seconds);
+                    }
 
-                    var barHeight = $('.vjs-control-bar').height();
-                    $("#vjs-tip").css("top", "" + (e.pageY - $(this).offset().top - barHeight - 20) + "px").css("left", "" + (e.pageX - $(this).offset().left - 20) + "px").css("visibility", "visible");
+                    $tipWrapper
+                        .css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
+                        .css('left', (e.pageX - $('.vjs-control-bar').offset().left - $tipInner.outerWidth() / 2)+ 'px')
+                        .show();
                 });
 
-                $(".vjs-progress-control, .vjs-play-control").on("mouseout", function() {
-                    $("#vjs-tip").css("visibility", "hidden");
+                $('.vjs-progress-control, .vjs-play-control').on('mouseout', function() {
+                    $tipWrapper.hide();
                 });
             }
         }
     }
-
 
     handleProgress();
     window.socket.on('changeMedia', function () {
