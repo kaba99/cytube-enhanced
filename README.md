@@ -4,7 +4,7 @@
 
 Just download ./build/cytube-enhanced.js and ./build/cytube-enhanced.css and assign them as external stuff in administration panel.
 
-You can configure this script like so:
+It should works fine by default, but you can configure this script like so:
 
 ```javascript
 window.cytubeEnhancedSettings = {

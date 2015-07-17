@@ -133,7 +133,8 @@ window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
             return result;
         };
     })(window.addQueueButtons);
-    window.socket.on('setTemp', function (data) {
+
+    this.handleTemp = function (data) {
         var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
 
         if(tmpBtn.length !== 0) {
@@ -144,6 +145,9 @@ window.cytubeEnhanced.addModule('standardUITranslate', function (app) {
                 tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
             }
         }
+    };
+    window.socket.on('setTemp', function (data) {
+        that.handleTemp(data);
     });
 
     if ($('#guestname').length !== 0) {

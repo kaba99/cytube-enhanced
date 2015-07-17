@@ -9,57 +9,57 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    this.showPicturePreview = function (address) {
-        var $picture = $('<img src="' + address + '">');
+    this.showPicturePreview = function (pictureToPreview) {
+        if ($(pictureToPreview).is(settings.selectorsToPreview)) {
+            var $picture = $('<img src="' + $(pictureToPreview).attr('src') + '">');
 
-        $picture.ready(function () {
-            $('<div id="modal-picture-overlay">').appendTo($(document.body));
-            var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
+            $picture.ready(function () {
+                $('<div id="modal-picture-overlay">').appendTo($(document.body));
+                var $modalPicture = $('<div id="modal-picture">').appendTo($(document.body)).draggable();
 
-            var pictureWidth = $picture.prop('width');
-            var pictureHeight = $picture.prop('height');
-
-
-            var $modalPictureOptions = $('<div id="modal-picture-options">');
-            $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
-
-            $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
-                .appendTo($modalPictureOptions);
-            $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
-                .appendTo($modalPictureOptions);
+                var pictureWidth = $picture.prop('width');
+                var pictureHeight = $picture.prop('height');
 
 
-            var scaleFactor = 1;
-            if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
-                if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
+                var $modalPictureOptions = $('<div id="modal-picture-options">');
+                $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
+
+                $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
+                    .appendTo($modalPictureOptions);
+                $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+                    .appendTo($modalPictureOptions);
+
+
+                var scaleFactor = 1;
+                if (pictureWidth > document.documentElement.clientWidth && pictureHeight > document.documentElement.clientHeight) {
+                    if ((pictureHeight - document.documentElement.clientHeight) > (pictureWidth - document.documentElement.clientWidth)) {
+                        scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
+                    } else {
+                        scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
+                    }
+                } else if (pictureHeight > document.documentElement.clientHeight) {
                     scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-                } else {
+                } else if (pictureWidth > document.documentElement.clientWidth) {
                     scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
                 }
-            } else if (pictureHeight > document.documentElement.clientHeight) {
-                scaleFactor = pictureHeight / (document.documentElement.clientHeight * 0.8);
-            } else if (pictureWidth > document.documentElement.clientWidth) {
-                scaleFactor = pictureWidth / (document.documentElement.clientWidth * 0.8);
-            }
 
-            pictureHeight /= scaleFactor;
-            pictureWidth /= scaleFactor;
+                pictureHeight /= scaleFactor;
+                pictureWidth /= scaleFactor;
 
-            $modalPicture.css({
-                width: pictureWidth,
-                height: pictureHeight,
-                marginLeft: -(pictureWidth / 2),
-                marginTop: -(pictureHeight / 2)
+                $modalPicture.css({
+                    width: pictureWidth,
+                    height: pictureHeight,
+                    marginLeft: -(pictureWidth / 2),
+                    marginTop: -(pictureHeight / 2)
+                });
+
+
+                $picture.appendTo($modalPicture);
             });
-
-
-            $picture.appendTo($modalPicture);
-        });
+        }
     };
     $(document.body).on('click', function () {
-        if ($(event.target).is(settings.selectorsToPreview)) {
-            that.showPicturePreview($(event.target).attr('src'));
-        }
+        that.showPicturePreview(event.target);
     });
 
 

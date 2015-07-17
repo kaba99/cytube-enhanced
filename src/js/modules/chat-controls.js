@@ -10,6 +10,20 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     settings = $.extend({}, defaultSettings, settings);
 
 
+
+
+    this.handleAfkBtn = function () {
+        window.socket.emit('chatMsg', {msg: '/afk'});
+    };
+    this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
+        .text(app.t('AFK'))
+        .appendTo('#chatheader')
+        .on('click', function () {
+            that.handleAfkBtn();
+        });
+
+
+
     this.handleAfk = function (data) {
         if (data.name === window.CLIENT.name) {
             if (data.afk) {
@@ -22,16 +36,6 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
         }
     };
 
-    this.handleAfkBtn = function () {
-        window.socket.emit('chatMsg', {msg: '/afk'});
-    };
-    this.$afkBtn = $('<span id="afk-btn" class="label label-default pull-right pointer">')
-        .text(app.t('AFK'))
-        .appendTo('#chatheader')
-        .on('click', function () {
-            that.handleAfkBtn();
-        });
-
     if (settings.afkButton) {
         window.socket.on('setAFK', function (data) {
             that.handleAfk(data);
@@ -39,6 +43,8 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     } else {
         this.$afkBtn.hide();
     }
+
+
 
 
     this.handleClearBtn = function () {
@@ -53,15 +59,20 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
             that.handleClearBtn();
         });
 
-    if (window.hasPermission("chatclear") && settings.clearChatButton) {
-        window.socket.on('setUserRank', function () {
-            if (window.hasPermission("chatclear")) {
-                that.$clearChatBtn.show();
-            } else {
-                that.$clearChatBtn.hide();
-            }
-        });
-    } else {
+    if (!window.hasPermission("chatclear")) {
         this.$clearChatBtn.hide();
     }
+
+
+    this.handleChatClear = function () {
+        if (window.hasPermission("chatclear") && settings.clearChatButton) {
+            that.$clearChatBtn.show();
+        } else {
+            that.$clearChatBtn.hide();
+        }
+    };
+
+    window.socket.on('setUserRank', function () {
+        that.handleChatClear();
+    });
 });

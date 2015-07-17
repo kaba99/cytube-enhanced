@@ -48,29 +48,32 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     });
 
 
-    this.$smilesBtn.on('click', function() {
-        var smilesAndPicturesTogether = that.smilesAndPicturesTogether || false; //setted up by userConfig module
+    this.handleSmileBtn = function ($smilesBtn) {
+        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
 
         if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#favourite-pictures-panel').hide();
         }
 
-        that.$smilesPanel.toggle();
+        this.$smilesPanel.toggle();
 
         if (!smilesAndPicturesTogether) {
-            if ($(this).hasClass('btn-default')) {
+            if ($smilesBtn.hasClass('btn-default')) {
                 if ($('#favourite-pictures-btn').length !== 0 && $('#favourite-pictures-btn').hasClass('btn-success')) {
                     $('#favourite-pictures-btn').removeClass('btn-success');
                     $('#favourite-pictures-btn').addClass('btn-default');
                 }
 
-                $(this).removeClass('btn-default');
-                $(this).addClass('btn-success');
+                $smilesBtn.removeClass('btn-default');
+                $smilesBtn.addClass('btn-success');
             } else {
-                $(this).removeClass('btn-success');
-                $(this).addClass('btn-default');
+                $smilesBtn.removeClass('btn-success');
+                $smilesBtn.addClass('btn-default');
             }
         }
+    };
+    this.$smilesBtn.on('click', function() {
+        that.handleSmileBtn($(this));
     });
 
 
