@@ -1,4 +1,4 @@
-function CytubeEnhanced(channelName, language, modulesSettings) {
+window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
 
     this.channelName = channelName;
@@ -115,4 +115,4 @@ function CytubeEnhanced(channelName, language, modulesSettings) {
 
         return translatedText;
     };
-}
+};

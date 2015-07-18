@@ -1,3 +1,5 @@
+require('jquery-mousewheel')($);
+
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     'use strict';
 

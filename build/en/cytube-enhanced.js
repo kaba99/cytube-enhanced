@@ -1,128 +1,4 @@
-function CytubeEnhanced(channelName, language, modulesSettings) {
-    'use strict';
-
-    this.channelName = channelName;
-
-    var translations = {};
-
-    var modules = {};
-    var MODULE_LOAD_TIMEOUT = 10000; //ms
-    var MODULE_LOAD_PERIOD = 100; //ms
-
-
-    /**
-     * Gets the module
-     *
-     * Returns $.Deferred() object and throws error exception if timeout
-     *
-     * @param {string} moduleName The name of the module
-     * @returns {object}
-     */
-    this.getModule = function (moduleName) {
-        var promise = $.Deferred();
-        var time = MODULE_LOAD_TIMEOUT;
-
-        (function getModuleRecursive() {
-            if (modules[moduleName] !== undefined) {
-                promise.resolve(modules[moduleName]);
-            } else if (time <= 0) {
-                throw new Error("Load timeout for module " + moduleName + '.');
-            } else {
-                time -= MODULE_LOAD_PERIOD;
-
-                setTimeout(getModuleRecursive, MODULE_LOAD_PERIOD);
-            }
-        })();
-
-        return promise;
-    };
-
-
-    /**
-     * Adds the module
-     *
-     * @param {string} moduleName The name of the module
-     * @param moduleConstructor The module's constructor
-     */
-    this.addModule = function (moduleName, ModuleConstructor) {
-        if (this.isModulePermitted(moduleName)) {
-            var moduleSettings = modulesSettings[moduleName] || {};
-
-            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
-            modules[moduleName].settings = moduleSettings;
-        }
-    };
-
-
-    /**
-     * Configures the module
-     *
-     * Previous options don't reset.
-     *
-     * @param {string} moduleName  The name of the module
-     * @param moduleOptions The module's options
-     */
-    this.configureModule = function (moduleName, moduleOptions) {
-        $.extend(true, modulesSettings[moduleName], moduleOptions);
-    };
-
-
-    /**
-     * Checks if module is permitted
-     *
-     * @param moduleName The name of the module to check
-     * @returns {boolean}
-     */
-    this.isModulePermitted = function (moduleName) {
-        return modulesSettings.hasOwnProperty('moduleName') ?
-            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
-            true;
-    };
-
-
-    /**
-     * Adds the translation object
-     * @param language The language identifier
-     * @param translationObject The translation object
-     */
-    this.addTranslation = function (language, translationObject) {
-        translations[language] = translationObject;
-    };
-
-
-    /**
-     * Translates the text
-     * @param text The text to translate
-     * @returns {string}
-     */
-    this.t = function (text) {
-        var translatedText = text;
-
-        if (language !== 'en' && translations[language] !== undefined) {
-            if (text.indexOf('[.]') !== -1) {
-                var textWithNamespaces = text.split('[.]');
-
-                translatedText = translations[language][textWithNamespaces[0]];
-                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
-                    translatedText = translatedText[textWithNamespaces[namespace]];
-                }
-            } else {
-                translatedText = translations[language][text];
-            }
-        } else if (text.indexOf('[.]') !== -1) { //English text by default
-            translatedText = text.split('[.]').pop();
-        }
-
-        return translatedText;
-    };
-}
-
-window.cytubeEnhanced = new CytubeEnhanced(
-    $('title').text(),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
-);
-
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*!
  * jQuery Mousewheel 3.1.13
  *
@@ -345,6 +221,490 @@ window.cytubeEnhanced = new CytubeEnhanced(
 
 }));
 
+},{}],2:[function(require,module,exports){
+/*!
+ * jQuery.selection - jQuery Plugin
+ *
+ * Copyright (c) 2010-2014 IWASAKI Koji (@madapaja).
+ * http://blog.madapaja.net/
+ * Under The MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+(function($, win, doc) {
+    /**
+     * get caret status of the selection of the element
+     *
+     * @param   {Element}   element         target DOM element
+     * @return  {Object}    return
+     * @return  {String}    return.text     selected text
+     * @return  {Number}    return.start    start position of the selection
+     * @return  {Number}    return.end      end position of the selection
+     */
+    var _getCaretInfo = function(element){
+        var res = {
+            text: '',
+            start: 0,
+            end: 0
+        };
+
+        if (!element.value) {
+            /* no value or empty string */
+            return res;
+        }
+
+        try {
+            if (win.getSelection) {
+                /* except IE */
+                res.start = element.selectionStart;
+                res.end = element.selectionEnd;
+                res.text = element.value.slice(res.start, res.end);
+            } else if (doc.selection) {
+                /* for IE */
+                element.focus();
+
+                var range = doc.selection.createRange(),
+                    range2 = doc.body.createTextRange();
+
+                res.text = range.text;
+
+                try {
+                    range2.moveToElementText(element);
+                    range2.setEndPoint('StartToStart', range);
+                } catch (e) {
+                    range2 = element.createTextRange();
+                    range2.setEndPoint('StartToStart', range);
+                }
+
+                res.start = element.value.length - range2.text.length;
+                res.end = res.start + range.text.length;
+            }
+        } catch (e) {
+            /* give up */
+        }
+
+        return res;
+    };
+
+    /**
+     * caret operation for the element
+     * @type {Object}
+     */
+    var _CaretOperation = {
+        /**
+         * get caret position
+         *
+         * @param   {Element}   element         target element
+         * @return  {Object}    return
+         * @return  {Number}    return.start    start position for the selection
+         * @return  {Number}    return.end      end position for the selection
+         */
+        getPos: function(element) {
+            var tmp = _getCaretInfo(element);
+            return {start: tmp.start, end: tmp.end};
+        },
+
+        /**
+         * set caret position
+         *
+         * @param   {Element}   element         target element
+         * @param   {Object}    toRange         caret position
+         * @param   {Number}    toRange.start   start position for the selection
+         * @param   {Number}    toRange.end     end position for the selection
+         * @param   {String}    caret           caret mode: any of the following: "keep" | "start" | "end"
+         */
+        setPos: function(element, toRange, caret) {
+            caret = this._caretMode(caret);
+
+            if (caret === 'start') {
+                toRange.end = toRange.start;
+            } else if (caret === 'end') {
+                toRange.start = toRange.end;
+            }
+
+            element.focus();
+            try {
+                if (element.createTextRange) {
+                    var range = element.createTextRange();
+
+                    if (win.navigator.userAgent.toLowerCase().indexOf("msie") >= 0) {
+                        toRange.start = element.value.substr(0, toRange.start).replace(/\r/g, '').length;
+                        toRange.end = element.value.substr(0, toRange.end).replace(/\r/g, '').length;
+                    }
+
+                    range.collapse(true);
+                    range.moveStart('character', toRange.start);
+                    range.moveEnd('character', toRange.end - toRange.start);
+
+                    range.select();
+                } else if (element.setSelectionRange) {
+                    element.setSelectionRange(toRange.start, toRange.end);
+                }
+            } catch (e) {
+                /* give up */
+            }
+        },
+
+        /**
+         * get selected text
+         *
+         * @param   {Element}   element         target element
+         * @return  {String}    return          selected text
+         */
+        getText: function(element) {
+            return _getCaretInfo(element).text;
+        },
+
+        /**
+         * get caret mode
+         *
+         * @param   {String}    caret           caret mode
+         * @return  {String}    return          any of the following: "keep" | "start" | "end"
+         */
+        _caretMode: function(caret) {
+            caret = caret || "keep";
+            if (caret === false) {
+                caret = 'end';
+            }
+
+            switch (caret) {
+                case 'keep':
+                case 'start':
+                case 'end':
+                    break;
+
+                default:
+                    caret = 'keep';
+            }
+
+            return caret;
+        },
+
+        /**
+         * replace selected text
+         *
+         * @param   {Element}   element         target element
+         * @param   {String}    text            replacement text
+         * @param   {String}    caret           caret mode: any of the following: "keep" | "start" | "end"
+         */
+        replace: function(element, text, caret) {
+            var tmp = _getCaretInfo(element),
+                orig = element.value,
+                pos = $(element).scrollTop(),
+                range = {start: tmp.start, end: tmp.start + text.length};
+
+            element.value = orig.substr(0, tmp.start) + text + orig.substr(tmp.end);
+
+            $(element).scrollTop(pos);
+            this.setPos(element, range, caret);
+        },
+
+        /**
+         * insert before the selected text
+         *
+         * @param   {Element}   element         target element
+         * @param   {String}    text            insertion text
+         * @param   {String}    caret           caret mode: any of the following: "keep" | "start" | "end"
+         */
+        insertBefore: function(element, text, caret) {
+            var tmp = _getCaretInfo(element),
+                orig = element.value,
+                pos = $(element).scrollTop(),
+                range = {start: tmp.start + text.length, end: tmp.end + text.length};
+
+            element.value = orig.substr(0, tmp.start) + text + orig.substr(tmp.start);
+
+            $(element).scrollTop(pos);
+            this.setPos(element, range, caret);
+        },
+
+        /**
+         * insert after the selected text
+         *
+         * @param   {Element}   element         target element
+         * @param   {String}    text            insertion text
+         * @param   {String}    caret           caret mode: any of the following: "keep" | "start" | "end"
+         */
+        insertAfter: function(element, text, caret) {
+            var tmp = _getCaretInfo(element),
+                orig = element.value,
+                pos = $(element).scrollTop(),
+                range = {start: tmp.start, end: tmp.end};
+
+            element.value = orig.substr(0, tmp.end) + text + orig.substr(tmp.end);
+
+            $(element).scrollTop(pos);
+            this.setPos(element, range, caret);
+        }
+    };
+
+    /* add jQuery.selection */
+    $.extend({
+        /**
+         * get selected text on the window
+         *
+         * @param   {String}    mode            selection mode: any of the following: "text" | "html"
+         * @return  {String}    return
+         */
+        selection: function(mode) {
+            var getText = ((mode || 'text').toLowerCase() === 'text');
+
+            try {
+                if (win.getSelection) {
+                    if (getText) {
+                        // get text
+                        return win.getSelection().toString();
+                    } else {
+                        // get html
+                        var sel = win.getSelection(), range;
+
+                        if (sel.getRangeAt) {
+                            range = sel.getRangeAt(0);
+                        } else {
+                            range = doc.createRange();
+                            range.setStart(sel.anchorNode, sel.anchorOffset);
+                            range.setEnd(sel.focusNode, sel.focusOffset);
+                        }
+
+                        return $('<div></div>').append(range.cloneContents()).html();
+                    }
+                } else if (doc.selection) {
+                    if (getText) {
+                        // get text
+                        return doc.selection.createRange().text;
+                    } else {
+                        // get html
+                        return doc.selection.createRange().htmlText;
+                    }
+                }
+            } catch (e) {
+                /* give up */
+            }
+
+            return '';
+        }
+    });
+
+    /* add selection */
+    $.fn.extend({
+        selection: function(mode, opts) {
+            opts = opts || {};
+
+            switch (mode) {
+                /**
+                 * selection('getPos')
+                 * get caret position
+                 *
+                 * @return  {Object}    return
+                 * @return  {Number}    return.start    start position for the selection
+                 * @return  {Number}    return.end      end position for the selection
+                 */
+                case 'getPos':
+                    return _CaretOperation.getPos(this[0]);
+
+                /**
+                 * selection('setPos', opts)
+                 * set caret position
+                 *
+                 * @param   {Number}    opts.start      start position for the selection
+                 * @param   {Number}    opts.end        end position for the selection
+                 */
+                case 'setPos':
+                    return this.each(function() {
+                        _CaretOperation.setPos(this, opts);
+                    });
+
+                /**
+                 * selection('replace', opts)
+                 * replace the selected text
+                 *
+                 * @param   {String}    opts.text            replacement text
+                 * @param   {String}    opts.caret           caret mode: any of the following: "keep" | "start" | "end"
+                 */
+                case 'replace':
+                    return this.each(function() {
+                        _CaretOperation.replace(this, opts.text, opts.caret);
+                    });
+
+                /**
+                 * selection('insert', opts)
+                 * insert before/after the selected text
+                 *
+                 * @param   {String}    opts.text            insertion text
+                 * @param   {String}    opts.caret           caret mode: any of the following: "keep" | "start" | "end"
+                 * @param   {String}    opts.mode            insertion mode: any of the following: "before" | "after"
+                 */
+                case 'insert':
+                    return this.each(function() {
+                        if (opts.mode === 'before') {
+                            _CaretOperation.insertBefore(this, opts.text, opts.caret);
+                        } else {
+                            _CaretOperation.insertAfter(this, opts.text, opts.caret);
+                        }
+                    });
+
+                /**
+                 * selection('get')
+                 * get selected text
+                 *
+                 * @return  {String}    return
+                 */
+                case 'get':
+                    /* falls through */
+                default:
+                    return _CaretOperation.getText(this[0]);
+            }
+
+            return this;
+        }
+    });
+})(jQuery, window, window.document);
+
+},{}],3:[function(require,module,exports){
+window.cytubeEnhanced = new window.CytubeEnhanced(
+    $('title').text(),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
+);
+
+},{}],4:[function(require,module,exports){
+window.CytubeEnhanced = function(channelName, language, modulesSettings) {
+    'use strict';
+
+    this.channelName = channelName;
+
+    var translations = {};
+
+    var modules = {};
+    var MODULE_LOAD_TIMEOUT = 10000; //ms
+    var MODULE_LOAD_PERIOD = 100; //ms
+
+
+    /**
+     * Gets the module
+     *
+     * Returns $.Deferred() object and throws error exception if timeout
+     *
+     * @param {string} moduleName The name of the module
+     * @returns {object}
+     */
+    this.getModule = function (moduleName) {
+        var promise = $.Deferred();
+        var time = MODULE_LOAD_TIMEOUT;
+
+        (function getModuleRecursive() {
+            if (modules[moduleName] !== undefined) {
+                promise.resolve(modules[moduleName]);
+            } else if (time <= 0) {
+                throw new Error("Load timeout for module " + moduleName + '.');
+            } else {
+                time -= MODULE_LOAD_PERIOD;
+
+                setTimeout(getModuleRecursive, MODULE_LOAD_PERIOD);
+            }
+        })();
+
+        return promise;
+    };
+
+
+    /**
+     * Adds the module
+     *
+     * @param {string} moduleName The name of the module
+     * @param moduleConstructor The module's constructor
+     */
+    this.addModule = function (moduleName, ModuleConstructor) {
+        if (this.isModulePermitted(moduleName)) {
+            var moduleSettings = modulesSettings[moduleName] || {};
+
+            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
+            modules[moduleName].settings = moduleSettings;
+        }
+    };
+
+
+    /**
+     * Configures the module
+     *
+     * Previous options don't reset.
+     *
+     * @param {string} moduleName  The name of the module
+     * @param moduleOptions The module's options
+     */
+    this.configureModule = function (moduleName, moduleOptions) {
+        $.extend(true, modulesSettings[moduleName], moduleOptions);
+    };
+
+
+    /**
+     * Checks if module is permitted
+     *
+     * @param moduleName The name of the module to check
+     * @returns {boolean}
+     */
+    this.isModulePermitted = function (moduleName) {
+        return modulesSettings.hasOwnProperty('moduleName') ?
+            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
+            true;
+    };
+
+
+    /**
+     * Adds the translation object
+     * @param language The language identifier
+     * @param translationObject The translation object
+     */
+    this.addTranslation = function (language, translationObject) {
+        translations[language] = translationObject;
+    };
+
+
+    /**
+     * Translates the text
+     * @param text The text to translate
+     * @returns {string}
+     */
+    this.t = function (text) {
+        var translatedText = text;
+
+        if (language !== 'en' && translations[language] !== undefined) {
+            if (text.indexOf('[.]') !== -1) {
+                var textWithNamespaces = text.split('[.]');
+
+                translatedText = translations[language][textWithNamespaces[0]];
+                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
+                    translatedText = translatedText[textWithNamespaces[namespace]];
+                }
+            } else {
+                translatedText = translations[language][text];
+            }
+        } else if (text.indexOf('[.]') !== -1) { //English text by default
+            translatedText = text.split('[.]').pop();
+        }
+
+        return translatedText;
+    };
+};
+
+},{}],5:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
 
@@ -647,6 +1007,103 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     });
 });
 
+},{}],6:[function(require,module,exports){
+require('jquery.selection');
+
+window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
+    'use strict';
+
+    var that = this;
+
+
+    if ($('#chat-controls').length === 0) {
+        $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
+    }
+
+
+    this.$markdownHelperBtn = $('<button id="markdown-helper-btn" type="button" class="btn btn-sm btn-default" title="' + app.t('markdown[.]Markdown helper') + '">')
+        .html('<i class="glyphicon glyphicon-font"></i>');
+
+    if ($('#chat-help-btn').length !== 0) {
+        this.$markdownHelperBtn.insertBefore('#chat-help-btn');
+    } else {
+        this.$markdownHelperBtn.appendTo('#chat-controls');
+    }
+
+    this.handleMarkdownHelperBtnClick = function ($markdownHelperBtn) {
+        if ($markdownHelperBtn.hasClass('btn-default')) {
+            $markdownHelperBtn.removeClass('btn-default');
+            $markdownHelperBtn.addClass('btn-success');
+        } else {
+            $markdownHelperBtn.removeClass('btn-success');
+            $markdownHelperBtn.addClass('btn-default');
+        }
+
+        that.$markdownTemplatesWrapper.toggle('fast');
+    };
+    this.$markdownHelperBtn.on('click', function () {
+       that.handleMarkdownHelperBtnClick($(this));
+    });
+
+
+    this.$markdownTemplatesWrapper = $('<div class="btn-group">').insertAfter(this.$markdownHelperBtn).css('padding', '0 5px').hide();
+
+    this.markdownTemplatesPositions = ['b', 'i', 'sp', 'code', 's'];
+    this.markdownTemplates = {
+        'b': {
+            text: '<b>B</b>',
+            title: app.t('markdown[.]Bold text')
+        },
+        'i': {
+            text: '<i>I</i>',
+            title: app.t('markdown[.]Cursive text')
+        },
+        'sp': {
+            text: 'SP',
+            title: app.t('markdown[.]Spoiler')
+        },
+        'code': {
+            text: '<code>CODE</code>',
+            title: app.t('markdown[.]Monospace')
+        },
+        's': {
+            text: '<s>S</s>',
+            title: app.t('markdown[.]Strike')
+        }
+    };
+
+    var template;
+    for (var templateIndex = 0, templatesLength = this.markdownTemplatesPositions.length; templateIndex < templatesLength; templateIndex++) {
+        template = this.markdownTemplatesPositions[templateIndex];
+
+        $('<button type="button" class="btn btn-sm btn-default" title="' + this.markdownTemplates[template].title + '">')
+            .html(this.markdownTemplates[template].text)
+            .data('template', template)
+            .appendTo(this.$markdownTemplatesWrapper);
+    }
+
+
+    this.handleMarkdown = function (templateType) {
+        if (this.markdownTemplates.hasOwnProperty(templateType)) {
+            $('#chatline').selection('insert', {
+                text: '[' + templateType.toLowerCase() + ']',
+                mode: 'before'
+            });
+
+            $('#chatline').selection('insert', {
+                text: '[/' + templateType.toLowerCase() + ']',
+                mode: 'after'
+            });
+        }
+    };
+    this.$markdownTemplatesWrapper.on('click', 'button', function () {
+        that.handleMarkdown($(this).data('template'));
+
+        return false;
+    });
+});
+
+},{"jquery.selection":2}],7:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
     'use strict';
 
@@ -711,6 +1168,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
         });
 });
 
+},{}],8:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -790,6 +1248,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
+},{}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -988,6 +1447,9 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.renderFavouritePictures();
 });
 
+},{}],10:[function(require,module,exports){
+require('jquery-mousewheel')($);
+
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     'use strict';
 
@@ -1101,10 +1563,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-window.cytubeEnhanced.addModule('markdownHelper', function (app) {
-    'use strict';
-});
-
+},{"jquery-mousewheel":1}],11:[function(require,module,exports){
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
@@ -1366,6 +1825,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     });
 });
 
+},{}],12:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -1402,6 +1862,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
+},{}],13:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -1486,6 +1947,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.renderSmiles();
 });
 
+},{}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     'use strict';
 
@@ -1928,6 +2390,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     }
 });
 
+},{}],15:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -2010,6 +2473,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     }, 3000);
 });
 
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -2222,6 +2686,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
+},{}],17:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -2279,3 +2744,5 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
         handleProgress();
     });
 });
+
+},{}]},{},[4,3,5,6,7,8,9,10,11,12,13,14,15,16,17]);

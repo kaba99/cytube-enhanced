@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "gulpfile-en.js",
+  "browser": {
+    "jquery.selection": "./other_vendors/jquery.selection.js"
+  },
   "dependencies": {
     "jquery-mousewheel": "^3.1.13"
   },
   "devDependencies": {
+    "browserify": "^11.0.0",
     "cssunminifier": "0.0.2",
+    "globby": "^2.1.0",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^2.3.1",
     "gulp-concat": "^2.5.2",
@@ -17,6 +22,9 @@
     "gulp-shell": "^0.4.2",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.5",
-    "jshint-stylish": "^2.0.1"
+    "jshint-stylish": "^2.0.1",
+    "through2": "^2.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }

@@ -1,4 +1,4 @@
-cytubeEnhanced.addTranslation('ru', {
+window.cytubeEnhanced.addTranslation('ru', {
     qCommands: {
         'of course': 'определенно да',
         'yes': 'да',
@@ -149,5 +149,13 @@ cytubeEnhanced.addTranslation('ru', {
         'Scroll the playlist to the current video': 'Прокрутить плейлист к текущему видео',
         'Contributors\' list': 'Список пользователей, добавивших видео',
         'Video\'s count': 'Всего видео'
+    },
+    markdown: {
+        'Markdown helper': 'Помощник разметки',
+        'Bold text': 'Жирный текст',
+        'Cursive text': 'Наклонный текст',
+        'Spoiler': 'Спойлер',
+        'Monospace': 'Моноширинный',
+        'Strike': 'Перечёркнутый'
     }
 });
