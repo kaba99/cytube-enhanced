@@ -600,7 +600,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     /**
      * Gets the module
      *
-     * Returns $.Deferred() object and throws error exception if timeout
+     * Returns $.Deferred() promise object and throws error exception if timeout
      *
      * @param {string} moduleName The name of the module
      * @returns {object}
@@ -629,7 +629,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * Adds the module
      *
      * @param {string} moduleName The name of the module
-     * @param moduleConstructor The module's constructor
+     * @param ModuleConstructor The module's constructor
      */
     this.addModule = function (moduleName, ModuleConstructor) {
         if (this.isModulePermitted(moduleName)) {
@@ -702,6 +702,64 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
         return translatedText;
     };
+
+
+    /**
+     * UserConfig constructor
+     * @constructor
+     */
+    var UserConfig = function () {
+        /**
+         * UserConfig options
+         * @type {object}
+         */
+        this.options = {};
+
+        /**
+         * Sets the user's option and saves it in the user's cookies
+         * @param name The name ot the option
+         * @param value The value of the option
+         */
+        this.set = function (name, value) {
+            this.options[name] = value;
+            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
+        };
+
+        /**
+         * Gets the value of the user's option
+         *
+         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
+         *
+         * @param name Option's name
+         * @returns {*}
+         */
+        this.get = function (name) {
+            if (!this.options.hasOwnProperty(name)) {
+                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+            }
+
+            return this.options[name];
+        };
+
+        /**
+         * Toggles user's boolean option
+         * @param name Boolean option's name
+         * @returns {boolean}
+         */
+        this.toggle = function (name) {
+            var result = !this.get(name);
+
+            this.set(name, result);
+
+            return result;
+        };
+    };
+
+    /**
+     * User's options
+     * @type {UserConfig}
+     */
+    this.userConfig = new UserConfig();
 };
 
 },{}],5:[function(require,module,exports){
@@ -1010,10 +1068,16 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
 },{}],6:[function(require,module,exports){
 require('jquery.selection');
 
-window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
+window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     'use strict';
 
     var that = this;
+
+    var defaultSettings = {
+        templateButtonsOrder: ['b', 'i', 'sp', 'code', 's'],
+        templateButtonsAnimationSpeed: 150
+    };
+    settings = $.extend({}, defaultSettings, settings);
 
 
     if ($('#chat-controls').length === 0) {
@@ -1021,8 +1085,30 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
     }
 
 
+    this.handleMarkdownHelperBtnClick = function ($markdownHelperBtn, $markdownTemplatesWrapper) {
+        if ($markdownHelperBtn.hasClass('btn-default')) { //closed
+            $markdownHelperBtn.removeClass('btn-default');
+            $markdownHelperBtn.addClass('btn-success');
+
+            $markdownTemplatesWrapper.show();
+            $markdownTemplatesWrapper.children().animate({left: 0}, settings.templateButtonsAnimationSpeed);
+        } else { //opened
+            $markdownHelperBtn.removeClass('btn-success');
+            $markdownHelperBtn.addClass('btn-default');
+
+            $markdownTemplatesWrapper.children().animate({left: -$markdownTemplatesWrapper.width()}, settings.templateButtonsAnimationSpeed, function () {
+                $markdownTemplatesWrapper.hide();
+            });
+        }
+    };
+
     this.$markdownHelperBtn = $('<button id="markdown-helper-btn" type="button" class="btn btn-sm btn-default" title="' + app.t('markdown[.]Markdown helper') + '">')
-        .html('<i class="glyphicon glyphicon-font"></i>');
+        .html('<i class="glyphicon glyphicon-font"></i>')
+        .on('click', function () {
+            that.handleMarkdownHelperBtnClick($(this), that.$markdownTemplatesWrapper);
+
+            app.userConfig.toggle('bb-codes-opened');
+        });
 
     if ($('#chat-help-btn').length !== 0) {
         this.$markdownHelperBtn.insertBefore('#chat-help-btn');
@@ -1030,25 +1116,22 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
         this.$markdownHelperBtn.appendTo('#chat-controls');
     }
 
-    this.handleMarkdownHelperBtnClick = function ($markdownHelperBtn) {
-        if ($markdownHelperBtn.hasClass('btn-default')) {
-            $markdownHelperBtn.removeClass('btn-default');
-            $markdownHelperBtn.addClass('btn-success');
-        } else {
-            $markdownHelperBtn.removeClass('btn-success');
-            $markdownHelperBtn.addClass('btn-default');
-        }
 
-        that.$markdownTemplatesWrapper.toggle('fast');
-    };
-    this.$markdownHelperBtn.on('click', function () {
-       that.handleMarkdownHelperBtnClick($(this));
-    });
+    this.$markdownTemplatesWrapper = $('<div class="btn-group markdown-helper-templates-wrapper">')
+        .insertAfter(this.$markdownHelperBtn)
+        .hide();
+
+    if (app.userConfig.get('bb-codes-opened')) {
+        this.handleMarkdownHelperBtnClick(this.$markdownHelperBtn, this.$markdownTemplatesWrapper);
+    }
 
 
-    this.$markdownTemplatesWrapper = $('<div class="btn-group">').insertAfter(this.$markdownHelperBtn).css('padding', '0 5px').hide();
-
-    this.markdownTemplatesPositions = ['b', 'i', 'sp', 'code', 's'];
+    /**
+     * Markdown templates
+     *
+     * To add your template you need to also add your template key into settings.templateButtonsOrder
+     * @type {object}
+     */
     this.markdownTemplates = {
         'b': {
             text: '<b>B</b>',
@@ -1073,8 +1156,8 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
     };
 
     var template;
-    for (var templateIndex = 0, templatesLength = this.markdownTemplatesPositions.length; templateIndex < templatesLength; templateIndex++) {
-        template = this.markdownTemplatesPositions[templateIndex];
+    for (var templateIndex = 0, templatesLength = settings.templateButtonsOrder.length; templateIndex < templatesLength; templateIndex++) {
+        template = settings.templateButtonsOrder[templateIndex];
 
         $('<button type="button" class="btn btn-sm btn-default" title="' + this.markdownTemplates[template].title + '">')
             .html(this.markdownTemplates[template].text)
@@ -1086,12 +1169,12 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
     this.handleMarkdown = function (templateType) {
         if (this.markdownTemplates.hasOwnProperty(templateType)) {
             $('#chatline').selection('insert', {
-                text: '[' + templateType.toLowerCase() + ']',
+                text: '[' + templateType + ']',
                 mode: 'before'
             });
 
             $('#chatline').selection('insert', {
-                text: '[/' + templateType.toLowerCase() + ']',
+                text: '[/' + templateType + ']',
                 mode: 'after'
             });
         }
@@ -1343,7 +1426,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             $('#smiles-panel').hide();
         }
 
-        this.$favouritePicturesPanel.toggle();
+        this.$favouritePicturesPanel.slideToggle(50);
 
 
         if (!smilesAndPicturesTogether) {
@@ -1920,7 +2003,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
             $('#favourite-pictures-panel').hide();
         }
 
-        this.$smilesPanel.toggle();
+        this.$smilesPanel.slideToggle(50);
 
         if (!smilesAndPicturesTogether) {
             if ($smilesBtn.hasClass('btn-default')) {
@@ -1948,7 +2031,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
 });
 
 },{}],14:[function(require,module,exports){
-window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
+window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     'use strict';
 
     var that = this;
@@ -1961,60 +2044,17 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     settings = $.extend({}, defaultSettings, settings);
 
 
-    this.UserConfig = function () {
-        /**
-         * UserConfig options
-         * @type {object}
-         */
-        this.options = {};
 
-        /**
-         * Sets the user's option and saves it in the user's cookies
-         * @param name The name ot the option
-         * @param value The value of the option
-         */
-        this.set = function (name, value) {
-            this.options[name] = value;
-            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
-        };
-
-        /**
-         * Gets the value of the user's option
-         *
-         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-         *
-         * @param name Option's name
-         * @returns {*}
-         */
-        this.get = function (name) {
-            if (!this.options.hasOwnProperty(name)) {
-                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
-            }
-
-            return this.options[name];
-        };
-
-        /**
-         * Toggles user's boolean option
-         * @param name Boolean option's name
-         * @returns {boolean}
-         */
-        this.toggle = function (name) {
-            var result = !this.get(name);
-
-            this.set(name, result);
-
-            return result;
-        };
-    };
-
-    this.userConfig = new this.UserConfig();
 
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
+    if (!app.userConfig.get('hide-config-panel')) {
+        this.$configWrapper.show();
+    }
+
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
 
     this.handleConfigBtn = function () {
-        this.userConfig.toggle('hide-config-panel');
+        app.userConfig.toggle('hide-config-panel');
         this.$configWrapper.toggle();
     };
     this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
@@ -2023,12 +2063,6 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         .on('click', function() {
             that.handleConfigBtn();
         });
-
-    if (this.userConfig.get('hide-config-panel')) {
-        this.$configWrapper.hide();
-    } else {
-        this.$configWrapper.show();
-    }
 
 
 
@@ -2128,7 +2162,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
                     layoutValues['user-css'] = '';
 
 
-                    that.userConfig.set('layout', JSON.stringify(layoutValues));
+                    app.userConfig.set('layout', JSON.stringify(layoutValues));
 
                     that.applyLayoutSettings(layoutValues);
 
@@ -2156,7 +2190,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
                 }
 
 
-                that.userConfig.set('layout', JSON.stringify(layoutValues));
+                app.userConfig.set('layout', JSON.stringify(layoutValues));
 
                 that.applyLayoutSettings(layoutValues);
 
@@ -2244,7 +2278,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     this.handleLayout = function () {
         var userLayout;
         try {
-            userLayout = window.JSON.parse(this.userConfig.get('layout')) || {};
+            userLayout = window.JSON.parse(app.userConfig.get('layout')) || {};
         } catch (e) {
             userLayout = {};
         }
@@ -2261,7 +2295,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     var userLayout;
     if (settings.layoutConfigButton) {
         try {
-            userLayout = window.JSON.parse(this.userConfig.get('layout')) || {};
+            userLayout = window.JSON.parse(app.userConfig.get('layout')) || {};
         } catch (e) {
             userLayout = {};
         }
@@ -2274,6 +2308,8 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
 
 
 
+
+    
     this.applyMinimize = function (isMinimized) {
         if (isMinimized) {
             $('#motdrow').data('hiddenByMinimize', '1');
@@ -2298,11 +2334,11 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         .text(app.t('userConfig[.]Minimize'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
-            that.applyMinimize(that.userConfig.toggle('isMinimized'));
+            that.applyMinimize(app.userConfig.toggle('isMinimized'));
         });
 
     if (settings.minimizeButton) {
-        this.applyMinimize(this.userConfig.get('isMinimized'));
+        this.applyMinimize(app.userConfig.get('isMinimized'));
     } else {
         this.$minBtn.hide();
     }
@@ -2380,11 +2416,11 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
         .appendTo(that.$commonConfigBtnWrapper)
         .on('click', function() {
-            that.applySmilesAndPictures(that.userConfig.toggle('smiles-and-pictures'));
+            that.applySmilesAndPictures(app.userConfig.toggle('smiles-and-pictures'));
         });
 
     if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        this.applySmilesAndPictures(this.userConfig.get('smiles-and-pictures'));
+        this.applySmilesAndPictures(app.userConfig.get('smiles-and-pictures'));
     } else {
         this.$smilesAndPicturesBtn.hide();
     }

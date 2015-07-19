@@ -55,7 +55,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
             $('#favourite-pictures-panel').hide();
         }
 
-        this.$smilesPanel.toggle();
+        this.$smilesPanel.slideToggle(50);
 
         if (!smilesAndPicturesTogether) {
             if ($smilesBtn.hasClass('btn-default')) {

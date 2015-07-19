@@ -5034,6 +5034,8 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 .btn-default:active, .btn-default:focus {
     outline: 0!important;
 }
+
+/*Grid collapse*/
 .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .container, .container-fluid {
     padding-left: 3px;
     padding-right: 3px;
@@ -5042,6 +5044,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     margin-right: -3px;
     margin-left: -3px;
 }
+
 #mediainfo {
     padding-left: 4px;
 }
@@ -5098,20 +5101,30 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 #pictures-control-panel{
     padding-bottom: 2px;
 }
+.markdown-helper-templates-wrapper {
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow: hidden; /* for jquery animation */
+}
 
+/**
+* Fork of https://github.com/mickey/videojs-progressTips
+*/
 
 .vjs-tip {
     display: none;
-    opacity: .7;
+    opacity: 0.7;
     font-size: 10px;
     position: absolute;
     z-index: 100000;
 }
+
 .vjs-tip-body {
     position: relative;
 }
+
 .vjs-tip-body-arrow {
-    background: url(data:image/gif;base64,R0lGODlhCQAJAIABAAAAAAAAACH5BAEAAAEALAAAAAAJAAkAAAIRjAOnwIrcDJxvwkplPtchVQAAOw==) bottom left no-repeat;
+    background: url(data:image/gif;base64,R0lGODlhCQAJAIABAAAAAAAAACH5BAEAAAEALAAAAAAJAAkAAAIRjAOnwIrcDJxvwkplPtchVQAAOw==) no-repeat bottom left;
     bottom: -4px;
     left: 50%;
     margin-left: -4px;
@@ -5119,13 +5132,14 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     width: 9px;
     height: 4px;
 }
+
 .vjs-tip-body-inner {
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
-    padding: 5px 8px 4px;
-    background-color: #000;
-    color: #fff;
+    padding: 5px 8px 4px 8px;
+    background-color: black;
+    color: white;
     max-width: 200px;
     text-align: center;
 }

@@ -1,4 +1,4 @@
-window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
+window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     'use strict';
 
     var that = this;
@@ -11,60 +11,17 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     settings = $.extend({}, defaultSettings, settings);
 
 
-    this.UserConfig = function () {
-        /**
-         * UserConfig options
-         * @type {object}
-         */
-        this.options = {};
 
-        /**
-         * Sets the user's option and saves it in the user's cookies
-         * @param name The name ot the option
-         * @param value The value of the option
-         */
-        this.set = function (name, value) {
-            this.options[name] = value;
-            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
-        };
-
-        /**
-         * Gets the value of the user's option
-         *
-         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-         *
-         * @param name Option's name
-         * @returns {*}
-         */
-        this.get = function (name) {
-            if (!this.options.hasOwnProperty(name)) {
-                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
-            }
-
-            return this.options[name];
-        };
-
-        /**
-         * Toggles user's boolean option
-         * @param name Boolean option's name
-         * @returns {boolean}
-         */
-        this.toggle = function (name) {
-            var result = !this.get(name);
-
-            this.set(name, result);
-
-            return result;
-        };
-    };
-
-    this.userConfig = new this.UserConfig();
 
     this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
+    if (!app.userConfig.get('hide-config-panel')) {
+        this.$configWrapper.show();
+    }
+
     this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
 
     this.handleConfigBtn = function () {
-        this.userConfig.toggle('hide-config-panel');
+        app.userConfig.toggle('hide-config-panel');
         this.$configWrapper.toggle();
     };
     this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
@@ -73,12 +30,6 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         .on('click', function() {
             that.handleConfigBtn();
         });
-
-    if (this.userConfig.get('hide-config-panel')) {
-        this.$configWrapper.hide();
-    } else {
-        this.$configWrapper.show();
-    }
 
 
 
@@ -178,7 +129,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
                     layoutValues['user-css'] = '';
 
 
-                    that.userConfig.set('layout', JSON.stringify(layoutValues));
+                    app.userConfig.set('layout', JSON.stringify(layoutValues));
 
                     that.applyLayoutSettings(layoutValues);
 
@@ -206,7 +157,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
                 }
 
 
-                that.userConfig.set('layout', JSON.stringify(layoutValues));
+                app.userConfig.set('layout', JSON.stringify(layoutValues));
 
                 that.applyLayoutSettings(layoutValues);
 
@@ -294,7 +245,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     this.handleLayout = function () {
         var userLayout;
         try {
-            userLayout = window.JSON.parse(this.userConfig.get('layout')) || {};
+            userLayout = window.JSON.parse(app.userConfig.get('layout')) || {};
         } catch (e) {
             userLayout = {};
         }
@@ -311,7 +262,7 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
     var userLayout;
     if (settings.layoutConfigButton) {
         try {
-            userLayout = window.JSON.parse(this.userConfig.get('layout')) || {};
+            userLayout = window.JSON.parse(app.userConfig.get('layout')) || {};
         } catch (e) {
             userLayout = {};
         }
@@ -324,6 +275,8 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
 
 
 
+
+    
     this.applyMinimize = function (isMinimized) {
         if (isMinimized) {
             $('#motdrow').data('hiddenByMinimize', '1');
@@ -348,11 +301,11 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         .text(app.t('userConfig[.]Minimize'))
         .appendTo(this.$layoutBtnWrapper)
         .on('click', function() {
-            that.applyMinimize(that.userConfig.toggle('isMinimized'));
+            that.applyMinimize(app.userConfig.toggle('isMinimized'));
         });
 
     if (settings.minimizeButton) {
-        this.applyMinimize(this.userConfig.get('isMinimized'));
+        this.applyMinimize(app.userConfig.get('isMinimized'));
     } else {
         this.$minBtn.hide();
     }
@@ -430,11 +383,11 @@ window.cytubeEnhanced.addModule('userConfig', function (app, settings) {
         .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
         .appendTo(that.$commonConfigBtnWrapper)
         .on('click', function() {
-            that.applySmilesAndPictures(that.userConfig.toggle('smiles-and-pictures'));
+            that.applySmilesAndPictures(app.userConfig.toggle('smiles-and-pictures'));
         });
 
     if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        this.applySmilesAndPictures(this.userConfig.get('smiles-and-pictures'));
+        this.applySmilesAndPictures(app.userConfig.get('smiles-and-pictures'));
     } else {
         this.$smilesAndPicturesBtn.hide();
     }

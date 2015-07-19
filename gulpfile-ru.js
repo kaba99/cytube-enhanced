@@ -86,9 +86,9 @@ gulp.task('clean-css', function () {
             compatibility: 'ie8',
             keepBreaks: true,
             keepSpecialComments: '*',
-            aggressiveMerging: true,
-            advanced: true,
-            restructuring: true
+            aggressiveMerging: true, //can remove comments
+            advanced: true, //can remove comments
+            restructuring: true //can remove comments
         }))
         .pipe(gulp.dest('./src/css'))
         .pipe(shell([

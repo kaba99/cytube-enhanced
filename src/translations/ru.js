@@ -155,7 +155,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Bold text': 'Жирный текст',
         'Cursive text': 'Наклонный текст',
         'Spoiler': 'Спойлер',
-        'Monospace': 'Моноширинный',
-        'Strike': 'Перечёркнутый'
+        'Monospace': 'Моноширинный текст',
+        'Strike': 'Перечёркнутый текст'
     }
 });

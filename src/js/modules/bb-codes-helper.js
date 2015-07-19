@@ -1,9 +1,15 @@
 require('jquery.selection');
 
-window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
+window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     'use strict';
 
     var that = this;
+
+    var defaultSettings = {
+        templateButtonsOrder: ['b', 'i', 'sp', 'code', 's'],
+        templateButtonsAnimationSpeed: 150
+    };
+    settings = $.extend({}, defaultSettings, settings);
 
 
     if ($('#chat-controls').length === 0) {
@@ -11,8 +17,30 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
     }
 
 
+    this.handleMarkdownHelperBtnClick = function ($markdownHelperBtn, $markdownTemplatesWrapper) {
+        if ($markdownHelperBtn.hasClass('btn-default')) { //closed
+            $markdownHelperBtn.removeClass('btn-default');
+            $markdownHelperBtn.addClass('btn-success');
+
+            $markdownTemplatesWrapper.show();
+            $markdownTemplatesWrapper.children().animate({left: 0}, settings.templateButtonsAnimationSpeed);
+        } else { //opened
+            $markdownHelperBtn.removeClass('btn-success');
+            $markdownHelperBtn.addClass('btn-default');
+
+            $markdownTemplatesWrapper.children().animate({left: -$markdownTemplatesWrapper.width()}, settings.templateButtonsAnimationSpeed, function () {
+                $markdownTemplatesWrapper.hide();
+            });
+        }
+    };
+
     this.$markdownHelperBtn = $('<button id="markdown-helper-btn" type="button" class="btn btn-sm btn-default" title="' + app.t('markdown[.]Markdown helper') + '">')
-        .html('<i class="glyphicon glyphicon-font"></i>');
+        .html('<i class="glyphicon glyphicon-font"></i>')
+        .on('click', function () {
+            that.handleMarkdownHelperBtnClick($(this), that.$markdownTemplatesWrapper);
+
+            app.userConfig.toggle('bb-codes-opened');
+        });
 
     if ($('#chat-help-btn').length !== 0) {
         this.$markdownHelperBtn.insertBefore('#chat-help-btn');
@@ -20,25 +48,22 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
         this.$markdownHelperBtn.appendTo('#chat-controls');
     }
 
-    this.handleMarkdownHelperBtnClick = function ($markdownHelperBtn) {
-        if ($markdownHelperBtn.hasClass('btn-default')) {
-            $markdownHelperBtn.removeClass('btn-default');
-            $markdownHelperBtn.addClass('btn-success');
-        } else {
-            $markdownHelperBtn.removeClass('btn-success');
-            $markdownHelperBtn.addClass('btn-default');
-        }
 
-        that.$markdownTemplatesWrapper.toggle('fast');
-    };
-    this.$markdownHelperBtn.on('click', function () {
-       that.handleMarkdownHelperBtnClick($(this));
-    });
+    this.$markdownTemplatesWrapper = $('<div class="btn-group markdown-helper-templates-wrapper">')
+        .insertAfter(this.$markdownHelperBtn)
+        .hide();
+
+    if (app.userConfig.get('bb-codes-opened')) {
+        this.handleMarkdownHelperBtnClick(this.$markdownHelperBtn, this.$markdownTemplatesWrapper);
+    }
 
 
-    this.$markdownTemplatesWrapper = $('<div class="btn-group">').insertAfter(this.$markdownHelperBtn).css('padding', '0 5px').hide();
-
-    this.markdownTemplatesPositions = ['b', 'i', 'sp', 'code', 's'];
+    /**
+     * Markdown templates
+     *
+     * To add your template you need to also add your template key into settings.templateButtonsOrder
+     * @type {object}
+     */
     this.markdownTemplates = {
         'b': {
             text: '<b>B</b>',
@@ -63,8 +88,8 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
     };
 
     var template;
-    for (var templateIndex = 0, templatesLength = this.markdownTemplatesPositions.length; templateIndex < templatesLength; templateIndex++) {
-        template = this.markdownTemplatesPositions[templateIndex];
+    for (var templateIndex = 0, templatesLength = settings.templateButtonsOrder.length; templateIndex < templatesLength; templateIndex++) {
+        template = settings.templateButtonsOrder[templateIndex];
 
         $('<button type="button" class="btn btn-sm btn-default" title="' + this.markdownTemplates[template].title + '">')
             .html(this.markdownTemplates[template].text)
@@ -76,12 +101,12 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app) {
     this.handleMarkdown = function (templateType) {
         if (this.markdownTemplates.hasOwnProperty(templateType)) {
             $('#chatline').selection('insert', {
-                text: '[' + templateType.toLowerCase() + ']',
+                text: '[' + templateType + ']',
                 mode: 'before'
             });
 
             $('#chatline').selection('insert', {
-                text: '[/' + templateType.toLowerCase() + ']',
+                text: '[/' + templateType + ']',
                 mode: 'after'
             });
         }

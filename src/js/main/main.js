@@ -13,7 +13,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     /**
      * Gets the module
      *
-     * Returns $.Deferred() object and throws error exception if timeout
+     * Returns $.Deferred() promise object and throws error exception if timeout
      *
      * @param {string} moduleName The name of the module
      * @returns {object}
@@ -42,7 +42,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * Adds the module
      *
      * @param {string} moduleName The name of the module
-     * @param moduleConstructor The module's constructor
+     * @param ModuleConstructor The module's constructor
      */
     this.addModule = function (moduleName, ModuleConstructor) {
         if (this.isModulePermitted(moduleName)) {
@@ -115,4 +115,62 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
         return translatedText;
     };
+
+
+    /**
+     * UserConfig constructor
+     * @constructor
+     */
+    var UserConfig = function () {
+        /**
+         * UserConfig options
+         * @type {object}
+         */
+        this.options = {};
+
+        /**
+         * Sets the user's option and saves it in the user's cookies
+         * @param name The name ot the option
+         * @param value The value of the option
+         */
+        this.set = function (name, value) {
+            this.options[name] = value;
+            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
+        };
+
+        /**
+         * Gets the value of the user's option
+         *
+         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
+         *
+         * @param name Option's name
+         * @returns {*}
+         */
+        this.get = function (name) {
+            if (!this.options.hasOwnProperty(name)) {
+                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+            }
+
+            return this.options[name];
+        };
+
+        /**
+         * Toggles user's boolean option
+         * @param name Boolean option's name
+         * @returns {boolean}
+         */
+        this.toggle = function (name) {
+            var result = !this.get(name);
+
+            this.set(name, result);
+
+            return result;
+        };
+    };
+
+    /**
+     * User's options
+     * @type {UserConfig}
+     */
+    this.userConfig = new UserConfig();
 };

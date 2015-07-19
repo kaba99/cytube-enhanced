@@ -2,15 +2,15 @@
 
 ## Quick start
 
-Just download ./build/cytube-enhanced.js and ./build/cytube-enhanced.css and assign them as external stuff in administration panel.
+Just download `./build/cytube-enhanced.js` and `./build/cytube-enhanced.css` and assign them as external stuff in administration panel.
 Also, you can import our chat filters from `src/filters.txt`.
 
 It should works fine by default, but you can configure this script like so:
 
 ```javascript
 window.cytubeEnhancedSettings = {
-    channelName: "My channel's name",
-    language: 'en',
+    channelName: "My channel's name", //optional
+    language: 'en', //optional
     modulesSettings: {
         additionalChatCommands: {
             permittedCommands: ['!pick', '!q']
@@ -27,7 +27,7 @@ Note: you must configure most of options before modules loads (for example, by c
 ## Extending some module
 
 ```javascript
-cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {
+window.cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {
     commandsModule.commandsList['!my favorite anime'] = {
         description: 'Displays my favourite anime',
         value: function (msg) {
