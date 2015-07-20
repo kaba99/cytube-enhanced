@@ -5059,6 +5059,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     color: #C2C2C2;
     font: 700 20pt ubuntu, sans-serif;
     text-shadow: 1px 1px #091018, 2px 2px #091018;
+    border: none;
 }
 #footer {
     margin-top: 5px;
