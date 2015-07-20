@@ -1426,7 +1426,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             $('#smiles-panel').hide();
         }
 
-        this.$favouritePicturesPanel.slideToggle(50);
+        this.$favouritePicturesPanel.toggle();
 
 
         if (!smilesAndPicturesTogether) {
@@ -2003,7 +2003,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
             $('#favourite-pictures-panel').hide();
         }
 
-        this.$smilesPanel.slideToggle(50);
+        this.$smilesPanel.toggle();
 
         if (!smilesAndPicturesTogether) {
             if ($smilesBtn.hasClass('btn-default')) {
@@ -2729,7 +2729,9 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
 window.cytubeEnhanced.addModule('videojsProgress', function () {
     'use strict';
 
-    function handleProgress() {
+    var that = this;
+
+    this.handleProgress = function () {
         if (window.PLAYER instanceof window.VideoJSPlayer) {
             if (window.PLAYER.player.techName === 'Html5' || window.PLAYER.player.Ua === 'Html5') { //Ua is uglifier mangle
                 var $tipWrapper = $('<div class="vjs-tip">').insertAfter('.vjs-progress-control');
@@ -2773,11 +2775,11 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
                 });
             }
         }
-    }
+    };
 
     handleProgress();
     window.socket.on('changeMedia', function () {
-        handleProgress();
+        that.handleProgress();
     });
 });
 

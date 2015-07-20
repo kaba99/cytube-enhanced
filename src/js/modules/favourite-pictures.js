@@ -92,7 +92,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             $('#smiles-panel').hide();
         }
 
-        this.$favouritePicturesPanel.slideToggle(50);
+        this.$favouritePicturesPanel.toggle();
 
 
         if (!smilesAndPicturesTogether) {

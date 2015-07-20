@@ -75,22 +75,11 @@ body {
     height: 22px;
     background-color: #fff;
 }
-#titlerow {
-    background: transparent linear-gradient(to right, rgba(0, 0, 0, .8), rgba(0, 141, 207, .7)) 0 center no-repeat;
-    background-size: 0 100%;
-    margin: -5px -8px 5px;
-    border-radius: 4px;
-}
 #titlerow-outer {
-    padding: 3px 5px;
     text-align: center;
     font-size: 16pt;
     color: #000;
     text-shadow: 0 0 10px #666, 0 0 10px #666;
-}
-#titlerow #currenttitle {
-    border: none;
-    background: 0 0;
 }
 #mediainfo {
     background: rgba(0, 10, 20, .75);
@@ -291,10 +280,6 @@ body, figure {
 }
 .action {
     color: rgba(215, 255, 113, .8);
-}
-#chatheader, #currenttitle {
-    background: rgba(0, 10, 20, .75);
-    color: #C2C2C2;
 }
 #drinkcount {
     background-color: transparent;
@@ -5055,7 +5040,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     overflow-y: scroll;
 }
 #currenttitle {
-    margin: 15px 0 10px;
+    margin: 10px 0 15px;
     color: #C2C2C2;
     font: 700 20pt ubuntu, sans-serif;
     text-shadow: 1px 1px #091018, 2px 2px #091018;

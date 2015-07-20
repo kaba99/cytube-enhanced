@@ -3,7 +3,7 @@
 ## Quick start
 
 Just download `./build/cytube-enhanced.js` and `./build/cytube-enhanced.css` and assign them as external stuff in administration panel.
-Also, you can import our chat filters from `src/filters.txt`.
+Also, you should import chat filters from `src/filters.txt` for some modules.
 
 It should works fine by default, but you can configure this script like so:
 

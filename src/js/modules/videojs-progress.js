@@ -4,7 +4,9 @@
 window.cytubeEnhanced.addModule('videojsProgress', function () {
     'use strict';
 
-    function handleProgress() {
+    var that = this;
+
+    this.handleProgress = function () {
         if (window.PLAYER instanceof window.VideoJSPlayer) {
             if (window.PLAYER.player.techName === 'Html5' || window.PLAYER.player.Ua === 'Html5') { //Ua is uglifier mangle
                 var $tipWrapper = $('<div class="vjs-tip">').insertAfter('.vjs-progress-control');
@@ -48,10 +50,10 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
                 });
             }
         }
-    }
+    };
 
     handleProgress();
     window.socket.on('changeMedia', function () {
-        handleProgress();
+        that.handleProgress();
     });
 });
