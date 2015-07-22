@@ -5092,6 +5092,9 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     padding-right: 5px;
     overflow: hidden; /* for jquery animation */
 }
+#chatheader {
+    background: rgba(0,10,20,.75);
+}
 
 /**
 * Fork of https://github.com/mickey/videojs-progressTips

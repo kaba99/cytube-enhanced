@@ -52,7 +52,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
         }
     };
 
-    handleProgress();
+    this.handleProgress();
     window.socket.on('changeMedia', function () {
         that.handleProgress();
     });
