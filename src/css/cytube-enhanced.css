@@ -5110,3 +5110,9 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 #chatheader {
     background: rgba(0,10,20,.75);
 }
+#chatheader, #mediainfo {
+    border: 1px solid #555;
+}
+#chatheader {
+    border-bottom: none;
+}
