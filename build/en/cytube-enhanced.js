@@ -661,7 +661,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @returns {boolean}
      */
     this.isModulePermitted = function (moduleName) {
-        return modulesSettings.hasOwnProperty('moduleName') ?
+        return modulesSettings.hasOwnProperty(moduleName) ?
             (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
             true;
     };
