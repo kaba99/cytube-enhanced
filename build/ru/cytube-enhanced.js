@@ -2534,7 +2534,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
         }
 
         if (layoutValues.hasOwnProperty('user-css') && layoutValues['user-css'] !== '') {
-            $("head").append('<style id="user-style" type="text/css">' + app.userConfig.get('user-css') + '</style>');
+            $("head").append('<style id="user-style" type="text/css">' + layoutValues['user-css'] + '</style>');
         } else if ($('#user-style').length !== 0) {
             $('#user-style').remove();
         }
