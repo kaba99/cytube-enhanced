@@ -60,7 +60,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         "'": '&#39;'
     };
     this.replaceUnsafeSymbol = function (symbol) {
-        return this.entityMap[symbol];
+        return that.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
         var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
