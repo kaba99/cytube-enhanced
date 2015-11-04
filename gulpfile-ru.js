@@ -38,7 +38,7 @@ gulp.task('build-js', ['test-js'], function () {
         // Add gulp plugins to the pipeline here.
         .pipe(gulp.dest('./build/ru'))
         .pipe(rename('cytube-enhanced.min.js'))
-        .pipe(uglify({mangle: false}))
+        .pipe(uglify({mangle: false, preserveComments: ''}))
         .pipe(gulp.dest('./build/ru'));
 
     // "globby" replaces the normal "gulp.src" as Browserify

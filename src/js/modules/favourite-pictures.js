@@ -35,18 +35,18 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.$favouritePicturesControlPanelForm = $('<div class="col-md-12">')
         .html('<div class="input-group">' +
             '<span class="input-group-btn">' +
-                '<button id="export-pictures" class="btn btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Export pictures') + '</button>' +
+                '<button id="export-pictures" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Export pictures') + '</button>' +
             '</span>' +
              '<span class="input-group-btn">' +
-                '<label for="import-pictures" class="btn btn-default" style="border-radius: 0;">' + app.t('favPics[.]Import pictures') + '</label>' +
+                '<label for="import-pictures" class="btn btn-sm btn-default" style="border-radius: 0;">' + app.t('favPics[.]Import pictures') + '</label>' +
                 '<input type="file" style="display: none" id="import-pictures" name="pictures-import">' +
             '</span>' +
-            '<input type="text" id="picture-address" class="form-control" placeholder="' + app.t('favPics[.]Picture address') + '">' +
+            '<input type="text" id="picture-address" class="form-control input-sm" placeholder="' + app.t('favPics[.]Picture address') + '">' +
             '<span class="input-group-btn">' +
-                '<button id="add-picture-btn" class="btn btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
+                '<button id="add-picture-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
             '<span class="input-group-btn">' +
-                '<button id="remove-picture-btn" class="btn btn-default" type="button">' + app.t('favPics[.]Remove') + '</button>' +
+                '<button id="remove-picture-btn" class="btn btn-sm btn-default" type="button">' + app.t('favPics[.]Remove') + '</button>' +
             '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
@@ -116,12 +116,14 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.addFavouritePicture = function () {
-        if ($('#picture-address').val() !== '') {
+        var imageUrl = trim($('#picture-address').val());
+
+        if (imageUrl !== '') {
             var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
-            if (favouritePictures.indexOf($('#picture-address').val()) === -1) {
-                if ($('#picture-address').val() !== '') {
-                    favouritePictures.push($('#picture-address').val());
+            if (favouritePictures.indexOf(imageUrl) === -1) {
+                if (imageUrl !== '') {
+                    favouritePictures.push(imageUrl);
                 }
             } else {
                 window.makeAlert(app.t('favPics[.]The image already exists')).prependTo(this.$favouritePicturesBodyPanel);

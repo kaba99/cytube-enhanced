@@ -32,13 +32,13 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             description: app.t('chatCommands[.]random option from the list of options (!pick option1, option2, option3)'),
             value: function (msg) {
                 var variants = msg.replace('!pick ', '').split(',');
-                return variants[Math.floor(Math.random() * (variants.length - 1))].trim();
+                return variants[Math.floor(Math.random() * variants.length)].trim();
             }
         },
         '!ask ': {
             description: app.t('chatCommands[.]asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)'),
             value: function () {
-                return that.askAnswers[Math.floor(Math.random() * (that.askAnswers.length - 1))];
+                return that.askAnswers[Math.floor(Math.random() * that.askAnswers.length)];
             }
         },
         '!time': {
@@ -165,12 +165,9 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
             }
         },
-        '!yoba': {
+        '!party': {
             description: app.t('chatCommands[.]the secret command'),
             value: function () {
-                var $yoba = $('<div class="yoba">').appendTo($(document.body));
-                $('<img src="http://apachan.net/thumbs/201102/24/ku1yjahatfkc.jpg">').appendTo($yoba);
-
                 var IMBA = new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
                 IMBA.volume = 0.6;
                 IMBA.play();
@@ -194,7 +191,11 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 }, 12000);
 
 
-                return 'YOBA';
+                var smilesArray = window.CHANNEL.emotes.map(function (smile) {
+                    return smile.name;
+                });
+
+                return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
             }
         }
     };

@@ -4,7 +4,8 @@
   "description": "",
   "main": "gulpfile-en.js",
   "browser": {
-    "jquery.selection": "./other_vendors/jquery.selection.js"
+    "jquery.selection": "./other_vendors/jquery.selection.js",
+    "perfect-scrollbar": "./other_vendors/perfect-scrollbar.jquery.min.js"
   },
   "dependencies": {
     "jquery-mousewheel": "^3.1.13"
