@@ -5158,99 +5158,158 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 #usercount {
     line-height: 1.6em;
 }
-/* perfect-scrollbar v0.6.7 */
-.ps-container {
-  -ms-touch-action: none;
-  overflow: hidden !important; }
-  .ps-container.ps-active-x > .ps-scrollbar-x-rail,
-  .ps-container.ps-active-y > .ps-scrollbar-y-rail {
-    display: block; }
-  .ps-container.ps-in-scrolling {
-    pointer-events: none; }
-    .ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
-      background-color: #eee;
-      opacity: 0.9; }
-      .ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-        background-color: #999; }
-    .ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-      background-color: #eee;
-      opacity: 0.9; }
-      .ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-        background-color: #999; }
-  .ps-container > .ps-scrollbar-x-rail {
-    display: none;
-    position: absolute;
-    /* please don't change 'position' */
-    border-radius: 4px;
-    opacity: 0;
-    transition: background-color 0.2s linear, opacity 0.2s linear;
-    bottom: 3px;
-    /* there must be 'bottom' for ps-scrollbar-x-rail */
-    height: 8px; }
-    .ps-container > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-      position: absolute;
-      /* please don't change 'position' */
-      background-color: #888;
-      border-radius: 4px;
-      transition: background-color 0.2s linear;
-      bottom: 0;
-      /* there must be 'bottom' for ps-scrollbar-x */
-      height: 8px; }
-  .ps-container > .ps-scrollbar-y-rail {
-    display: none;
-    position: absolute;
-    /* please don't change 'position' */
-    border-radius: 4px;
-    opacity: 0;
-    transition: background-color 0.2s linear, opacity 0.2s linear;
-    right: 3px;
-    /* there must be 'right' for ps-scrollbar-y-rail */
-    width: 8px; }
-    .ps-container > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-      position: absolute;
-      /* please don't change 'position' */
-      background-color: #888;
-      border-radius: 4px;
-      transition: background-color 0.2s linear;
-      right: 0;
-      /* there must be 'right' for ps-scrollbar-y */
-      width: 8px; }
-  .ps-container:hover.ps-in-scrolling {
-    pointer-events: none; }
-    .ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
-      background-color: transparent;
-      opacity: 0.9; }
-      .ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-        background-color: #999; }
-    .ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-      background-color: transparent;
-      opacity: 0.9; }
-      .ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-        background-color: #999; }
-  .ps-container:hover > .ps-scrollbar-x-rail,
-  .ps-container:hover > .ps-scrollbar-y-rail {
-    opacity: 0.6; }
-  .ps-container:hover > .ps-scrollbar-x-rail:hover {
-    background-color: transparent;
-    opacity: 0.9; }
-    .ps-container:hover > .ps-scrollbar-x-rail:hover > .ps-scrollbar-x {
-      background-color: #999; }
-  .ps-container:hover > .ps-scrollbar-y-rail:hover {
-    background-color: transparent;
-    opacity: 0.9; }
-    .ps-container:hover > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y {
-      background-color: #999; }
-
-
-#messagebuffer .ps-scrollbar-x-rail, #messagebuffer .ps-scrollbar-y-rail {
-  display: block !important;
-  opacity: 0.6 !important;
+.scrollable {
+  position: relative;
 }
 
-#queue .ps-scrollbar-x-rail, #queue .ps-scrollbar-y-rail {
-  background: rgba(0,10,20,.8) !important;
-  display: block !important;
-  opacity: 0.6 !important;
+.scrollable:focus {
+  outline: 0;
+}
+
+.scrollable .viewport {
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollable .viewport .overview {
+  position: absolute;
+}
+
+.scrollable .scroll-bar {
+  display: none;
+}
+
+.scrollable .scroll-bar.vertical {
+  position: absolute;
+  right: 0;
+  height: 100%;
+}
+
+.scrollable .scroll-bar.horizontal {
+  position: relative;
+  width: 100%;
+}
+
+.scrollable .scroll-bar .thumb {
+  position: absolute;
+}
+
+.scrollable .scroll-bar.vertical .thumb {
+  width: 100%;
+  min-height: 10px;
+}
+
+.scrollable .scroll-bar.horizontal .thumb {
+  height: 100%;
+  min-width: 10px;
+  left: 0;
+}
+
+.not-selectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/*Default skin*/
+
+.scrollable.default-skin {
+  padding-right: 10px;
+  padding-bottom: 6px;
+}
+
+.scrollable.default-skin .scroll-bar.vertical {
+  width: 6px;
+}
+
+.scrollable.default-skin .scroll-bar.horizontal {
+  height: 6px;
+}
+
+.scrollable.default-skin .scroll-bar .thumb {
+  background-color: black;
+  opacity: 0.4;
+  border-radius: 3px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+}
+
+.scrollable.default-skin .scroll-bar:hover .thumb {
+  opacity: 0.6;
+}
+
+/*Gray skin*/
+
+.scrollable.gray-skin {
+  padding-right: 17px;
+}
+
+.scrollable.gray-skin .scroll-bar {
+  border: 1px solid gray;
+  background-color: #d3d3d3;
+}
+
+.scrollable.gray-skin .scroll-bar .thumb {
+  background-color: gray;
+}
+
+.scrollable.gray-skin .scroll-bar:hover .thumb {
+  background-color: black;
+}
+
+.scrollable.gray-skin .scroll-bar.vertical {
+  width: 10px;
+}
+
+.scrollable.gray-skin .scroll-bar.horizontal {
+  height: 10px;
+  margin-top: 2px;
+}
+
+/*Modern skin*/
+.scrollable.modern-skin {
+  padding-right: 17px;
+}
+
+.scrollable.modern-skin .scroll-bar {
+  border: 1px solid gray;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  box-shadow: inset 0 0 5px #888;
+}
+
+.scrollable.modern-skin .scroll-bar .thumb {
+  background-color: #95aabf;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border: 1px solid #536984;
+}
+
+.scrollable.modern-skin .scroll-bar.vertical .thumb {
+  width: 8px;
+  background: linear-gradient(to right, #95aabf 0%, #547092 100%);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#95aabf', endColorstr='#547092',GradientType=1 )";
+}
+
+.scrollable.modern-skin .scroll-bar.horizontal .thumb {
+  height: 8px;
+  background-image: linear-gradient(#95aabf, #547092);
+  background-image: -ms-linear-gradient(#95aabf, #547092);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#95aabf', endColorstr='#547092',GradientType=0 )";
+}
+
+.scrollable.modern-skin .scroll-bar.vertical {
+  width: 10px;
+}
+
+.scrollable.modern-skin .scroll-bar.horizontal {
+  height: 10px;
+  margin-top: 2px;
 }
 /**
 * Fork of https://github.com/mickey/videojs-progressTips

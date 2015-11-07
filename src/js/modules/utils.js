@@ -1,4 +1,4 @@
-require('perfect-scrollbar');
+require('jquery.custom-scrollbar');
 
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
@@ -14,7 +14,10 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
-    $('#messagebuffer, #queue').perfectScrollbar({suppressScrollX: true});
+    $('#messagebuffer, #queue').customScrollbar({
+        skin: 'default-skin',
+        updateOnWindowResize: true
+    });
 
     this.handleChatScrollBar = function() {
         $('#messagebuffer').perfectScrollbar('update');
