@@ -5,7 +5,7 @@
   "main": "gulpfile-en.js",
   "browser": {
     "jquery.selection": "./other_vendors/jquery.selection.js",
-    "jquery.nanoscroller": "./other_vendors/jquery.nanoscroller.min.js"
+    "jquery.nanoscroller": "./other_vendors/jquery.nanoscroller.js"
   },
   "dependencies": {
     "jquery-mousewheel": "^3.1.13"
