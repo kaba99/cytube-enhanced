@@ -1,4 +1,4 @@
-require('jquery.custom-scrollbar');
+require('jquery.nanoscroller');
 
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
@@ -14,26 +14,26 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
-    $('#messagebuffer, #queue').customScrollbar({
-        skin: 'default-skin',
-        updateOnWindowResize: true
+    $('#messagebuffer, #queue').nanoScroller({
+        alwaysVisible: true,
+        preventPageScrolling: true
     });
 
     this.handleChatScrollBar = function() {
-        $('#messagebuffer').perfectScrollbar('update');
+        $('#messagebuffer')[0].nanoscroller.reset();
     };
     window.socket.on("chatMsg", that.handleChatScrollBar);
     window.socket.on("clearchat", that.handleChatScrollBar);
 
     this.handlePlaylistScrollBar = function() {
-        $('#queue').perfectScrollbar('update');
+        $('#queue')[0].nanoscroller.reset();
     };
     window.socket.on("playlist", that.handlePlaylistScrollBar);
     window.socket.on("queue", that.handlePlaylistScrollBar);
     window.socket.on("setPlaylistMeta", that.handlePlaylistScrollBar);
 
     $(window).resize(function () {
-        $('#messagebuffer, #queue').perfectScrollbar('update');
+        $('#messagebuffer, #queue')[0].nanoscroller.reset();
     });
 
     window.chatTabComplete = function () {
