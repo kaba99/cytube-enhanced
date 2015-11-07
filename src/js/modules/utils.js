@@ -1,5 +1,3 @@
-require('jquery.nanoscroller');
-
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -14,27 +12,27 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
-    $('#messagebuffer, #queue').nanoScroller({
-        alwaysVisible: true,
-        preventPageScrolling: true
-    });
-
-    this.handleChatScrollBar = function() {
-        $('#messagebuffer')[0].nanoscroller.reset();
-    };
-    window.socket.on("chatMsg", that.handleChatScrollBar);
-    window.socket.on("clearchat", that.handleChatScrollBar);
-
-    this.handlePlaylistScrollBar = function() {
-        $('#queue')[0].nanoscroller.reset();
-    };
-    window.socket.on("playlist", that.handlePlaylistScrollBar);
-    window.socket.on("queue", that.handlePlaylistScrollBar);
-    window.socket.on("setPlaylistMeta", that.handlePlaylistScrollBar);
-
-    $(window).resize(function () {
-        $('#messagebuffer, #queue')[0].nanoscroller.reset();
-    });
+    //$('#messagebuffer, #queue').nanoScroller({
+    //    alwaysVisible: true,
+    //    preventPageScrolling: true
+    //});
+    //
+    //this.handleChatScrollBar = function() {
+    //    $('#messagebuffer')[0].nanoscroller.reset();
+    //};
+    //window.socket.on("chatMsg", that.handleChatScrollBar);
+    //window.socket.on("clearchat", that.handleChatScrollBar);
+    //
+    //this.handlePlaylistScrollBar = function() {
+    //    $('#queue')[0].nanoscroller.reset();
+    //};
+    //window.socket.on("playlist", that.handlePlaylistScrollBar);
+    //window.socket.on("queue", that.handlePlaylistScrollBar);
+    //window.socket.on("setPlaylistMeta", that.handlePlaylistScrollBar);
+    //
+    //$(window).resize(function () {
+    //    $('#messagebuffer, #queue')[0].nanoscroller.reset();
+    //});
 
     window.chatTabComplete = function () {
         var i;
