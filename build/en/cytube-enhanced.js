@@ -1451,7 +1451,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.addFavouritePicture = function () {
-        var imageUrl = trim($('#picture-address').val());
+        var imageUrl = $('#picture-address').val().trim();
 
         if (imageUrl !== '') {
             var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
