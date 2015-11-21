@@ -156,4 +156,16 @@ window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
     if ($('#guestlogin')) {
         $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
     }
+
+
+
+    window.addUserDropdown = (function (oldAddUserDropdown) {
+        return function (entry) {
+            oldAddUserDropdown(entry);
+
+            entry.find('.user-dropdown>strong').click(function() {
+                $(chatline).val(t+": "+$(chatline).val())
+            });
+        };
+    })(window.addUserDropdown);
 });
