@@ -5209,6 +5209,11 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     max-height: 80px;
     max-width: 80px;
 }
+
+.user-dropdown>strong {
+    display: inline-block;
+    width: 100%;
+}
 /** initial setup **/
 .nano {
   position : relative;
