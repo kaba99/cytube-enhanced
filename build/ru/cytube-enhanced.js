@@ -1619,7 +1619,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.$favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
         .appendTo('#chat-panel')
         .hide();
-    this.$favouritePicturesPanelRow = $('<div class="row">')
+    this.$favouritePicturesPanelRow = $('<div class="row favourite-pictures-panel-row">')
         .appendTo(this.$favouritePicturesPanel);
 
 
@@ -1811,8 +1811,8 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
 
-    this.$favouritePicturesPanel.sortable({
-        containment: this.$favouritePicturesPanel,
+    this.$favouritePicturesBodyPanel.sortable({
+        containment: this.$favouritePicturesPanelRow,
         revert: true,
         update: function(event, ui) {
             var imageUrl = $(ui.item).attr('src');
