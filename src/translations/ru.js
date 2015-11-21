@@ -95,7 +95,8 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Layout settings': 'Настройки оформления',
         'Minimize': 'Минимизировать',
         'Common': 'Общее',
-        'and': 'и'
+        'and': 'и',
+        'Chat avatars': 'Аватарки в чате'
     },
     standardUI: {   //app.t('standardUI[.]')
         'Create a poll': 'Создать опрос',

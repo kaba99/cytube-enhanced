@@ -5206,5 +5206,17 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 }
 
 .favourite-picture-drop-hover {
-    opacity: 0.4;
+    opacity: 0.5;
+}
+
+
+
+
+.chat-avatar_small {
+    max-width: 30px;
+    max-height: 22px
+}
+.chat-avatar_big {
+    max-height: 80px;
+    max-width: 80px;
 }

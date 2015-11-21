@@ -391,4 +391,43 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     } else {
         this.$smilesAndPicturesBtn.hide();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    this.$avatarsForm = $('<div id="avatars-config-form" class="form-group">').appendTo(this.$configBody)
+        .append($('<div class="col-lg-3 col-md-3 control-label">' + app.t('userConfig[.]Chat avatars') + '</div>'));
+    this.$avatarsWrapper = $('<div id="avatars-config-wrapper" class="col-md-8 col-md-offset-1 col-lg-6 col-lg-offset-2 text-center">').appendTo(this.$avatarsForm);
+
+
+    this.handleAvatars = function (mode) {
+        app.userConfig.set('avatarsMode', mode);
+
+        if (mode == 'small') {
+            $('#messagebuffer').find('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
+        } else if (mode == 'big') {
+            $('#messagebuffer').find('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
+        }
+    };
+    this.$avatarsSelect = $('<select class="form-control">')
+        .append('<option value="">Выключены</option>')
+        .append('<option value="small">Маленькие</option>')
+        .append('<option value="big">Большие</option>')
+        .appendTo(this.$avatarsWrapper)
+        .on('change', function () {
+            that.handleAvatars($(this).val())
+        });
+
+    $avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode', mode) + '"]').prop('selected', true);
 });

@@ -26,7 +26,7 @@ gulp.task('test-js', function () {
         .pipe(jshint.reporter('fail'));
 });
 
-gulp.task('build-js', ['test-js'], function () {
+gulp.task('build-js', function () {
     // gulp expects tasks to return a stream, so we create one here.
     var bundledStream = through();
 
