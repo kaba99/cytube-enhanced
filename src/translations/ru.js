@@ -50,7 +50,8 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Picture address': 'Адрес картинки',
         'Add': 'Добавить',
         'Remove': 'Удалить',
-        'The image already exists': 'Такая картинка уже была добавлена'
+        'The image already exists': 'Такая картинка уже была добавлена',
+        'Drop the picture here to remove it': 'Перетащите сюда картинку, чтобы её удалить'
     },
     videoInfo: {
         'Now:': 'Сейчас:',

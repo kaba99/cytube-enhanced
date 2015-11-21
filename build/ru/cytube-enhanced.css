@@ -5158,6 +5158,33 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 #usercount {
     line-height: 1.6em;
 }
+
+
+
+#pictures-trash {
+    position: relative;
+    min-height: 50px;
+    border-right: 2px solid rgba(0,10,20,.75);
+    width: 80px;
+}
+
+.favourite-pictures-panel-row {
+    display: table;
+    width: 100%;
+    border: none;
+}
+
+#pictures-body-panel {
+    display: table-cell;
+}
+
+.pictures-trash-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -7px;
+    margin-left: -7px;
+}
 /** initial setup **/
 .nano {
   position : relative;
