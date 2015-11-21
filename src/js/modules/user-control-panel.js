@@ -431,5 +431,5 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
             that.handleAvatars($(this).val())
         });
 
-    this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode', mode) + '"]').prop('selected', true);
+    this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode') + '"]').prop('selected', true);
 });
