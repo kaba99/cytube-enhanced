@@ -3041,8 +3041,8 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
         return function (entry) {
             var functionResponse = oldAddUserDropdown(entry);
 
-            entry.find('.user-dropdown>strong').click(function() {
-                $(chatline).val(t+": "+$(chatline).val())
+            entry.find('.user-dropdown>strong').click(function () {
+                $(chatline).val($(this).text() + ": " + $(chatline).val());
             });
 
             return functionResponse;
