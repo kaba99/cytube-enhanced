@@ -1296,16 +1296,6 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
 
 },{"jquery.selection":2}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app) {
-    this.handleAvatars = function (mode) {
-        if (mode == false) {
-
-        } else if (mode === 'small') {
-
-        } else if (mode === 'big') {
-
-        }
-    };
-
     window.formatChatMessage = function (e, t) {
         (!e.meta || e.msgclass) && (e.meta = {
             addClass: e.msgclass,
