@@ -5211,7 +5211,9 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 
 
 
-
+.chat-avatar_hidden {
+    display: none;
+}
 .chat-avatar_small {
     max-width: 30px;
     max-height: 22px

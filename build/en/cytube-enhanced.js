@@ -2664,6 +2664,8 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
             $('#messagebuffer').find('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
         } else if (mode == 'big') {
             $('#messagebuffer').find('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
+        } else {
+            $('#messagebuffer').find('.chat-avatar').removeClass('chat-avatar_small chat-avatar_big').addClass('chat-avatar_hidden');
         }
     };
     this.$avatarsSelect = $('<select class="form-control">')
@@ -2675,7 +2677,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
             that.handleAvatars($(this).val())
         });
 
-    $avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode', mode) + '"]').prop('selected', true);
+    this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode', mode) + '"]').prop('selected', true);
 });
 
 },{}],16:[function(require,module,exports){
