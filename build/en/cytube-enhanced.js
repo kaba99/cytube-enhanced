@@ -1188,6 +1188,155 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
 });
 
 },{"jquery.selection":2}],7:[function(require,module,exports){
+window.cytubeEnhanced.addModule('chatAvatars', function (app) {
+    //function formatChatMessage(e, t) {
+    //    (!e.meta || e.msgclass) && (e.meta = {
+    //        addClass: e.msgclass,
+    //        addClassToNameAndTimestamp: e.msgclass
+    //    });
+    //    var avaimage = (findUserlistItem(e.username) != null) && (findUserlistItem(e.username).data('profile').image != "");
+    //    var a = e.username === t.name;
+    //    "server-whisper" === e.meta.addClass && (a = !0),
+    //    e.msg.match(/^\s*<strong>\w+\s*:\s*<\/strong>\s*/) && (a = !1),
+    //    e.meta.forceShowName && (a = !1),
+    //        e.msg = execEmotes(e.msg),
+    //        t.name = e.username;
+    //    var s = $("<div/>");
+    //    if ("drink" === e.meta.addClass && (s.addClass("drink"),
+    //            e.meta.addClass = ""),
+    //            USEROPTS.show_timestamps) {
+    //        var n = $("<span/>").addClass("timestamp").appendTo(s)
+    //            , o = new Date(e.time).toTimeString().split(" ")[0];
+    //        n.text("[" + o + "] "),
+    //        e.meta.addClass && e.meta.addClassToNameAndTimestamp && n.addClass(e.meta.addClass)
+    //    }
+    //    var i = $("<span/>");
+    //    a || i.appendTo(s);
+    //    if (avaimage) { $("<img>").attr("src", findUserlistItem(e.username).data('profile').image).addClass("avatar").appendTo(i)};
+    //    $("<strong/>").addClass("username").text(e.username + ": ").appendTo(i),
+    //    e.meta.modflair && i.addClass(getNameColor(e.meta.modflair)),
+    //    e.meta.addClass && e.meta.addClassToNameAndTimestamp && i.addClass(e.meta.addClass),
+    //    e.meta.superadminflair && (i.addClass("label").addClass(e.meta.superadminflair.labelclass),
+    //        $("<span/>").addClass(e.meta.superadminflair.icon).addClass("glyphicon").css("margin-right", "3px").prependTo(i));
+    //    var r = $("<span/>").appendTo(s);
+    //    return r[0].innerHTML = e.msg,
+    //    e.meta.action && (i.remove(),
+    //        r[0].innerHTML = e.username + " " + e.msg),
+    //    e.meta.addClass && r.addClass(e.meta.addClass),
+    //    e.meta.shadow && s.addClass("chat-shadow"),
+    //        s.find("img").load(function() {
+    //                SCROLLCHAT && scrollChat()
+    //            }
+    //        ),
+    //        s
+    //}
+    //function addUserDropdown(e) {
+    //    var t = e.data("name")
+    //        , a = (e.data("rank"),
+    //        e.data("leader"))
+    //        , s = e.data("meta") || {};
+    //    e.find(".user-dropdown").remove();
+    //    var n = $("<div/>").addClass("user-dropdown").appendTo(e).hide();
+    //    $("<strong/>").text(t).appendTo(n).click(function() { $(chatline).val(t+": "+$(chatline).val())  });
+    //    $("<br/>").appendTo(n);
+    //    var o = $("<div/>").addClass("btn-group-vertical").appendTo(n)
+    //        , i = $("<button/>").addClass("btn btn-xs btn-default").appendTo(o).click(function() {
+    //            -1 == IGNORED.indexOf(t) ? (i.text("Unignore User"),
+    //                IGNORED.push(t)) : (i.text("Ignore User"),
+    //                IGNORED.splice(IGNORED.indexOf(t), 1))
+    //        }
+    //    );
+    //    if (-1 == IGNORED.indexOf(t) ? i.text("Ignore User") : i.text("Unignore User"),
+    //        t !== CLIENT.name) {
+    //        $("<button/>").addClass("btn btn-xs btn-default").text("Private Message").appendTo(o).click(function() {
+    //                initPm(t).find(".panel-heading").click(),
+    //                    n.hide()
+    //            }
+    //        )
+    //    }
+    //    if (hasPermission("leaderctl")) {
+    //        var r = $("<button/>").addClass("btn btn-xs btn-default").appendTo(o);
+    //        a ? (r.text("Remove Leader"),
+    //            r.click(function() {
+    //                    socket.emit("assignLeader", {
+    //                        name: ""
+    //                    })
+    //                }
+    //            )) : (r.text("Give Leader"),
+    //            r.click(function() {
+    //                    socket.emit("assignLeader", {
+    //                        name: t
+    //                    })
+    //                }
+    //            ))
+    //    }
+    //    if (hasPermission("kick") && $("<button/>").addClass("btn btn-xs btn-default").text("Kick").click(function() {
+    //                var e = prompt("Enter kick reason (optional)");
+    //                null  !== e && socket.emit("chatMsg", {
+    //                    msg: "/kick " + t + " " + e,
+    //                    meta: {}
+    //                })
+    //            }
+    //        ).appendTo(o),
+    //            hasPermission("mute")) {
+    //        var l = $("<button/>").addClass("btn btn-xs btn-default").text("Mute").click(function() {
+    //                socket.emit("chatMsg", {
+    //                    msg: "/mute " + t,
+    //                    meta: {}
+    //                })
+    //            }
+    //        ).appendTo(o)
+    //            , d = $("<button/>").addClass("btn btn-xs btn-default").text("Shadow Mute").click(function() {
+    //                socket.emit("chatMsg", {
+    //                    msg: "/smute " + t,
+    //                    meta: {}
+    //                })
+    //            }
+    //        ).appendTo(o)
+    //            , p = $("<button/>").addClass("btn btn-xs btn-default").text("Unmute").click(function() {
+    //                socket.emit("chatMsg", {
+    //                    msg: "/unmute " + t,
+    //                    meta: {}
+    //                })
+    //            }
+    //        ).appendTo(o);
+    //        s.muted ? (l.hide(),
+    //            d.hide()) : p.hide()
+    //    }
+    //    hasPermission("ban") && ($("<button/>").addClass("btn btn-xs btn-default").text("Name Ban").click(function() {
+    //            var e = prompt("Enter ban reason (optional)");
+    //            null  !== e && socket.emit("chatMsg", {
+    //                msg: "/ban " + t + " " + e,
+    //                meta: {}
+    //            })
+    //        }
+    //    ).appendTo(o),
+    //        $("<button/>").addClass("btn btn-xs btn-default").text("IP Ban").click(function() {
+    //                var e = prompt("Enter ban reason (optional)");
+    //                null  !== e && socket.emit("chatMsg", {
+    //                    msg: "/ipban " + t + " " + e,
+    //                    meta: {}
+    //                })
+    //            }
+    //        ).appendTo(o));
+    //    var c = function(t) {
+    //            return t.shiftKey ? !0 : (t.preventDefault(),
+    //                "none" == n.css("display") ? ($(".user-dropdown").hide(),
+    //                    $(document).bind("mouseup.userlist-ddown", function(t) {
+    //                            0 === n.has(t.target).length && 0 === e.parent().has(t.target).length && (n.hide(),
+    //                                $(document).unbind("mouseup.userlist-ddown"))
+    //                        }
+    //                    ),
+    //                    n.show(),
+    //                    n.css("top", e.position().top)) : n.hide(),
+    //                !1)
+    //        }
+    //        ;
+    //    e.contextmenu(c),
+    //        e.click(c)
+    //}
+});
+},{}],8:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
     'use strict';
 
@@ -1252,7 +1401,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
         });
 });
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -1332,7 +1481,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -1357,12 +1506,31 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     }
 
 
+
+
+
     this.$favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
         .appendTo('#chat-panel')
         .hide();
-
-    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel" class="row">')
+    this.$favouritePicturesPanelRow = $('<div class="row">')
         .appendTo(this.$favouritePicturesPanel);
+
+
+    this.$favouritePicturesTrashContainer = $('<div class="col-sm-4 col-md-3 col-lg-2" style="min-height:48px;">')
+        .append('<i class="glyphicon glyphicon-trash" style="position:absolute;top:50%;left:50%;margin-top:-12px;margin-left:-12px;">')
+        .appendTo(this.$favouritePicturesPanelRow);
+
+    this.$favouritePicturesTrash = $('<div id="pictures-trash">')
+        .appendTo(this.$favouritePicturesTrashContainer);
+
+
+    this.$favouritePicturesBodyPanelContainer = $('<div class="col-sm-8 col-md-9 col-lg-10">')
+        .appendTo(this.$favouritePicturesPanelRow);
+
+    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel">')
+        .appendTo(this.$favouritePicturesBodyPanelContainer);
+
+
 
     this.$favouritePicturesControlPanel = $('<div id="pictures-control-panel" class="row">')
         .appendTo(this.$favouritePicturesPanel);
@@ -1385,6 +1553,8 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
+
+
 
 
     this.entityMap = {
@@ -1531,9 +1701,54 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.renderFavouritePictures();
+
+
+
+    this.$favouritePicturesPanel.sortable({
+        containment: this.$favouritePicturesPanel,
+        revert: true,
+        update: function(event, ui) {
+            var imageUrl = $(ui.item).attr('src');
+            var nextImageUrl = $(ui.item).next().attr('src');
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+            var imagePosition;
+            if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
+                favouritePictures.splice(imagePosition, 1);
+            }
+
+            if (typeof nextImageUrl !== 'undefined') {
+                var nextImagePosition;
+                if ((nextImagePosition = favouritePictures.indexOf(nextImageUrl)) !== -1) {
+                    favouritePictures.splice(nextImagePosition, 0, imageUrl);
+                }
+            } else {
+                favouritePictures.push(imageUrl);
+            }
+
+
+        }
+    });
+
+
+    this.$favouritePicturesTrash.droppable({
+        accept: ".favourite-picture-on-panel",
+        drop: function (event, ui) {
+            var imageUrl = $(ui.draggable).attr('src');
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+            var imagePosition;
+            if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
+                favouritePictures.splice(imagePosition, 1);
+                window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+            }
+
+            $(ui.draggable).remove();
+        }
+    });
 });
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -1649,7 +1864,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":1}],11:[function(require,module,exports){
+},{"jquery-mousewheel":1}],12:[function(require,module,exports){
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
@@ -1911,7 +2126,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     });
 });
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -1948,7 +2163,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -2033,7 +2248,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.renderSmiles();
 });
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     'use strict';
 
@@ -2429,7 +2644,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     }
 });
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -2614,7 +2829,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
         window.handleWindowResize(); //chat height fix
     }, 10000);
 });
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -2827,7 +3042,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -2888,4 +3103,4 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}]},{},[4,3,5,6,7,8,9,10,11,12,13,14,15,16,17]);
+},{}]},{},[4,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);

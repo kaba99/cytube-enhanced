@@ -22,12 +22,31 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     }
 
 
+
+
+
     this.$favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
         .appendTo('#chat-panel')
         .hide();
-
-    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel" class="row">')
+    this.$favouritePicturesPanelRow = $('<div class="row">')
         .appendTo(this.$favouritePicturesPanel);
+
+
+    this.$favouritePicturesTrashContainer = $('<div class="col-sm-4 col-md-3 col-lg-2" style="min-height:48px;">')
+        .append('<i class="glyphicon glyphicon-trash" style="position:absolute;top:50%;left:50%;margin-top:-12px;margin-left:-12px;">')
+        .appendTo(this.$favouritePicturesPanelRow);
+
+    this.$favouritePicturesTrash = $('<div id="pictures-trash">')
+        .appendTo(this.$favouritePicturesTrashContainer);
+
+
+    this.$favouritePicturesBodyPanelContainer = $('<div class="col-sm-8 col-md-9 col-lg-10">')
+        .appendTo(this.$favouritePicturesPanelRow);
+
+    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel">')
+        .appendTo(this.$favouritePicturesBodyPanelContainer);
+
+
 
     this.$favouritePicturesControlPanel = $('<div id="pictures-control-panel" class="row">')
         .appendTo(this.$favouritePicturesPanel);
@@ -50,6 +69,8 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
+
+
 
 
     this.entityMap = {
@@ -196,4 +217,49 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.renderFavouritePictures();
+
+
+
+    this.$favouritePicturesPanel.sortable({
+        containment: this.$favouritePicturesPanel,
+        revert: true,
+        update: function(event, ui) {
+            var imageUrl = $(ui.item).attr('src');
+            var nextImageUrl = $(ui.item).next().attr('src');
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+            var imagePosition;
+            if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
+                favouritePictures.splice(imagePosition, 1);
+            }
+
+            if (typeof nextImageUrl !== 'undefined') {
+                var nextImagePosition;
+                if ((nextImagePosition = favouritePictures.indexOf(nextImageUrl)) !== -1) {
+                    favouritePictures.splice(nextImagePosition, 0, imageUrl);
+                }
+            } else {
+                favouritePictures.push(imageUrl);
+            }
+
+
+        }
+    });
+
+
+    this.$favouritePicturesTrash.droppable({
+        accept: ".favourite-picture-on-panel",
+        drop: function (event, ui) {
+            var imageUrl = $(ui.draggable).attr('src');
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+
+            var imagePosition;
+            if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
+                favouritePictures.splice(imagePosition, 1);
+                window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+            }
+
+            $(ui.draggable).remove();
+        }
+    });
 });
