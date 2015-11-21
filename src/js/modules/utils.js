@@ -199,7 +199,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     })(window.addUserDropdown);
 
     $('.user-dropdown>strong').click(function () {
-        $(chatline).val($(this).text() + ": " + $(chatline).val());
+        $('#chatline').val($(this).text() + ": " + $(chatline).val()).focus();
     });
 
 
