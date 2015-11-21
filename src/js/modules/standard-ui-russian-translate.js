@@ -161,11 +161,13 @@ window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
 
     window.addUserDropdown = (function (oldAddUserDropdown) {
         return function (entry) {
-            oldAddUserDropdown(entry);
+            var functionResponse = oldAddUserDropdown(entry);
 
             entry.find('.user-dropdown>strong').click(function() {
                 $(chatline).val(t+": "+$(chatline).val())
             });
+
+            return functionResponse;
         };
     })(window.addUserDropdown);
 });

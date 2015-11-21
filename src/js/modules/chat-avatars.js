@@ -56,6 +56,8 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
                     .addClass(avatarCssClasses)
                     .prependTo(div.find('.username').parent())
             }
+
+            return div;
         };
     })(window.formatChatMessage);
 });

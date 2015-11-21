@@ -1353,6 +1353,8 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
                     .addClass(avatarCssClasses)
                     .prependTo(div.find('.username').parent())
             }
+
+            return div;
         };
     })(window.formatChatMessage);
 });
@@ -2411,11 +2413,13 @@ window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
 
     window.addUserDropdown = (function (oldAddUserDropdown) {
         return function (entry) {
-            oldAddUserDropdown(entry);
+            var functionResponse = oldAddUserDropdown(entry);
 
             entry.find('.user-dropdown>strong').click(function() {
                 $(chatline).val(t+": "+$(chatline).val())
             });
+
+            return functionResponse;
         };
     })(window.addUserDropdown);
 });
