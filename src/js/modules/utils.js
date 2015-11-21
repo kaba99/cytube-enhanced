@@ -201,4 +201,12 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('.user-dropdown>strong').click(function () {
         $(chatline).val($(this).text() + ": " + $(chatline).val());
     });
+
+
+
+
+
+
+    
+    $('#queue').sortable("option", "axis", "y");
 });

@@ -3051,6 +3051,14 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('.user-dropdown>strong').click(function () {
         $(chatline).val($(this).text() + ": " + $(chatline).val());
     });
+
+
+
+
+
+
+    
+    $('#queue').sortable("option", "axis", "y");
 });
 },{}],20:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
