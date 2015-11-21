@@ -1619,23 +1619,23 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.$favouritePicturesPanel = $('<div id="favourite-pictures-panel">')
         .appendTo('#chat-panel')
         .hide();
-    this.$favouritePicturesPanelRow = $('<div class="row favourite-pictures-panel-row">')
+    this.$favouritePicturesPanelRow = $('<div class="favourite-pictures-panel-row" style="display: table;width:100%;border:none;">')
         .appendTo(this.$favouritePicturesPanel);
 
 
-    this.$favouritePicturesTrashContainer = $('<div class="col-sm-4 col-md-3 col-lg-2" style="min-height:48px;">')
+    //this.$favouritePicturesTrashContainer = $('<div class="col-sm-4 col-md-3 col-lg-2">')
+    //    .appendTo(this.$favouritePicturesPanelRow);
+
+    this.$favouritePicturesTrash = $('<div id="pictures-trash" style="position:relative;min-height:48px;border-right:2px solid rgba(0,10,20,.75);width:80px;">')
         .append('<i class="glyphicon glyphicon-trash" style="position:absolute;top:50%;left:50%;margin-top:-12px;margin-left:-12px;">')
         .appendTo(this.$favouritePicturesPanelRow);
 
-    this.$favouritePicturesTrash = $('<div id="pictures-trash">')
-        .appendTo(this.$favouritePicturesTrashContainer);
 
+    //this.$favouritePicturesBodyPanelContainer = $('<div class="col-sm-8 col-md-9 col-lg-10">')
+    //    .appendTo(this.$favouritePicturesPanelRow);
 
-    this.$favouritePicturesBodyPanelContainer = $('<div class="col-sm-8 col-md-9 col-lg-10">')
+    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel" style="display: table-cell">')
         .appendTo(this.$favouritePicturesPanelRow);
-
-    this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel">')
-        .appendTo(this.$favouritePicturesBodyPanelContainer);
 
 
 
