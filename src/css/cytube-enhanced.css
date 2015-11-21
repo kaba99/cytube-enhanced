@@ -5178,6 +5178,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 
 #pictures-trash {
     position: relative;
+    display: table-cell;
     min-height: 50px;
     border-right: 2px solid rgba(0,10,20,.75);
     width: 80px;
@@ -5187,6 +5188,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     display: table;
     width: 100%;
     border: none;
+    min-height: 50px;
 }
 
 #pictures-body-panel {
