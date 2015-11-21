@@ -64,9 +64,6 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             '<span class="input-group-btn">' +
                 '<button id="add-picture-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
-            '<span class="input-group-btn">' +
-                '<button id="remove-picture-btn" class="btn btn-sm btn-default" type="button">' + app.t('favPics[.]Remove') + '</button>' +
-            '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
 
@@ -161,25 +158,6 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     };
     $('#add-picture-btn').on('click', function () {
         that.addFavouritePicture();
-    });
-
-
-    this.removeFavouritePicture = function () {
-        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
-
-        var removePosition = favouritePictures.indexOf($('#picture-address').val());
-        if (removePosition !== -1) {
-            favouritePictures.splice(removePosition, 1);
-
-            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
-
-            this.renderFavouritePictures();
-        }
-
-        $('#picture-address').val('');
-    };
-    $('#remove-picture-btn').on('click', function () {
-        that.removeFavouritePicture();
     });
 
 
