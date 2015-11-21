@@ -207,6 +207,6 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
-    
+
     $('#queue').sortable("option", "axis", "y");
 });

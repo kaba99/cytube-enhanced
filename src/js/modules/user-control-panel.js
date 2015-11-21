@@ -414,12 +414,26 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.handleAvatars = function (mode) {
         app.userConfig.set('avatarsMode', mode);
 
+        if (mode == 'small' || mode == 'big') {
+            $('#messagebuffer .username').each(function () {
+                var $messageBlock = $(this).parent();
+                var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
+                var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
+
+                if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
+                    $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
+                        .addClass(avatarCssClasses)
+                        .prependTo($messageBlock)
+                }
+            });
+        }
+
         if (mode == 'small') {
             $('#messagebuffer').find('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
         } else if (mode == 'big') {
             $('#messagebuffer').find('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
         } else {
-            $('#messagebuffer').find('.chat-avatar').removeClass('chat-avatar_small chat-avatar_big').addClass('chat-avatar_hidden');
+            $('#messagebuffer').find('.chat-avatar').remove();
         }
     };
     this.$avatarsSelect = $('<select class="form-control">')
@@ -428,7 +442,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
         .append('<option value="big">Большие</option>')
         .appendTo(this.$avatarsWrapper)
         .on('change', function () {
-            that.handleAvatars($(this).val())
+            that.handleAvatars($(this).val());
         });
 
     this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode') + '"]').prop('selected', true);
