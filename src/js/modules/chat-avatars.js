@@ -48,6 +48,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     window.formatChatMessage = (function (oldFormatChatMessage) {
         return function (data, last) {
             var div = oldFormatChatMessage(data, last);
+            a = div;
 
             var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 

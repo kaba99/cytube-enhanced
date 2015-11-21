@@ -1345,6 +1345,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     window.formatChatMessage = (function (oldFormatChatMessage) {
         return function (data, last) {
             var div = oldFormatChatMessage(data, last);
+            a = div;
 
             var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
@@ -2408,20 +2409,6 @@ window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
     if ($('#guestlogin')) {
         $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
     }
-
-
-
-    window.addUserDropdown = (function (oldAddUserDropdown) {
-        return function (entry) {
-            var functionResponse = oldAddUserDropdown(entry);
-
-            entry.find('.user-dropdown>strong').click(function() {
-                $(chatline).val(t+": "+$(chatline).val())
-            });
-
-            return functionResponse;
-        };
-    })(window.addUserDropdown);
 });
 
 },{}],18:[function(require,module,exports){
@@ -3050,9 +3037,17 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
+    window.addUserDropdown = (function (oldAddUserDropdown) {
+        return function (entry) {
+            var functionResponse = oldAddUserDropdown(entry);
 
+            entry.find('.user-dropdown>strong').click(function() {
+                $(chatline).val(t+": "+$(chatline).val())
+            });
 
-
+            return functionResponse;
+        };
+    })(window.addUserDropdown);
 });
 },{}],20:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {

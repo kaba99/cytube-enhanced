@@ -186,7 +186,15 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
+    window.addUserDropdown = (function (oldAddUserDropdown) {
+        return function (entry) {
+            var functionResponse = oldAddUserDropdown(entry);
 
+            entry.find('.user-dropdown>strong').click(function() {
+                $(chatline).val(t+": "+$(chatline).val())
+            });
 
-
+            return functionResponse;
+        };
+    })(window.addUserDropdown);
 });
