@@ -4958,6 +4958,8 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 }
 #favourite-pictures-panel {
     border-bottom: none;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
 }
 #favourite-pictures-panel img, #smiles-panel img {
     margin: 5px;
@@ -5114,9 +5116,6 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     padding-left: 1px;
     word-wrap: break-word;
 }
-#pictures-control-panel{
-    padding-bottom: 2px;
-}
 .markdown-helper-templates-wrapper {
     padding-left: 5px;
     padding-right: 5px;
@@ -5184,6 +5183,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     border-right: 2px solid rgba(0,10,20,.75);
     width: 60px;
     background: rgba(0,10,20,.5);
+    border-top-left-radius: 6px;
 }
 
 .favourite-pictures-panel-row {
@@ -5206,7 +5206,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 }
 
 .favourite-picture-drop-hover {
-    opacity: 0.5;
+    background: rgba(245, 28, 22, 0.6);
 }
 
 
