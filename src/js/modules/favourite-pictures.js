@@ -227,6 +227,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     this.$favouritePicturesTrash.droppable({
         accept: ".favourite-picture-on-panel",
+        hoverClass: "favourite-picture-drop-hover",
         drop: function (event, ui) {
             var imageUrl = $(ui.draggable).attr('src');
             var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
