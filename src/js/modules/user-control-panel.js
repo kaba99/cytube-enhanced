@@ -414,7 +414,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.handleAvatars = function (mode) {
         app.userConfig.set('avatarsMode', mode);
 
-        if (mode == 'small' || mode == 'big') {
+        if ((mode == 'small' || mode == 'big') && $('#messagebuffer').find('.chat-avatar').length === 0) {
             $('#messagebuffer .username').each(function () {
                 var $messageBlock = $(this).parent();
                 var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
