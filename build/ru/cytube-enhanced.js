@@ -1345,12 +1345,11 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     window.formatChatMessage = (function (oldFormatChatMessage) {
         return function (data, last) {
             var div = oldFormatChatMessage(data, last);
-            a = div;
 
             var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
-            if ((window.findUserlistItem(e.username) != null) && (window.findUserlistItem(e.username).data('profile').image != "") && (app.userConfig.get('avatarsMode') != false)) {
-                $("<img>").attr("src", window.findUserlistItem(e.username).data('profile').image)
+            if ((window.findUserlistItem(data.username) != null) && (window.findUserlistItem(data.username).data('profile').image != "") && (app.userConfig.get('avatarsMode') != false)) {
+                $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
                     .addClass(avatarCssClasses)
                     .prependTo(div.find('.username').parent())
             }
@@ -3048,6 +3047,10 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
             return functionResponse;
         };
     })(window.addUserDropdown);
+
+    $('.user-dropdown>strong').click(function () {
+        $(chatline).val($(this).text() + ": " + $(chatline).val());
+    });
 });
 },{}],20:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {

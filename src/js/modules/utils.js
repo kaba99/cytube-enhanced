@@ -197,4 +197,8 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
             return functionResponse;
         };
     })(window.addUserDropdown);
+
+    $('.user-dropdown>strong').click(function () {
+        $(chatline).val($(this).text() + ": " + $(chatline).val());
+    });
 });
