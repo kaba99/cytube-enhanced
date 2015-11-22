@@ -1320,7 +1320,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     })(window.formatChatMessage);
 
 
-    if (app.userConfig.get('avatarsMode') != null) {
+    if (app.userConfig.get('avatarsMode') != '') {
         $('.username').each(function () {
             var $messageBlock = $(this).parent();
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
@@ -2955,13 +2955,18 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
 
     this.handleAvatars = function (mode) {
         app.userConfig.set('avatarsMode', mode);
+        var previousModeInTurnedOff = false;
 
         $('.username').each(function () {
             var $avatar;
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
             var $messageBlock = $(this).parent();
 
-            if ((mode == 'small' || mode == 'big') && $('.chat-avatar').length === 0) {
+            if ($('.chat-avatar').length === 0) {
+                previousModeInTurnedOff = true;
+            }
+
+            if ((mode == 'small' || mode == 'big') && previousModeInTurnedOff) {
                 var avatarCssClasses = (mode == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
                 if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {

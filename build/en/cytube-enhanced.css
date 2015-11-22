@@ -5208,10 +5208,11 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     max-height: 22px;
 }
 .chat-avatar_big {
-    max-height: 80px;
+    max-height: 75px;
     max-width: 80px;
     margin-top: 2px;
     margin-bottom: 2px;
+    border-radius: 7px;
 }
 
 .user-dropdown>strong {
