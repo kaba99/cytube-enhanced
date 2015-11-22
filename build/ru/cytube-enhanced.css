@@ -5208,6 +5208,8 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 .chat-avatar_big {
     max-height: 80px;
     max-width: 80px;
+    border-radius: 5px;
+    margin: 2px 0;
 }
 
 .user-dropdown>strong {

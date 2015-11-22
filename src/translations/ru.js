@@ -47,7 +47,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Show your favorite images': 'Показать избранные картинки',
         'Export pictures': 'Экспорт картинок',
         'Import pictures': 'Импорт картинок',
-        'Picture address': 'Адрес картинки',
+        'Picture url': 'Адрес картинки в сети',
         'Add': 'Добавить',
         'Remove': 'Удалить',
         'The image already exists': 'Такая картинка уже была добавлена',

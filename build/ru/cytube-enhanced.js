@@ -1537,7 +1537,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
                 '<label for="import-pictures" class="btn btn-sm btn-default" style="border-radius: 0;">' + app.t('favPics[.]Import pictures') + '</label>' +
                 '<input type="file" style="display: none" id="import-pictures" name="pictures-import">' +
             '</span>' +
-            '<input type="text" id="picture-address" class="form-control input-sm" placeholder="' + app.t('favPics[.]Picture address') + '">' +
+            '<input type="text" id="picture-address" class="form-control input-sm" placeholder="' + app.t('favPics[.]Picture url') + '">' +
             '<span class="input-group-btn">' +
                 '<button id="add-picture-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
@@ -3523,7 +3523,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Show your favorite images': 'Показать избранные картинки',
         'Export pictures': 'Экспорт картинок',
         'Import pictures': 'Импорт картинок',
-        'Picture address': 'Адрес картинки',
+        'Picture url': 'Адрес картинки в сети',
         'Add': 'Добавить',
         'Remove': 'Удалить',
         'The image already exists': 'Такая картинка уже была добавлена',
