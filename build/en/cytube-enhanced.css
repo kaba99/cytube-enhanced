@@ -5221,6 +5221,10 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     border-bottom: 1px solid #555;
     margin-bottom: 15px;
 }
+.pm-history-content .pm-history-message:last-child {
+    border-bottom: none;
+}
+
 .pm-history-message-time {
     display: inline-block;
     color: #C2C2C2;
@@ -5229,11 +5233,12 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 }
 .pm-history-message-username {
     display: inline-block;
-    margin-left: 10px;
+    margin-left: 5px;
     font-size: 14px;
     line-height: 1.4;
 }
 .pm-history-message-content {
+    margin-top: 2px;
     font-size: 14px;
     line-height: 1.4;
 }

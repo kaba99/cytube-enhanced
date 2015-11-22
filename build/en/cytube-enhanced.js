@@ -2015,11 +2015,11 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
                 pmHistory = [];
             }
 
-            if (pmHistory.length >= 30) {
-                pmHistory.slice(pmHistory.length - 29);
+            if (pmHistory.length >= 50) {
+                pmHistory.slice(0, 49);
             }
 
-            pmHistory.push({
+            pmHistory.unshift({
                 username: data.username.replace(/[^\w-]/g, '\\$'),
                 msg: data.msg,
                 time: data.time
@@ -2055,7 +2055,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
 
         $messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
         $messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
-        $messageWrapper.append($('<div class="pm-history-message-content">' + data.username + '</div>'));
+        $messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
 
 
         return $messageWrapper;
