@@ -2984,13 +2984,13 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
 
         if (mode == 'small') {
             $('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
-            $('.username').css('display', 'block');
+            $('.username').css('display', 'inline-block');
         } else if (mode == 'big') {
             $('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
             $('.username').css('display', 'none');
         } else {
             $('.chat-avatar').remove();
-            $('.username').css('display', 'block');
+            $('.username').css('display', 'inline-block');
         }
     };
     this.$avatarsSelect = $('<select class="form-control">')
@@ -3138,7 +3138,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
     if (settings.insertUsernameOnClick) {
-        $('#messagebuffer').on('click', '.username', function() {
+        $('#messagebuffer').on('click', '.username, .chat-avatar', function() {
             that.addMessageToChatInput($(this).text(), 'begin');
         });
     }

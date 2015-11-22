@@ -130,7 +130,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
     if (settings.insertUsernameOnClick) {
-        $('#messagebuffer').on('click', '.username', function() {
+        $('#messagebuffer').on('click', '.username, .chat-avatar', function() {
             that.addMessageToChatInput($(this).text(), 'begin');
         });
     }
