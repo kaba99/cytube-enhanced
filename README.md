@@ -2,10 +2,10 @@
 
 ## Quick start
 
-Just download `./build/cytube-enhanced.js` and `./build/cytube-enhanced.css` and assign them as external stuff in administration panel.
+Just download `./build/your language/cytube-enhanced.min.js` and `./build/your language/cytube-enhanced.min.css` and assign them as external stuff in administration panel of the channel.
 Also, you should import chat filters from `src/filters.txt` for some modules.
 
-It should works fine by default, but you can configure this script like so:
+It works fine by default, but you can configure this script like so:
 
 ```javascript
 window.cytubeEnhancedSettings = {
@@ -22,7 +22,7 @@ window.cytubeEnhancedSettings = {
 };
 ```
 
-Note: you must configure most of options before modules loads (for example, by configuring it in javascript textarea of administration panel, because it runs before external script)
+Note: you must configure most of options before modules loads (for example, by configuring it in the javascript textarea of channel's administration panel, because it runs before external script)
 
 ## Extending some module
 
