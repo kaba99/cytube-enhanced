@@ -260,7 +260,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
                 favouritePictures.push(imageUrl);
             }
 
-
+            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
         }
     });
 
