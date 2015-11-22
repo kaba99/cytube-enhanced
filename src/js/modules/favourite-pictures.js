@@ -32,16 +32,10 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         .appendTo(this.$favouritePicturesPanel);
 
 
-    //this.$favouritePicturesTrashContainer = $('<div class="col-sm-4 col-md-3 col-lg-2">')
-    //    .appendTo(this.$favouritePicturesPanelRow);
-
     this.$favouritePicturesTrash = $('<div id="pictures-trash" title="' + app.t('favPics[.]Drop the picture here to remove it') + '">')
         .append('<i class="pictures-trash-icon glyphicon glyphicon-trash">')
         .appendTo(this.$favouritePicturesPanelRow);
 
-
-    //this.$favouritePicturesBodyPanelContainer = $('<div class="col-sm-8 col-md-9 col-lg-10">')
-    //    .appendTo(this.$favouritePicturesPanelRow);
 
     this.$favouritePicturesBodyPanel = $('<div id="pictures-body-panel">')
         .appendTo(this.$favouritePicturesPanelRow);
@@ -54,18 +48,18 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.$favouritePicturesControlPanelForm = $('<div class="col-md-12">')
         .html('<div class="input-group">' +
             '<span class="input-group-btn">' +
-                '<button id="export-pictures" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Export pictures') + '</button>' +
+                '<button id="help-pictures-btn" class="btn btn-sm btn-default" style="border-radius:0;" type="button">?</button>' +
+            '</span>' +
+            '<span class="input-group-btn">' +
+                '<button id="export-pictures" class="btn btn-sm btn-default" style="border-radius:0;" type="button">' + app.t('favPics[.]Export pictures') + '</button>' +
             '</span>' +
              '<span class="input-group-btn">' +
-                '<label for="import-pictures" class="btn btn-sm btn-default" style="border-radius: 0;">' + app.t('favPics[.]Import pictures') + '</label>' +
-                '<input type="file" style="display: none" id="import-pictures" name="pictures-import">' +
+                '<label for="import-pictures" class="btn btn-sm btn-default" style="border-radius:0;">' + app.t('favPics[.]Import pictures') + '</label>' +
+                '<input type="file" style="display:none;" id="import-pictures" name="pictures-import">' +
             '</span>' +
             '<input type="text" id="picture-address" class="form-control input-sm" placeholder="' + app.t('favPics[.]Picture url') + '">' +
             '<span class="input-group-btn">' +
-                '<button id="add-picture-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
-            '</span>' +
-            '<span class="input-group-btn">' +
-                '<button id="help-pictures-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">?</button>' +
+                '<button id="add-picture-btn" class="btn btn-sm btn-default" style="border-radius:0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);

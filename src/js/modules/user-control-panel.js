@@ -415,12 +415,13 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
         app.userConfig.set('avatarsMode', mode);
 
         $('.username').each(function () {
-            if ((mode == 'small' || mode == 'big') && $('.chat-avatar').length === 0) {
-                var $messageBlock = $(this).parent();
-                var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
-                var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
+            var $avatar;
+            var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
+            var $messageBlock = $(this).parent();
 
-                var $avatar;
+            if ((mode == 'small' || mode == 'big') && $('.chat-avatar').length === 0) {
+                var avatarCssClasses = (mode == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
+
                 if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
                     $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                         .addClass(avatarCssClasses)
@@ -428,17 +429,17 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
                 }
             }
 
-            if (app.userConfig.get('avatarsMode') == 'big') {
-                $(this).css('display', 'none');
-
-                $avatar = $(this).parent().find('.chat-avatar');
+            if (mode == 'big') {
+                $avatar = $messageBlock.find('.chat-avatar');
                 if ($avatar.length !== 0) {
                     $avatar.attr('title', username);
                 }
+
+                $(this).css('display', 'none');
             } else {
                 $(this).css('display', 'inline-block');
 
-                $avatar = $(this).parent().find('.chat-avatar');
+                $avatar = $messageBlock.find('.chat-avatar');
                 if ($avatar.length !== 0) {
                     $avatar.removeAttr('title');
                 }
