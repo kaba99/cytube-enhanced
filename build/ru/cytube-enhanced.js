@@ -2962,8 +2962,8 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.handleAvatars = function (mode) {
         app.userConfig.set('avatarsMode', mode);
 
-        if ((mode == 'small' || mode == 'big') && $('.chat-avatar').length === 0) {
-            $('.username').each(function () {
+        $('.username').each(function () {
+            if ((mode == 'small' || mode == 'big') && $('.chat-avatar').length === 0) {
                 var $messageBlock = $(this).parent();
                 var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
                 var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
@@ -2974,23 +2974,24 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
                         .prependTo($messageBlock);
 
                     if (app.userConfig.get('avatarsMode') == 'big') {
+                        $('.username').css('display', 'none');
                         $avatar.attr('title', username);
-                    } else {
-                        $avatar.removeAttr('title');
                     }
                 }
-            });
-        }
+            }
+
+            if (app.userConfig.get('avatarsMode') != 'big') {
+                $('.username').css('display', 'inline-block');
+                $avatar.removeAttr('title');
+            }
+        });
 
         if (mode == 'small') {
             $('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
-            $('.username').css('display', 'inline-block');
         } else if (mode == 'big') {
             $('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
-            $('.username').css('display', 'none');
         } else {
             $('.chat-avatar').remove();
-            $('.username').css('display', 'inline-block');
         }
     };
     this.$avatarsSelect = $('<select class="form-control">')
@@ -3138,8 +3139,11 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
     if (settings.insertUsernameOnClick) {
-        $('#messagebuffer').on('click', '.username, .chat-avatar', function() {
+        $('#messagebuffer').on('click', '.username', function() {
             that.addMessageToChatInput($(this).text(), 'begin');
+        });
+        $('#messagebuffer').on('click', '.chat-avatar', function() {
+            that.addMessageToChatInput($(this).parent().find('.username').text(), 'begin');
         });
     }
 
