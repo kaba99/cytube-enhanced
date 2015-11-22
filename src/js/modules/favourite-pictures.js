@@ -81,7 +81,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         return that.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
-        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
         this.$favouritePicturesBodyPanel.empty();
 
@@ -135,7 +135,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     this.addFavouritePicture = function (imageUrl) {
         if (imageUrl !== '') {
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             if (favouritePictures.indexOf(imageUrl) === -1) {
                 if (imageUrl !== '') {
@@ -211,7 +211,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         update: function(event, ui) {
             var imageUrl = $(ui.item).attr('src');
             var nextImageUrl = $(ui.item).next().attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
@@ -237,7 +237,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         hoverClass: "favourite-picture-drop-hover",
         drop: function (event, ui) {
             var imageUrl = $(ui.draggable).attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {

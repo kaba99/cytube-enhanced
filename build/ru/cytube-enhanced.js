@@ -1558,7 +1558,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         return that.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
-        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
         this.$favouritePicturesBodyPanel.empty();
 
@@ -1612,7 +1612,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     this.addFavouritePicture = function (imageUrl) {
         if (imageUrl !== '') {
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             if (favouritePictures.indexOf(imageUrl) === -1) {
                 if (imageUrl !== '') {
@@ -1688,7 +1688,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         update: function(event, ui) {
             var imageUrl = $(ui.item).attr('src');
             var nextImageUrl = $(ui.item).next().attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
@@ -1714,7 +1714,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         hoverClass: "favourite-picture-drop-hover",
         drop: function (event, ui) {
             var imageUrl = $(ui.draggable).attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
+            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
@@ -2117,7 +2117,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
 
     window.socket.on('chatMsg', function (data) {
         if (window.CLIENT.name && data.msg.toLowerCase().indexOf(window.CLIENT.name.toLowerCase()) != -1) {
-            var pmHistory = JSON.parse(app.userConfig.get('pmHistory')) || [];
+            var pmHistory = JSON.parse(app.userConfig.get('pmHistory') || '[]') || [];
             if (!$.isArray(pmHistory)) {
                 pmHistory = [];
             }
@@ -2170,7 +2170,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
 
     this.showChatHistory = function () {
         var $modalWindow;
-        var pmHistory = JSON.parse(app.userConfig.get('pmHistory')) || [];
+        var pmHistory = JSON.parse(app.userConfig.get('pmHistory') || '[]') || [];
         if (!$.isArray(pmHistory)) {
             pmHistory = [];
         }
@@ -2203,7 +2203,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
     };
 
     this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
-        .text('История')
+        .text(app.t('pmHistory[.]History'))
         .appendTo('#chatheader')
         .on('click', function () {
             that.showChatHistory();
@@ -3604,6 +3604,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Strike': 'Перечёркнутый текст'
     },
     pmHistory: {
+        'History': 'История',
         'Chat history': 'История чата',
         'Reset history': 'Сбросить историю',
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
