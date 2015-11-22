@@ -1225,7 +1225,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
                     .prependTo($messageBlock);
 
                 if (app.userConfig.get('avatarsMode') == 'big') {
-                    $('.username').css('display', 'none');
+                    $(this).css('display', 'none');
                     $avatar.attr('title', username);
                 }
             }
@@ -2700,21 +2700,26 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
                 var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
                 var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
+                var $avatar;
                 if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
-                    var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
+                    $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                         .addClass(avatarCssClasses)
                         .prependTo($messageBlock);
 
                     if (app.userConfig.get('avatarsMode') == 'big') {
-                        $('.username').css('display', 'none');
+                        $(this).css('display', 'none');
                         $avatar.attr('title', username);
                     }
                 }
             }
 
             if (app.userConfig.get('avatarsMode') != 'big') {
-                $('.username').css('display', 'inline-block');
-                $avatar.removeAttr('title');
+                $(this).css('display', 'inline-block');
+
+                $avatar = $(this).parent().find('.chat-avatar');
+                if ($avatar.length !== 0) {
+                    $avatar.removeAttr('title');
+                }
             }
         });
 

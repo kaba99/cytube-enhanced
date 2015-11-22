@@ -35,7 +35,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
                     .prependTo($messageBlock);
 
                 if (app.userConfig.get('avatarsMode') == 'big') {
-                    $('.username').css('display', 'none');
+                    $(this).css('display', 'none');
                     $avatar.attr('title', username);
                 }
             }
