@@ -133,9 +133,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 
 
-    this.addFavouritePicture = function () {
-        var imageUrl = $('#picture-address').val().trim();
-
+    this.addFavouritePicture = function (imageUrl) {
         if (imageUrl !== '') {
             var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures')) || [];
 
@@ -156,8 +154,17 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             this.renderFavouritePictures();
         }
     };
-    $('#add-picture-btn').on('click', function () {
-        that.addFavouritePicture();
+    $('#add-picture-btn').on('click', function (e) {
+        e.preventDefault();
+
+        that.addFavouritePicture($('#picture-address').val().trim());
+    });
+    $('#picture-address').on('keypress', function(e) {
+        e.preventDefault();
+
+        if (e.which == 13) {
+            that.addFavouritePicture($('#picture-address').val().trim());
+        }
     });
 
 

@@ -1,4 +1,6 @@
 window.cytubeEnhanced.addModule('chatAvatars', function (app) {
+    'use strict';
+
     window.formatChatMessage = (function (oldFormatChatMessage) {
         return function (data, last) {
             var div = oldFormatChatMessage(data, last);

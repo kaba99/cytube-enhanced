@@ -141,18 +141,18 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
         var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
         var $content = $('<div class="modal-content">').appendTo($modal);
 
-        if ($headerContent !== undefined) {
+        if ($headerContent != null) {
             var $header = $('<div class="modal-header">').appendTo($content);
 
             $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
             $('<h3 class="modal-title">').append($headerContent).appendTo($header);
         }
 
-        if ($bodyContent !== undefined) {
+        if ($bodyContent != null) {
             $('<div class="modal-body">').append($bodyContent).appendTo($content);
         }
 
-        if ($footerContent !== undefined) {
+        if ($footerContent != null) {
             $('<div class="modal-footer">').append($footerContent).appendTo($content);
         }
 

@@ -5190,7 +5190,7 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     margin-left: -7px;
 }
 
-.favourite-picture-drop-hover {
+#pictures-trash.favourite-picture-drop-hover {
     background: rgba(245, 28, 22, 0.6);
 }
 

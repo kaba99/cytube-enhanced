@@ -159,5 +159,11 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Spoiler': 'Спойлер',
         'Monospace': 'Моноширинный текст',
         'Strike': 'Перечёркнутый текст'
+    },
+    pmHistory: {
+        'Chat history': 'История чата',
+        'Reset history': 'Сбросить историю',
+        'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
+        'Exit': 'Выход'
     }
 });
