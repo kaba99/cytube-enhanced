@@ -2976,12 +2976,14 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
                 }
             }
 
-            if (app.userConfig.get('avatarsMode') == 'big' && $avatar) {
+            if (app.userConfig.get('avatarsMode') == 'big') {
                 $(this).css('display', 'none');
-                $avatar.attr('title', username);
-            }
 
-            if (app.userConfig.get('avatarsMode') != 'big') {
+                $avatar = $(this).parent().find('.chat-avatar');
+                if ($avatar.length !== 0) {
+                    $avatar.attr('title', username);
+                }
+            } else {
                 $(this).css('display', 'inline-block');
 
                 $avatar = $(this).parent().find('.chat-avatar');
