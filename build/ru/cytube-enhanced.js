@@ -2122,8 +2122,8 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
                 pmHistory = [];
             }
 
-            if (pmHistory.length < 99) {
-
+            if (pmHistory.length >= 30) {
+                pmHistory.slice(pmHistory.length - 29);
             }
 
             pmHistory.push({
@@ -2132,7 +2132,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
                 time: data.time
             });
 
-            pmHistory.set(JSON.stringify(pmHistory));
+            app.userConfig.set('pmHistory', JSON.stringify(pmHistory));
         }
     });
 
@@ -2145,22 +2145,22 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         var time = (new Date(data.time));
 
         var day = time.getDate();
-        day = day.length === 1 ? ('0' + day) : day;
+        day = day < 10 ? ('0' + day) : day;
         var month = time.getMonth();
-        month = month.length === 1 ? ('0' + month) : month;
+        month = month < 10 ? ('0' + month) : month;
         var year = time.getFullYear();
         var hours = time.getHours();
-        hours = hours.length === 1 ? ('0' + hours) : hours;
+        hours = hours < 10 ? ('0' + hours) : hours;
         var minutes = time.getMinutes();
-        minutes = minutes.length === 1 ? ('0' + minutes) : minutes;
+        minutes = minutes < 10 ? ('0' + minutes) : minutes;
         var seconds = time.getSeconds();
-        seconds = seconds.length === 1 ? ('0' + seconds) : seconds;
+        seconds = seconds < 10 ? ('0' + seconds) : seconds;
 
         var timeString = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
 
 
 
-        $messageWrapper.append($('<div class="pm-history-message-time">' + timeString + '</div>'));
+        $messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
         $messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
         $messageWrapper.append($('<div class="pm-history-message-content">' + data.username + '</div>'));
 
@@ -2182,7 +2182,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         }
 
 
-        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-warning">' + app.t('pmHistory[.]Reset history') + '</button>')
+        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger">' + app.t('pmHistory[.]Reset history') + '</button>')
             .on('click', function () {
                 if (window.confirm('pmHistory[.]Are you sure, that you want to clear messages history?')) {
                     that.resetChatHistory($modalWindow);

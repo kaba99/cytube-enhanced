@@ -5229,3 +5229,26 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     display: inline-block;
     width: 100%;
 }
+
+
+.pm-history-message {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #555;
+    margin-bottom: 15px;
+}
+.pm-history-message-time {
+    display: inline-block;
+    color: #C2C2C2;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.pm-history-message-username {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.pm-history-message-content {
+    font-size: 14px;
+    line-height: 1.4;
+}
