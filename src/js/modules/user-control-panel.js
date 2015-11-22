@@ -425,12 +425,12 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
                     $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                         .addClass(avatarCssClasses)
                         .prependTo($messageBlock);
-
-                    if (app.userConfig.get('avatarsMode') == 'big') {
-                        $(this).css('display', 'none');
-                        $avatar.attr('title', username);
-                    }
                 }
+            }
+
+            if (app.userConfig.get('avatarsMode') == 'big' && $avatar) {
+                $(this).css('display', 'none');
+                $avatar.attr('title', username);
             }
 
             if (app.userConfig.get('avatarsMode') != 'big') {
