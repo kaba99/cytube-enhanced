@@ -1208,7 +1208,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     })(window.formatChatMessage);
 
 
-    if (app.userConfig.get('avatarsMode') != false) {
+    if (app.userConfig.get('avatarsMode') != null) {
         $('#messagebuffer .username').each(function () {
             var $messageBlock = $(this).parent();
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
@@ -2699,17 +2699,17 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
         }
 
         if (mode == 'small') {
-            $('#messagebuffer').find('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
+            $('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
         } else if (mode == 'big') {
-            $('#messagebuffer').find('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
+            $('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
         } else {
-            $('#messagebuffer').find('.chat-avatar').remove();
+            $('.chat-avatar').remove();
         }
     };
     this.$avatarsSelect = $('<select class="form-control">')
-        .append('<option value="">Выключены</option>')
-        .append('<option value="small">Маленькие</option>')
-        .append('<option value="big">Большие</option>')
+        .append('<option value="">' + app.t('userConfig[.]Turned off') + '</option>')
+        .append('<option value="small">' + app.t('userConfig[.]Small') + '</option>')
+        .append('<option value="big">' + app.t('userConfig[.]Big') + '</option>')
         .appendTo(this.$avatarsWrapper)
         .on('change', function () {
             that.handleAvatars($(this).val());
