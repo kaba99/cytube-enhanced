@@ -5212,18 +5212,19 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
 
 .chat-avatar {
     margin-right: 5px;
+    background: rgba(255,255,255,.9);
+    border-radius: 5px;
 }
 .chat-avatar_hidden {
     display: none;
 }
 .chat-avatar_small {
     max-width: 30px;
-    max-height: 22px
+    max-height: 22px;
 }
 .chat-avatar_big {
     max-height: 80px;
     max-width: 80px;
-    border-radius: 5px;
     margin-top: 2px;
     margin-bottom: 2px;
 }

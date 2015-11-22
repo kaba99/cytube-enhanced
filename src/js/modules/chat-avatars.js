@@ -8,9 +8,14 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
             var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
             if ((window.findUserlistItem(data.username) != null) && (window.findUserlistItem(data.username).data('profile').image != "") && (app.userConfig.get('avatarsMode') != false)) {
-                $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
+                var $avatar = $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
                     .addClass(avatarCssClasses)
-                    .prependTo(div.find('.username').parent())
+                    .prependTo(div.find('.username').parent());
+
+                if (app.userConfig.get('avatarsMode') == 'big') {
+                    div.find('.username').css('display', 'none');
+                    $avatar.attr('title', data.username);
+                }
             }
 
             return div;
@@ -19,15 +24,20 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
 
 
     if (app.userConfig.get('avatarsMode') != null) {
-        $('#messagebuffer .username').each(function () {
+        $('.username').each(function () {
             var $messageBlock = $(this).parent();
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
             var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
             if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
-                $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
+                var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                     .addClass(avatarCssClasses)
-                    .prependTo($messageBlock)
+                    .prependTo($messageBlock);
+
+                if (app.userConfig.get('avatarsMode') == 'big') {
+                    $('.username').css('display', 'none');
+                    $avatar.attr('title', username);
+                }
             }
         });
     }

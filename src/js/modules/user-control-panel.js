@@ -414,26 +414,35 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.handleAvatars = function (mode) {
         app.userConfig.set('avatarsMode', mode);
 
-        if ((mode == 'small' || mode == 'big') && $('#messagebuffer').find('.chat-avatar').length === 0) {
-            $('#messagebuffer .username').each(function () {
+        if ((mode == 'small' || mode == 'big') && $('.chat-avatar').length === 0) {
+            $('.username').each(function () {
                 var $messageBlock = $(this).parent();
                 var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
                 var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
                 if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
-                    $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
+                    var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                         .addClass(avatarCssClasses)
-                        .prependTo($messageBlock)
+                        .prependTo($messageBlock);
+
+                    if (app.userConfig.get('avatarsMode') == 'big') {
+                        $avatar.attr('title', username);
+                    } else {
+                        $avatar.removeAttr('title');
+                    }
                 }
             });
         }
 
         if (mode == 'small') {
             $('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
+            $('.username').css('display', 'block');
         } else if (mode == 'big') {
             $('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
+            $('.username').css('display', 'none');
         } else {
             $('.chat-avatar').remove();
+            $('.username').css('display', 'block');
         }
     };
     this.$avatarsSelect = $('<select class="form-control">')
