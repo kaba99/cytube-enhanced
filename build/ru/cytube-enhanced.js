@@ -1541,6 +1541,9 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             '<span class="input-group-btn">' +
                 '<button id="add-picture-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">' + app.t('favPics[.]Add') + '</button>' +
             '</span>' +
+            '<span class="input-group-btn">' +
+                '<button id="help-pictures-btn" class="btn btn-sm btn-default" style="border-radius: 0;" type="button">?</button>' +
+            '</span>' +
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
 
@@ -1636,12 +1639,42 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
         that.addFavouritePicture($('#picture-address').val().trim());
     });
-    $('#picture-address').on('keypress', function(e) {
+    $('#picture-address').on('keypress', function (e) {
         e.preventDefault();
 
         if (e.which == 13) {
             that.addFavouritePicture($('#picture-address').val().trim());
         }
+    });
+
+
+    this.showHelp = function () {
+        var $modalWindow;
+
+
+        var $wrapper = $('<div class="help-pictures-content">');
+        $wrapper.append($('<p>' + app.t('favPics[.]<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>') + '</p>'));
+
+
+        var $exitPicturesHelpBtn = $('<button type="button" id="help-pictures-exit-btn" class="btn btn-info">' + app.t('favPics[.]Exit') + '</button>')
+            .on('click', function () {
+                $modalWindow.modal('hide');
+            });
+        var $footer = $('<div class="help-pictures-footer">');
+        $footer.append($exitPicturesHelpBtn);
+
+
+        app.getModule('utils').done(function (utilsModule) {
+            $modalWindow = utilsModule.createModalWindow(app.t('Help'), $wrapper, $footer);
+        });
+
+
+        return $modalWindow;
+    };
+    $('#help-pictures-btn').on('click', function (e) {
+        e.preventDefault();
+
+        that.showHelp();
     });
 
 
@@ -3494,7 +3527,9 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Add': 'Добавить',
         'Remove': 'Удалить',
         'The image already exists': 'Такая картинка уже была добавлена',
-        'Drop the picture here to remove it': 'Перетащите сюда картинку, чтобы её удалить'
+        'Drop the picture here to remove it': 'Перетащите сюда картинку, чтобы её удалить',
+        'Exit': 'Выход',
+        '<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>': '<p>Избранные картинки нужны для сохранения понравившихся картинок, как закладки браузера.</p><p>Особенности:<ul><li><strong>Хранятся не картинки, а ссылки на них</strong>, другими словами если картинка по ссылке удалится, то она удалится и у вас.</li><li>Ссылки на картинки хранятся в браузере. Для того, чтобы их перемещать между браузерами имеется кнопка экспорта (вытащить) и импорт (вставка экспортированного файла).</li><li>Картинки общие для каналов сайта, но <strong>разные для http:// и https://</strong></li></ul></p>'
     },
     videoInfo: {
         'Now:': 'Сейчас:',
@@ -3609,7 +3644,8 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Reset history': 'Сбросить историю',
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'
-    }
+    },
+    'Help': 'Помощь'
 });
 
 },{}]},{},[6,5,23,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,3,4]);
