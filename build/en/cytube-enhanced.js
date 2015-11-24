@@ -1537,8 +1537,6 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         that.addFavouritePicture($('#picture-address').val().trim());
     });
     $('#picture-address').on('keypress', function (e) {
-        e.preventDefault();
-
         if (e.which == 13) {
             that.addFavouritePicture($('#picture-address').val().trim());
         }
@@ -1623,6 +1621,8 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
                 favouritePictures.splice(imagePosition, 1);
+            } else {
+                return;
             }
 
             if (typeof nextImageUrl !== 'undefined') {
@@ -1643,7 +1643,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         accept: ".favourite-picture-on-panel",
         hoverClass: "favourite-picture-drop-hover",
         drop: function (event, ui) {
-            var imageUrl = $(ui.draggable).attr('src');
+            var imageUrl = ui.draggable.attr('src');
             var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
 
             var imagePosition;
@@ -1652,7 +1652,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
                 window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
             }
 
-            $(ui.draggable).remove();
+            ui.draggable.remove();
         }
     });
 });
