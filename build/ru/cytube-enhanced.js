@@ -1040,34 +1040,44 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         '!party': {
             description: app.t('chatCommands[.]the secret command'),
             value: function () {
-                var IMBA = new Audio("https://dl.dropboxusercontent.com/s/xdnpynq643ziq9o/inba.ogg");
+                var IMBA = new Audio("https://dl.dropboxusercontent.com/s/olpmjho5dfvxho4/11%20Kobaryo%20-%20ヤンデレのハー_cut_192.mp3");
                 IMBA.volume = 0.6;
                 IMBA.play();
+
                 var BGCHANGE = 0;
                 var inbix = setInterval(function() {
-                    $("body").css('background-image', 'none');
+                    $('#userlist').css('background', 'rgba(0, 10, 20, 0) none repeat scroll 0% 0%');
+                    $('#chatline').css('background', 'rgba(0, 10, 20, 0.15) !important');
                     BGCHANGE++;
 
                     if (BGCHANGE % 2 === 0) {
-                        $("body").css('background-color', 'red');
+                        $("body").css('background', '#663939 url("http://i.imgur.com/BWdf3Jv.png")');
+                        $('#messagebuffer').css('color', 'black');
+                        $('#messagebuffer').css('background-image', 'url("http://i.imgur.com/vWFTejN.png")');
+                        $('#userlist').css('color', 'black');
+                        $('body').css('color', 'black');
                     } else {
-                        $("body").css('background-color', 'blue');
+                        $("body").css('background', '#663939 url("http://i.imgur.com/MVfHhI5.png")');
+                        $('#messagebuffer').css('color', 'white');
+                        $('#messagebuffer').css('background', 'none');
+                        $('#userlist').css('color', 'white');
+                        $('body').css('color', 'white');
                     }
-                }, 200);
+                }, 150);
 
                 setTimeout(function() {
                     BGCHANGE = 0;
                     clearInterval(inbix);
                     $("body").css({'background-image':'', 'background-color':''});
-                    $yoba.remove();
-                }, 12000);
+                    $('#messagebuffer').css('color', '#cccccc');
+                    $('body').css('font-color', '#EFEFEF');
+                    $('#messagebuffer').css('background', '');
+                    $('#userlist').css('background', 'rgba(0, 10, 20, 0.8) none repeat scroll 0% 0%');
+                    $('#chatline').css('background', 'rgba(0, 10, 20, 0.75) !important');
+                    $('#userlist').css('color', '#C2C2C2');
+                }, 27000);
 
-
-                var smilesArray = window.CHANNEL.emotes.map(function (smile) {
-                    return smile.name;
-                });
-
-                return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
+                return ' :dance: ';
             }
         }
     };
