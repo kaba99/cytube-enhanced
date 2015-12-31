@@ -103,6 +103,8 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
 
 
     if (settings.turnedOn) {
+        var width = app.userConfig.get('chatCol') || 0;
+
         var q = new setWight();
         q.create();
     }

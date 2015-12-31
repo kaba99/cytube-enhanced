@@ -24,7 +24,7 @@ window.cytubeEnhancedSettings = {
 
 Note: you must configure most of options before modules loads (for example, by configuring it in the javascript textarea of channel's administration panel, because it runs before external script)
 
-## Extending some module
+## Extending module
 
 ```javascript
 window.cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {

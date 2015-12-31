@@ -34,7 +34,8 @@ window.cytubeEnhanced.addTranslation('ru', {
         'show the current video\'s name': 'показать название текущего видео',
         'now: ': 'сейчас играет: ',
         'show the random emote': 'показать случайный смайлик',
-        'the secret command': 'секретная команда'
+        'the secret command': 'секретная команда',
+        'memes snow': 'мемный снег'
     },
     'The list of chat commands': 'Список команд чата',
     'Standard commands': 'Стандартные команды',

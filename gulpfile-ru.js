@@ -14,7 +14,7 @@ var globby = require('globby');
 var through = require('through2');
 
 var jsFilesGlob = ['./src/js/main/main.js', './src/js/main/main-ru.js', './src/translations/ru.js', './src/js/modules/*.js', './src/extra/quotes_for_!q/ru/*.js'];
-var cssFilesGlob = ['./src/css/*.css'];
+var cssFilesGlob = ['./src/css/cytube-enhanced.css', './src/css/videojs-progress.css'];
 
 
 gulp.task('default', ['build-js', 'build-css']);
@@ -67,7 +67,7 @@ gulp.task('build-css', function () {
     return gulp.src(cssFilesGlob)
         .pipe(concat('cytube-enhanced.css'))
         .pipe(autoprefixer({
-            browsers: ['last 2 versions'],
+            browsers: ['last 7 versions'],
             cascade: false
         }))
         .pipe(gulp.dest('./build/ru'))

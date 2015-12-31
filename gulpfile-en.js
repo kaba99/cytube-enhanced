@@ -14,7 +14,7 @@ var globby = require('globby');
 var through = require('through2');
 
 var jsFilesGlob = ['./src/js/main/main.js', './src/js/main/main-en.js', './src/js/modules/*.js', '!./src/js/modules/standard-ui-russian-translate.js'];
-var cssFilesGlob = ['./src/css/*.css'];
+var cssFilesGlob = ['./src/css/cytube-enhanced.css', './src/css/videojs-progress.css'];
 
 
 gulp.task('default', ['build-js', 'build-css']);
