@@ -5274,6 +5274,14 @@ canvas{
 .cirno {
     color: #37B1E6;
 }
+
+
+.btn-link {
+    text-decoration: underline;
+}
+.btn-link:hover {
+    text-decoration: none;
+}
 /**
 * Fork of https://github.com/mickey/videojs-progressTips
 */

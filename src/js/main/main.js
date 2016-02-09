@@ -106,11 +106,14 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
                 }
+
+                translatedText = (typeof translatedText !== 'undefined') ? translatedText : textWithNamespaces[textWithNamespaces.length - 1];
             } else {
                 translatedText = translations[language][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
+            translatedText = (typeof translatedText !== 'undefined') ? translatedText : text;
         }
 
         return translatedText;

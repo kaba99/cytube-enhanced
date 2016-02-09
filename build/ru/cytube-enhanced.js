@@ -800,11 +800,14 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
                 }
+
+                translatedText = (typeof translatedText !== 'undefined') ? translatedText : textWithNamespaces[textWithNamespaces.length - 1];
             } else {
                 translatedText = translations[language][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
+            translatedText = (typeof translatedText !== 'undefined') ? translatedText : text;
         }
 
         return translatedText;
@@ -1953,6 +1956,10 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
                     }
 
                     $dropdownWrapper.appendTo($tabs);
+                } else if (tabsConfig[tabIndex][TAB_TITLE].indexOf('!link!') === 0) {
+                    $('<a href="' + tabsConfig[tabIndex][TAB_CONTENT] + '" target="_blank" class="btn btn-default btn-link">')
+                        .html(tabsConfig[tabIndex][TAB_TITLE].replace('!link!', ''))
+                        .appendTo($tabs);
                 } else {
                     $('<button class="btn btn-default motd-tab-btn" data-tab-index="' + tabIndex + '">')
                         .html(tabsConfig[tabIndex][TAB_TITLE])
@@ -1980,7 +1987,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         $('#channel-description-input').val($tabsTree.find('#motd-channel-description').html());
 
         $tabsTreeNavBtns.each(function () {
-            if ($(this).hasClass('btn-group')) {
+            if ($(this).hasClass('btn-group')) { //dropdown
                 var parsedDropdownItems = '';
                 var $dropdownItems = $(this).children('ul').children();
 
@@ -1992,7 +1999,9 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
                 parsedDropdownItems = parsedDropdownItems.slice(0, -2);
 
                 that.addTabInput(that.$tabsArea, '!dropdown!' + $(this).children('button').html().replace(' <span class="caret"></span>', ''), parsedDropdownItems);
-            } else {
+            } else if ($(this).hasClass('btn-link')) { //link
+                that.addTabInput(that.$tabsArea, '!link!' + $(this).html(), $(this).attr('href'));
+            } else { //tab
                 that.addTabInput(that.$tabsArea, $(this).html(), $tabsTreeTabsContent.find('[data-tab-index="' + $(this).data('tabIndex') + '"]').html());
             }
         });
@@ -2013,6 +2022,18 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     };
 
 
+    this.$tabsSettings = $('<div id="tabs-settings">')
+        .html('<hr>' +
+            '<h3>' + app.t('tabs[.]Tabs settings') + '</h3>' +
+            '<ul>' +
+                '<li>' + app.t('tabs[.]By default tab behaves like simple tab.') + '</li>' +
+                '<li>' + app.t('tabs[.]To create dropdown list use !dropdown! prefix before title like "!dropdown!My dropdown". Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"') + '</li>' +
+                '<li>' + app.t('tabs[.]To create link use !link! prefix before title like "!link!My link". Value must contain URL.') + '</li>' +
+            '</ul>')
+        .insertBefore('#cs-motdtext')
+        .hide();
+
+
     this.$tabSettingsBtn = $('<button type="button" class="btn btn-primary motd-bottom-btn" id="show-tabs-settings">')
         .text(app.t('tabs[.]Show tabs settings (cytube enhanced)'))
         .appendTo('#cs-motdeditor')
@@ -2029,12 +2050,6 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
                 $(this).addClass('btn-primary');
             }
         });
-
-
-    this.$tabsSettings = $('<div id="tabs-settings">')
-        .html('<hr><h3>' + app.t('tabs[.]Tabs settings') + '</h3>')
-        .insertBefore('#cs-motdtext')
-        .hide();
 
     $('#cs-motdtext').before('<hr>');
 
@@ -2070,6 +2085,8 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         .appendTo(this.$tabsSettings)
         .on('click', function () {
             if (window.confirm(app.t('tabs[.]The code in the editor will be replaced with the new code, continue?'))) {
+                $(this).removeClass('btn-success');
+
                 var tabsConfig = []; //list of arrays like [tabTitle, tabContent]
 
                 that.$tabsArea.find('.tab-option-wrapper').each(function () {
@@ -2087,6 +2104,8 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
 
                             return [linkInfo[1].trim(), linkInfo[2].trim()];
                         });
+                    } else if (tabName.indexOf('!link!') === 0) {
+
                     }
 
                     tabsConfig.push([tabName, tabContent]);
@@ -2102,7 +2121,10 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         .text(app.t('tabs[.]Convert from the editor\'s code'))
         .appendTo(this.$tabsSettings)
         .on('click', function () {
-            that.tabsHtmlToCondig($('#cs-motdtext').val());
+            if (window.confirm(app.t('tabs[.]Tabs settings will be replaced with the code from the editor, continue?'))) {
+                $(this).removeClass('btn-success');
+                that.tabsHtmlToCondig($('#cs-motdtext').val());
+            }
         });
 
 
@@ -2148,6 +2170,15 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     this.fixMotdCut();
     window.socket.on('setMotd', function () {
         that.fixMotdCut();
+    });
+
+
+    $(document).on('change keypress', '#tabs-settings-area input, #tabs-settings-area textarea', function () {
+        that.$tabsToHtml.addClass('btn-success');
+    });
+
+    $(document).on('change keypress', '#cs-motdtext', function () {
+        that.$htmlToTabs.addClass('btn-success');
     });
 });
 
@@ -3699,8 +3730,12 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Remove the last tab': 'Удалить последнюю вкладку',
         'Convert to the editor\'s code': 'Преобразовать в код редактора',
         'The code in the editor will be replaced with the new code, continue?': 'Код в редакторе будет удалён и заменен новым, продолжить?',
+        'Tabs settings will be replaced with the code from the editor, continue?': 'Настройки вкладок будут заменены кодом из редактора, продолжить?',
         'Wrong content for the dropdown': 'Неправильное содержимое для выпадающего списка: ',
-        'Convert from the editor\'s code': 'Преобразовать из кода редактора'
+        'Convert from the editor\'s code': 'Преобразовать из кода редактора',
+        'By default tab behaves like simple tab.': 'По умолчанию вкладка ведёт себя как обычная вкладка.',
+        'To create dropdown list use !dropdown! prefix before title like "!dropdown!My dropdown". Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"': 'Чтобы создать выпадающий список используйте префикс !dropdown! перед названием, например, "!dropdown!Мой выпадающий список". Значение должно выглядеть так "[n]Заголовок 1[/n][a]Адрес ссылки 1[/a], [n]Заголовок 2[/n][a]Адрес ссылки 2[/a], [n]Заголовок 3[/n][a]Адрес ссылки 3[/a]"',
+        'To create link use !link! prefix before title like "!link!My link". Value must contain URL.': 'Чтобы создать ссылку используйте префикс !link! перед названием, например, "!link!Моя ссылка". Значение должно содержать адрес ссылки.'
     },
     emotes: {
         'Show emotes': 'Показать смайлики'
