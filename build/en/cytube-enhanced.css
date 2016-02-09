@@ -1,3 +1,6 @@
+#wrap {
+    overflow-x: hidden;
+}
 #drinkcount, b, strong {
     font-weight: 700;
 }
@@ -349,7 +352,8 @@ pre {
     white-space: pre-wrap;
 }
 q {
-    quotes: "\201C" "\201D" "\2018" "\2019"}
+    quotes: "\201C" "\201D" "\2018" "\2019"
+}
 sub, sup {
     font-size: 75%;
     line-height: 0;
@@ -5264,76 +5268,11 @@ canvas{
 }
 
 
-
-
-
-
-
-body {
-    background-image: url(https://i.imgur.com/vSNgXX8.jpg);
-    background-repeat-y: no-repeat;
-    background-color: rgb(204, 212, 191);
-    background-attachment: fixed;
-    background-size: cover;
+.quote {
+    color: #6F8F23;
 }
-footer {
-    background-image: url(https://dl.dropboxusercontent.com/s/9oiug0zyr9gb6oh/Cover-ChristmasLights-021.jpg?dl=0);
-}
-.btn, #mediainfo, #chatheader {
-    color: white!important;
-    background: #E3493D!important;
-}
-
-.btn:hover {
-    color: white!important;
-    background: #C2483C!important;
-}
-#currenttitle {
-    display: inline-block;
-    box-sizing: border-box;
-    padding: 10px;
-    border: none;
-    font: normal 28px Roboto, Helvetica, sans-serif;
-    color: rgba(255,255,255,1);
-    text-decoration: inherit;
-    text-align: center;
-    text-overflow: clip;
-    white-space: pre;
-    text-shadow: rgba(161, 88, 154, 0.4) 1px 0px, rgba(161, 88, 154, 0.4) 1px 1px, rgba(161, 88, 154, 0.4) 0px 1px, rgba(161, 88, 154, 0.4) -1px 1px, rgba(161, 88, 154, 0.4) -1px 0px, rgba(161, 88, 154, 0.4) -1px -1px, rgba(161, 88, 154, 0.4) 0px -1px, rgba(161, 88, 154, 0.4) 1px -1px, 0 0 10px rgba(255,255,255,1) , 0 0 20px rgba(255,255,255,1) , 0 0 30px rgba(255,255,255,1) , 0 0 40px #ff00de , 0 0 70px #ff00de , 0 0 80px #ff00de , 0 0 100px #ff00de ;
-    transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
-}
-#currenttitle:hover {
-    text-shadow: 0 0 10px rgba(255,255,255,1) , 0 0 20px rgba(255,255,255,1) , 0 0 30px rgba(255,255,255,1) , 0 0 40px #00ffff , 0 0 70px #00ffff , 0 0 80px #00ffff , 0 0 100px #00ffff ;
-}
-.navbar-inverse {
-    border: 0;
-    background: linear-gradient(rgb(227, 73, 63),#E3493D 60%,rgba(57, 221, 77, 0.22))!important;
-
-    background-size:  contain;
-}
-
-#messagebuffer{
-
-    background: url(https://i.imgur.com/1ryPrBD.png) left bottom no-repeat rgba(0,10,25,.85);
-    background-size: contain;
-}
-#userlist{
-    background: rgba(0,10,25,.82);
-}
-#smiles-panel {
-    background-color: rgba(0,10,20,.6);
-}
-.queue_active.queue_temp {
-    background: linear-gradient(rgba(0,10,20,.6),rgba(207, 0, 50, 0.66)),url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAJElEQVQoz2OoN2CAg3oDEETlM+CXRuIPYml0r2AqZxgNBzAfAMHNQaFz3NL5AAAAAElFTkSuQmCC)!important;
-}
-
-.queue_active {
-    background: linear-gradient(rgba(0, 10, 20, .8), rgba(227, 73, 61, 0.7))!important;
-}
-
-.panel-primary > .panel-heading {
-    color: #fff;
-    background-color: #ff2b26;
+.cirno {
+    color: #37B1E6;
 }
 /**
 * Fork of https://github.com/mickey/videojs-progressTips
