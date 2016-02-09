@@ -23,7 +23,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     })(window.formatChatMessage);
 
 
-    if (app.userConfig.get('avatarsMode') != '') {
+    if (app.userConfig.get('avatarsMode')) {
         $('.username').each(function () {
             var $messageBlock = $(this).parent();
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
