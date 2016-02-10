@@ -979,14 +979,14 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     };
 
 
-    var IS_COMMAND = false;
+   this.IS_COMMAND = false;
     this.prepareMessage = function (msg) {
-        IS_COMMAND = false;
+        that.IS_COMMAND = false;
 
         for (var command in this.commandsList) {
             if (this.commandsList.hasOwnProperty(command) && msg.indexOf(command) === 0) {
                 if (isCommandPermitted(command) && (this.commandsList[command].isAvailable ? this.commandsList[command].isAvailable() : true)) {
-                    IS_COMMAND = true;
+                    that.IS_COMMAND = true;
 
                     msg = this.commandsList[command].value(msg);
                 }
@@ -1025,11 +1025,11 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
 
                 var msgForCommand = this.prepareMessage(msg);
 
-                if (IS_COMMAND) {
+                if (that.IS_COMMAND) {
                     window.socket.emit("chatMsg", {msg: msg, meta: meta});
                     window.socket.emit("chatMsg", {msg: 'Сырно: ' + msgForCommand});
 
-                    IS_COMMAND = false;
+                    that.IS_COMMAND = false;
                 } else {
                     window.socket.emit("chatMsg", {msg: msg, meta: meta});
                 }
