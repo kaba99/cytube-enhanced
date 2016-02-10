@@ -132,8 +132,8 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
             '<h3>' + app.t('tabs[.]Tabs settings') + '</h3>' +
             '<ul>' +
                 '<li>' + app.t('tabs[.]By default tab behaves like simple tab.') + '</li>' +
-                '<li>' + app.t('tabs[.]To create dropdown list use !dropdown! prefix before title like "!dropdown!My dropdown". Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"') + '</li>' +
-                '<li>' + app.t('tabs[.]To create link use !link! prefix before title like "!link!My link". Value must contain URL.') + '</li>' +
+                '<li>' + app.t('tabs[.]Use !dropdown! prefix to create dropdown list. Example: !dropdown!My dropdown. Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"') + '</li>' +
+                '<li>' + app.t('tabs[.]Use !link! prefix to create link. Example: !link!My link. Value must contain URL.') + '</li>' +
             '</ul>')
         .insertBefore('#cs-motdtext')
         .hide();

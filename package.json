@@ -4,10 +4,12 @@
   "description": "",
   "main": "gulpfile-en.js",
   "browser": {
-    "jquery.selection": "./other_vendors/jquery.selection.js"
+    "jquery.selection": "./other_vendors/jquery.selection.js",
+    "js-beautify": "./node_modules/js-beautify/js/lib/beautify.js"
   },
   "dependencies": {
-    "jquery-mousewheel": "^3.1.13"
+    "jquery-mousewheel": "^3.1.13",
+    "js-beautify": "^1.6.2"
   },
   "devDependencies": {
     "browserify": "^11.0.0",

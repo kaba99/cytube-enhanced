@@ -2027,8 +2027,8 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
             '<h3>' + app.t('tabs[.]Tabs settings') + '</h3>' +
             '<ul>' +
                 '<li>' + app.t('tabs[.]By default tab behaves like simple tab.') + '</li>' +
-                '<li>' + app.t('tabs[.]To create dropdown list use !dropdown! prefix before title like "!dropdown!My dropdown". Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"') + '</li>' +
-                '<li>' + app.t('tabs[.]To create link use !link! prefix before title like "!link!My link". Value must contain URL.') + '</li>' +
+                '<li>' + app.t('tabs[.]Use !dropdown! prefix to create dropdown list. Example: !dropdown!My dropdown. Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"') + '</li>' +
+                '<li>' + app.t('tabs[.]Use !link! prefix to create link. Example: !link!My link. Value must contain URL.') + '</li>' +
             '</ul>')
         .insertBefore('#cs-motdtext')
         .hide();
@@ -3747,8 +3747,8 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Wrong content for the dropdown': 'Неправильное содержимое для выпадающего списка: ',
         'Convert from the editor\'s code': 'Преобразовать из кода редактора',
         'By default tab behaves like simple tab.': 'По умолчанию вкладка ведёт себя как обычная вкладка.',
-        'To create dropdown list use !dropdown! prefix before title like "!dropdown!My dropdown". Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"': 'Чтобы создать выпадающий список используйте префикс !dropdown! перед названием, например, "!dropdown!Мой выпадающий список". Значение должно выглядеть так "[n]Заголовок 1[/n][a]Адрес ссылки 1[/a], [n]Заголовок 2[/n][a]Адрес ссылки 2[/a], [n]Заголовок 3[/n][a]Адрес ссылки 3[/a]"',
-        'To create link use !link! prefix before title like "!link!My link". Value must contain URL.': 'Чтобы создать ссылку используйте префикс !link! перед названием, например, "!link!Моя ссылка". Значение должно содержать адрес ссылки.'
+        'Use !dropdown! prefix to create dropdown list. Example: !dropdown!My dropdown. Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"': 'Чтобы создать выпадающий список, используйте префикс !dropdown! перед названием, например "!dropdown!Мой выпадающий список". Значение должно выглядеть так "[n]Заголовок 1[/n][a]Адрес ссылки 1[/a], [n]Заголовок 2[/n][a]Адрес ссылки 2[/a], [n]Заголовок 3[/n][a]Адрес ссылки 3[/a]"',
+        'Use !link! prefix to create link. Example: !link!My link. Value must contain URL.': 'Чтобы создать ссылку, используйте префикс !link! перед названием, например "!link!Моя ссылка". Значение должно содержать адрес ссылки.'
     },
     emotes: {
         'Show emotes': 'Показать смайлики'
