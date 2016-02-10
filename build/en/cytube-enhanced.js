@@ -3292,6 +3292,9 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
                         num = id.substr(id.lastIndexOf('-') + 1),
                         num2 = self.COLCOUNT - num;
                     var next = $('#' + self.PREFIX + 'wrap').next();
+
+                    app.userConfig.set('videoResizeColumnNumber', num);
+
                     next.attr('class', 'col-lg-'+num+' col-md-'+num);
                     next = next.next();
                     next.attr('class', 'col-lg-'+num2+' col-md-'+num2);
@@ -3307,6 +3310,15 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
             });
         };
 
+        self.loadPosition = function () {
+            var columnNumber = app.userConfig.get('videoResizeColumnNumber');
+            if (columnNumber) {
+                $('#' + q.PREFIX + 'arrow-' + columnNumber).trigger('click').load(function () {
+                    $(this).trigger('click');
+                });
+            }
+        };
+
         self.create = function() {
             $('#' + self.PREFIX + 'wrap').remove();
             if (!self.checkPosition()) {
@@ -3315,6 +3327,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
             self.addHtml();
             self.setHandlers();
             self.hide();
+            self.loadPosition();
         };
     }
 
