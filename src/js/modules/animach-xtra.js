@@ -1,5 +1,5 @@
 // 10.02.2016
-window.cytubeEnhanced.addModule('Название модуля', function (app) {
+window.cytubeEnhanced.addModule('animachXtra', function (app) {
     var xtractive = false;
     var mlgmode = false;
     var xask = false;
