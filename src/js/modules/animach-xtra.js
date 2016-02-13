@@ -225,7 +225,7 @@ window.cytubeEnhanced.addModule('animachXtra', function (app) {
                          xtractive = true;
                          console.log('[Xtra] Activated by "' + keyword + '" word. Logon function is now disabled');
                      }; */
-                    if(msg.indexOf(':weed:') !== -1) {
+                    if(msg.indexOf(':weed:') !== -1 && mlgmode == true) {
                         mlg.mlgweed();
                     };
                 }
