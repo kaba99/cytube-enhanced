@@ -578,301 +578,6 @@
 })(jQuery, window, window.document);
 
 },{}],3:[function(require,module,exports){
-cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {
-    commandsModule.randomQuotes = commandsModule.randomQuotes.concat([
-        'Не поддавайся сожалениям, о которых тебе напоминает прошлое.',
-        'Честно говоря, я всегда думал, что лучше умереть, чем жить в одиночестве...',
-        'Прошу прощения, но валите прочь.',
-        'По-настоящему силён лишь тот, кто знает свои слабости.',
-        'Быть умным и хорошо учиться — две разные вещи.',
-        'Когда я стану главнокомандующим, я заставлю всех девушек носить мини-юбки!',
-        'Тот кто правит временем, правит всем миром.',
-        'Я должен познакомить тебя с моими друзьями. Они еще те извращенцы, но они хорошие люди.',
-        'Победа не важна, если она лишь твоя.',
-        'Наркотики убивают в людях человечность.',
-        'Если бы меня волновало мнение других людей, то я давно бы уже покрасил волосы в другой цвет.',
-        'Слезы — кровотечение души....',
-        'Весело создавать что-то вместе.',
-        'Как ты не понимаешь, что есть люди, которые умрут от горя, если тебя не станет!',
-        'Я частенько слышал, что пары, которые внешне любят друг друга, частенько холодны внутри.',
-        'Если хочешь, что бы люди поверили в мечту, сначала поверь в нее сам.',
-        'Жизнь, в которой человек имеет всё, что желает, пуста и неинтересна.',
-        'Чтобы чего-то достичь, необходимо чем-то пожертвовать.',
-        'Я не одинока. Я просто люблю играть соло. Краситься, укорачивать юбку и заигрывать с парнями — это для потаскух.',
-        'Очень страшно, когда ты не помнишь, кто ты такая.',
-        'Больно помнить о своих слабостях.',
-        'Похоже, мудрость и алкоголь несовместимы.',
-        'Почему... Почему... Почему со мной вечно происходит какая-то херня?!',
-        'Красивое нельзя ненавидеть.',
-        'Если ты хочешь написать что-то плохое в комментариях в интернете, пиши, но это будет лишь выражением твоей зависти.',
-        'Хочешь сбежать от повседневности — не останавливайся в развитии.',
-        'Одинокие женщины ищут утешение в домашних животных.',
-        'В эпоху, когда информация правит миром, жить без компьютера совершенно непростительно!',
-        'Каждый человек одинок. Звезды в ночном небе тоже вроде бы все вместе, но на самом деле они разделены бездной. Холодной, тёмной, непреодолимой бездной.',
-        'Умные люди умны ещё до того, как начинают учиться.',
-        'Только те, у кого явные проблемы, говорят, что у них всё хорошо.',
-        'Не важно если меня победит другой, но... Себе я не проиграю!',
-        'Немногие способны на правильные поступки, когда это необходимо.',
-        'Я мечтаю о мире, где все смогут улыбаться и спать, когда им того захочется.',
-        'Девушке не обмануть меня… даже если она без трусиков!',
-        'Это не мир скучный, это я не выделяюсь.',
-        'С людьми без воображения одни проблемы.',
-        'Нечестно это — своей слабостью шантажировать.',
-        'То ли я уже не человек, то ли вы еще не люди.',
-        'Чего я действительно опасаюсь, так это не потери своей памяти, а исчезновения из памяти остальных.',
-        'Даже если небо погружено во тьму, и ничего не видно, где-то обязательно будет светиться звезда. Если она будет сиять ярче и ярче, её обязательно увидят...',
-        'Никто не может нырнуть в бездну и вынырнуть прежним.',
-        'Когда теряешь всё разом, мир начинает казаться довольно хреновым местечком.',
-        'Не хочу видеть, что будет, когда Маяка узнает, что её шоколад украли. Не люблю ужастики.',
-        'В мире есть добро потому, что есть кошки.',
-        'Девчата, пойте! Зажигайте свет вашей души!',
-        'И что ты собираешься делать, рождённый неизвестно зачем, и умирающий неизвестно за что?',
-        'А давай станем с тобой чудовищами, и поставим весь мир на уши?',
-        'Не забывай только, что и доброта может причинить боль.',
-        'Тяжело признать плохим то, за что отдал 20 баксов.',
-        'Говорят, в вере спасение… Но мне что-то никогда в это не верилось.',
-        'Клубничка — это сердце тортика!',
-        'Бабушка мне всегда говорила: «Юи-тян, ты запомнишь всё что угодно, но при этом ты забудешь всё остальное».',
-        'Как жаль, что люди начинают ценить что-то только тогда, когда теряют это.',
-        'У людей с холодными руками тёплое сердце.',
-        'Я всегда думала, что это здорово: Посмеяться перед серьёзным делом.',
-        'Мир не так жесток, как ты думаешь.',
-        'Даже отдав все свои силы, не каждый способен стать победителем.',
-        'Наше общество — просто стадо баранов.',
-        'Пока сами чего-то не сделаете, это ваше «однажды» никогда не наступит.',
-        'Чтобы что-то выбрать, нужно что-то потерять.',
-        'За каждой улыбкой, что ты увидишь, будут скрываться чьи-то слёзы.',
-        'Приключения — мечта настоящего мужчины!',
-        'Твоя хитрость всегда будет оценена по достоинству.',
-        'Я гораздо лучше орудую мечами, нежели словами.',
-        'Прошлое всегда сияет ярче настоящего.',
-        'Становиться взрослой так грустно...',
-        'Романтические чувства — всего лишь химическая реакция',
-        'Говорят, что в море ты или плывёшь, или тонешь.',
-        'Не важно как ты осторожен, всегда есть опасность споткнуться.',
-        'Я насилие не люблю, оно у меня само получается.',
-        'Когда я смотрю аниме от КёАни, Господь подымает меня над полом и приближает к себе.',
-        'Бака, бака, бака!',
-        'Ты так говоришь, будто это что-то плохое.',
-        'Мне вас жаль.',
-        'Ваше мнение очень важно для нас.',
-        'А в глубине души я всех вас ненавижу, как и весь этот мир.',
-        'А разгадка одна — безблагодатность.',
-        'Умерьте пыл.',
-        'Меня трудно найти, легко потерять и невозможно забыть....',
-        'Не твоя, вот ты и бесишься.',
-        'Ваш ребенок - аниме.',
-        'Здесь все твои друзья.',
-        'Мне 20 и я бородат'
-    ]);
-});
-
-},{}],4:[function(require,module,exports){
-cytubeEnhanced.getModule('additionalChatCommands').done(function (commandsModule) {
-    commandsModule.randomQuotes = commandsModule.randomQuotes.concat([
-        'Ребята не стоит вскрывать эту тему. Вы молодые, шутливые, вам все легко. Это не то. Это не Чикатило и даже не архивы спецслужб. Сюда лучше не лезть. Серьезно, любой из вас будет жалеть. Лучше закройте тему и забудьте что тут писалось.',
-        'Ты понимаешь, что ты няшка? Уже всё. Не я, блин, няшка… не он, блин, а ты!',
-        'Меня твои истории просто невероятно заинтересовали уже, я уже могу их слушать часами, блин! Одна история няшней другой просто!',
-        'НАЧАЛЬНИК, БЛИН, ЭТОТ НЯША ОБКАВАИЛСЯ! ИДИТЕ МОЙТЕ ЕГО, Я С НИМ ЗДЕСЬ НЯШИТСЯ БУДУ!',
-        'ЧЕГО ВЫ МЕНЯ С НЯШЕЙ ПОСЕЛИЛИ, БЛИН, ОН ЖЕ КАВАЙ ПОЛНЫЙ, БЛИН!!!',
-        'Ну… Чаю выпил, блин, ну, бутылку, с одной тян. Ну, а потом под пледиком поняшились.',
-        'Хочешь я на одной ноге понякаю, а ты мне погону отдашь? Как нека, хочешь?',
-        'ЭТО ЗНАТЬ НАДО! ЭТО ЗОЛОТОЙ ФОНД, БЛИН!',
-        'Как п… как поспал, онии-чан? Проголодался, наверное! Онии-чан…',
-        'Ты что, обняшился что ли, няшка, блин?!',
-        'Не, я не обняшился. Я тебе покушать принёс, Онии-чан!'
-    ]);
-});
-
-},{}],5:[function(require,module,exports){
-window.cytubeEnhanced = new window.CytubeEnhanced(
-    $('title').text(),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
-);
-
-},{}],6:[function(require,module,exports){
-window.CytubeEnhanced = function(channelName, language, modulesSettings) {
-    'use strict';
-
-    this.channelName = channelName;
-
-    var translations = {};
-
-    var modules = {};
-    var MODULE_LOAD_TIMEOUT = 10000; //ms
-    var MODULE_LOAD_PERIOD = 100; //ms
-
-
-    /**
-     * Gets the module
-     *
-     * Returns $.Deferred() promise object and throws error exception if timeout
-     *
-     * @param {string} moduleName The name of the module
-     * @returns {object}
-     */
-    this.getModule = function (moduleName) {
-        var promise = $.Deferred();
-        var time = MODULE_LOAD_TIMEOUT;
-
-        (function getModuleRecursive() {
-            if (modules[moduleName] !== undefined) {
-                promise.resolve(modules[moduleName]);
-            } else if (time <= 0) {
-                throw new Error("Load timeout for module " + moduleName + '.');
-            } else {
-                time -= MODULE_LOAD_PERIOD;
-
-                setTimeout(getModuleRecursive, MODULE_LOAD_PERIOD);
-            }
-        })();
-
-        return promise;
-    };
-
-
-    /**
-     * Adds the module
-     *
-     * @param {string} moduleName The name of the module
-     * @param ModuleConstructor The module's constructor
-     */
-    this.addModule = function (moduleName, ModuleConstructor) {
-        if (this.isModulePermitted(moduleName)) {
-            var moduleSettings = modulesSettings[moduleName] || {};
-
-            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
-            modules[moduleName].settings = moduleSettings;
-        }
-    };
-
-
-    /**
-     * Configures the module
-     *
-     * Previous options don't reset.
-     *
-     * @param {string} moduleName  The name of the module
-     * @param moduleOptions The module's options
-     */
-    this.configureModule = function (moduleName, moduleOptions) {
-        $.extend(true, modulesSettings[moduleName], moduleOptions);
-    };
-
-
-    /**
-     * Checks if module is permitted
-     *
-     * @param moduleName The name of the module to check
-     * @returns {boolean}
-     */
-    this.isModulePermitted = function (moduleName) {
-        return modulesSettings.hasOwnProperty(moduleName) ?
-            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
-            true;
-    };
-
-
-    /**
-     * Adds the translation object
-     * @param language The language identifier
-     * @param translationObject The translation object
-     */
-    this.addTranslation = function (language, translationObject) {
-        translations[language] = translationObject;
-    };
-
-
-    /**
-     * Translates the text
-     * @param text The text to translate
-     * @returns {string}
-     */
-    this.t = function (text) {
-        var translatedText = text;
-
-        if (language !== 'en' && translations[language] !== undefined) {
-            if (text.indexOf('[.]') !== -1) {
-                var textWithNamespaces = text.split('[.]');
-
-                translatedText = translations[language][textWithNamespaces[0]];
-                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
-                    translatedText = translatedText[textWithNamespaces[namespace]];
-                }
-
-                translatedText = (typeof translatedText !== 'undefined') ? translatedText : textWithNamespaces[textWithNamespaces.length - 1];
-            } else {
-                translatedText = translations[language][text];
-            }
-        } else if (text.indexOf('[.]') !== -1) { //English text by default
-            translatedText = text.split('[.]').pop();
-            translatedText = (typeof translatedText !== 'undefined') ? translatedText : text;
-        }
-
-        return translatedText;
-    };
-
-
-    /**
-     * UserConfig constructor
-     * @constructor
-     */
-    var UserConfig = function () {
-        /**
-         * UserConfig options
-         * @type {object}
-         */
-        this.options = {};
-
-        /**
-         * Sets the user's option and saves it in the user's cookies
-         * @param name The name ot the option
-         * @param value The value of the option
-         */
-        this.set = function (name, value) {
-            this.options[name] = value;
-            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
-        };
-
-        /**
-         * Gets the value of the user's option
-         *
-         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-         *
-         * @param name Option's name
-         * @returns {*}
-         */
-        this.get = function (name) {
-            if (!this.options.hasOwnProperty(name)) {
-                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
-            }
-
-            return this.options[name];
-        };
-
-        /**
-         * Toggles user's boolean option
-         * @param name Boolean option's name
-         * @returns {boolean}
-         */
-        this.toggle = function (name) {
-            var result = !this.get(name);
-
-            this.set(name, result);
-
-            return result;
-        };
-    };
-
-    /**
-     * User's options
-     * @type {UserConfig}
-     */
-    this.userConfig = new UserConfig();
-};
-
-},{}],7:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
 
@@ -956,7 +661,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             description: app.t('chatCommands[.]show the random quote'),
             value: function (msg) {
                 if (that.randomQuotes.length === 0) {
-                    msg = app.t('chatCommands[.]there aren\'t any quotes. If you are the channel administrator, you can download them from https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q');
+                    msg = app.t('chatCommands[.]there aren\'t any quotes.');
                 } else {
                     msg = that.randomQuotes[Math.floor(Math.random() * (that.randomQuotes.length - 1))];
                 }
@@ -1185,7 +890,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         that.sendUserChatMessage(e);
     });
 });
-},{}],8:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
@@ -1306,7 +1011,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     });
 });
 
-},{"jquery.selection":2}],9:[function(require,module,exports){
+},{"jquery.selection":2}],5:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     'use strict';
 
@@ -1351,7 +1056,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
         });
     }
 });
-},{}],10:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
     'use strict';
 
@@ -1416,7 +1121,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
         });
 });
 
-},{}],11:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -1496,7 +1201,39 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
-},{}],12:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+window.cytubeEnhanced.addModule('extraModules', function (app, settings) {
+    'use strict';
+
+    var that = this;
+    console.log(settings);
+    var defaultSettings = {
+        baseUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extra',
+        enabledModules: ['translate', 'anime-quotes', 'pirate-quotes']
+    };
+    settings = $.extend({}, defaultSettings, settings);
+
+    console.log(settings);
+
+
+    var extraModules = [];
+    this.add = function (language, config) {
+        if (!extraModules[language]) {
+            extraModules[language] = [];
+        }
+
+        extraModules[language].push(config);
+    };
+
+
+    this.enabledModules = JSON.parse(app.userConfig.get('enabledExtraModules') || 'null') || settings.enabledModules;
+
+    for (var module in this.enabledModules) {
+        $.getScript(settings.baseUrl + '/' + this.enabledModules[module].replace(/[\/\\]/g, '') + '/' + app.language + '/index.js');
+    }
+});
+
+},{}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -1776,7 +1513,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],13:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -1892,7 +1629,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":1}],14:[function(require,module,exports){
+},{"jquery-mousewheel":1}],11:[function(require,module,exports){
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
@@ -2182,7 +1919,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     });
 });
 
-},{}],15:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * Saves messages from chat which were sent by other users to you
  */
@@ -2296,7 +2033,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         }
     };
 });
-},{}],16:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -2333,7 +2070,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],17:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -2418,172 +2155,9 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.renderSmiles();
 });
 
-},{}],18:[function(require,module,exports){
-window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
-    'use strict';
+},{}],15:[function(require,module,exports){
 
-    if ($('#newpollbtn').length !== 0) {
-        $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
-    }
-
-    if ($('#showmediaurl').length !== 0) {
-        $('#showmediaurl').html(app.t('standardUI[.]Add video'))
-            .attr({title: app.t('standardUI[.]Add video from url')})
-            .detach()
-            .insertBefore($('#showsearch'));
-    }
-
-    if ($('.navbar-brand').length !== 0) {
-        $('.navbar-brand').text(app.channelName);
-    }
-
-    if ($('#usercount').length !== 0) {
-        $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
-        window.socket.on('usercount', function () {
-            $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
-        });
-    }
-    window.calcUserBreakdown = (function (oldCalcUserBreakdown) {
-        return function () {
-            var chatInfo = oldCalcUserBreakdown();
-            var translatedChatInfo = {};
-
-            var chatInfoTranslateMap = {
-                AFK: app.t('standardUI[.]AFK'),
-                Anonymous: app.t('standardUI[.]Anonymous'),
-                'Channel Admins': app.t('standardUI[.]Channel Admins'),
-                Guests: app.t('standardUI[.]Guests'),
-                Moderators: app.t('standardUI[.]Moderators'),
-                'Regular Users': app.t('standardUI[.]Regular Users'),
-                'Site Admins': app.t('standardUI[.]Site Admins')
-            };
-
-            for (var chatInfoElement in chatInfo) {
-                if (chatInfo.hasOwnProperty(chatInfoElement)) {
-                    translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
-                }
-            }
-
-            return translatedChatInfo;
-        };
-    })(window.calcUserBreakdown);
-
-    if ($('#welcome').length !== 0) {
-        $('#welcome').text(app.t('standardUI[.]Welcome, ') + window.CLIENT.name);
-    }
-    if ($('#logout').length !== 0) {
-        $('#logout').text(app.t('standardUI[.]Log out'));
-    }
-    if ($('#username').length !== 0) {
-        $('#username').attr({placeholder: app.t('standardUI[.]Login')});
-    }
-    if ($('#password').length !== 0) {
-        $('#password').attr({placeholder: app.t('standardUI[.]Password')});
-    }
-    if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
-        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text(app.t('standardUI[.]Remember me'));
-    }
-    if ($('#login').length !== 0) {
-        $('#login').text(app.t('standardUI[.]Site login'));
-    }
-
-    var menuTranslateMap = {
-        Home: app.t('standardUI[.]Home'),
-        Account: app.t('standardUI[.]Account'),
-        Logout: app.t('standardUI[.]Logout'),
-        Channels: app.t('standardUI[.]Channels'),
-        Profile: app.t('standardUI[.]Profile'),
-        'Change Password/Email': app.t('standardUI[.]Change Password/Email'),
-        Login: app.t('standardUI[.]Log in'),
-        Register: app.t('standardUI[.]Register'),
-        Options: app.t('standardUI[.]Options'),
-        'Channel Settings': app.t('standardUI[.]Channel Settings'),
-        Layout: app.t('standardUI[.]Layout'),
-        'Chat Only': app.t('standardUI[.]Chat Only'),
-        'Remove Video': app.t('standardUI[.]Remove Video')
-    };
-    $('.navbar').find('.navbar-nav').children().each(function () {
-        $(this).find('a').each(function () {
-            for (var elementToTranslate in menuTranslateMap) {
-                if (menuTranslateMap.hasOwnProperty(elementToTranslate)) {
-                    $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
-                }
-            }
-        });
-    });
-
-    if ($('#mediaurl').length !== 0) {
-        $('#mediaurl').attr('placeholder', app.t('standardUI[.]Video url'));
-    }
-    if ($('#queue_next').length !== 0) {
-        $('#queue_next').text(app.t('standardUI[.]Next'));
-    }
-    if ($('#queue_end').length !== 0) {
-        $('#queue_end').text(app.t('standardUI[.]At end'));
-    }
-
-    $('.qbtn-play').each(function () {
-        $(this).html($(this).html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
-    });
-    $('.qbtn-next').each(function () {
-        $(this).html($(this).html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
-    });
-    $('.qbtn-tmp').each(function () {
-        $(this).html($(this).html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
-    });
-    $('.qbtn-delete').each(function () {
-        $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
-    });
-    window.addQueueButtons = (function (oldAddQueueButtons) {
-        return function (li) {
-            var result = oldAddQueueButtons(li);
-
-            if (li.find('.qbtn-play').length !== 0) {
-                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
-            }
-            if (li.find('.qbtn-next').length !== 0) {
-                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
-            }
-            if (li.find('.qbtn-tmp').length !== 0) {
-                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
-            }
-            if (li.find('.qbtn-delete').length !== 0) {
-                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
-            }
-
-            return result;
-        };
-    })(window.addQueueButtons);
-
-    this.handleTemp = function (data) {
-        var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
-
-        if(tmpBtn.length !== 0) {
-            if(data.temp) {
-                tmpBtn.html(tmpBtn.html().replace('Сделать временным', app.t('standardUI[.]Make Temporary')));
-            }
-            else {
-                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
-            }
-        }
-    };
-    window.socket.on('setTemp', function (data) {
-        that.handleTemp(data);
-    });
-
-    if ($('#guestname').length !== 0) {
-        $('#guestname').attr('placeholder', app.t('standardUI[.]Name'));
-    }
-    if ($('#guestlogin')) {
-        $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
-    }
-
-    if ($('#chatbtn').length !== 0) {
-        $('#chatbtn').text('Отправить');
-    }
-});
-
-},{}],19:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     'use strict';
 
@@ -3057,7 +2631,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode') + '"]').prop('selected', true);
 });
 
-},{}],20:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -3273,7 +2847,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
     $('#queue').sortable("option", "axis", "y");
 });
-},{}],21:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -3486,7 +3060,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],22:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -3612,7 +3186,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],23:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -3673,7 +3247,222 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
+},{}],21:[function(require,module,exports){
+cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
+    extraModules.add('ru', {
+        title: 'Аниме-цитаты',
+        name: 'anime-quotes',
+        description: 'Нескучные аниме-цитаты.'
+    });
+});
+},{}],22:[function(require,module,exports){
+cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
+    extraModules.add('ru', {
+        title: 'Цитаты пирата',
+        name: 'pirate-quotes',
+        description: 'Нескучные цитаты Пирата.'
+    });
+});
+},{}],23:[function(require,module,exports){
+cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
+    extraModules.add('ru', {
+        title: 'Перевод интерфейса',
+        name: 'translate',
+        description: 'Русский перевод интерфейса.'
+    });
+});
 },{}],24:[function(require,module,exports){
+window.cytubeEnhanced = new window.CytubeEnhanced(
+    $('title').text(),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
+);
+
+},{}],25:[function(require,module,exports){
+window.CytubeEnhanced = function(channelName, language, modulesSettings) {
+    'use strict';
+
+    var that = this;
+
+    this.channelName = channelName;
+    this.language = language;
+
+    var translations = {};
+
+    var modules = {};
+    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
+    var MODULE_LOAD_PERIOD = 100; //ms (0.1 sec)
+
+
+    /**
+     * Gets the module
+     *
+     * Returns $.Deferred() promise object and throws error exception if timeout
+     *
+     * @param {string} moduleName The name of the module
+     * @returns {object}
+     */
+    this.getModule = function (moduleName, namespace) {
+        var promise = $.Deferred();
+        var time = MODULE_LOAD_TIMEOUT;
+
+        (function getModuleRecursive() {
+            if (modules[moduleName] !== undefined) {
+                promise.resolve(modules[moduleName]);
+            } else if (time <= 0) {
+                throw new Error("Load timeout for module " + moduleName + '.');
+            } else {
+                time -= MODULE_LOAD_PERIOD;
+
+                setTimeout(getModuleRecursive, MODULE_LOAD_PERIOD);
+            }
+        })();
+
+        return promise;
+    };
+
+
+    /**
+     * Adds the module
+     *
+     * @param {string} moduleName The name of the module
+     * @param ModuleConstructor The module's constructor
+     */
+    this.addModule = function (moduleName, ModuleConstructor) {
+        if (this.isModulePermitted(moduleName)) {
+            var moduleSettings = modulesSettings[moduleName] || {};
+
+            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
+            modules[moduleName].settings = moduleSettings;
+        }
+    };
+
+
+    /**
+     * Configures the module
+     *
+     * Previous options don't reset.
+     *
+     * @param {string} moduleName  The name of the module
+     * @param moduleOptions The module's options
+     */
+    this.configureModule = function (moduleName, moduleOptions) {
+        $.extend(true, modulesSettings[moduleName], moduleOptions);
+    };
+
+
+    /**
+     * Checks if module is permitted
+     *
+     * @param moduleName The name of the module to check
+     * @returns {boolean}
+     */
+    this.isModulePermitted = function (moduleName) {
+        return modulesSettings.hasOwnProperty(moduleName) ?
+            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
+            true;
+    };
+
+
+    /**
+     * Adds the translation object
+     * @param language The language identifier
+     * @param translationObject The translation object
+     */
+    this.addTranslation = function (language, translationObject) {
+        translations[language] = translationObject;
+    };
+
+
+    /**
+     * Translates the text
+     * @param text The text to translate
+     * @returns {string}
+     */
+    this.t = function (text) {
+        var translatedText = text;
+
+        if (that.language !== 'en' && translations[that.language] !== undefined) {
+            if (text.indexOf('[.]') !== -1) {
+                var textWithNamespaces = text.split('[.]');
+
+                translatedText = translations[that.language][textWithNamespaces[0]];
+                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
+                    translatedText = translatedText[textWithNamespaces[namespace]];
+                }
+
+                translatedText = (typeof translatedText !== 'undefined') ? translatedText : textWithNamespaces[textWithNamespaces.length - 1];
+            } else {
+                translatedText = translations[that.language][text];
+            }
+        } else if (text.indexOf('[.]') !== -1) { //English text by default
+            translatedText = text.split('[.]').pop();
+            translatedText = (typeof translatedText !== 'undefined') ? translatedText : text;
+        }
+
+        return translatedText;
+    };
+
+
+    /**
+     * UserConfig constructor
+     * @constructor
+     */
+    var UserConfig = function () {
+        /**
+         * UserConfig options
+         * @type {object}
+         */
+        this.options = {};
+
+        /**
+         * Sets the user's option and saves it in the user's cookies
+         * @param name The name ot the option
+         * @param value The value of the option
+         */
+        this.set = function (name, value) {
+            this.options[name] = value;
+            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
+        };
+
+        /**
+         * Gets the value of the user's option
+         *
+         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
+         *
+         * @param name Option's name
+         * @returns {*}
+         */
+        this.get = function (name) {
+            if (!this.options.hasOwnProperty(name)) {
+                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+            }
+
+            return this.options[name];
+        };
+
+        /**
+         * Toggles user's boolean option
+         * @param name Boolean option's name
+         * @returns {boolean}
+         */
+        this.toggle = function (name) {
+            var result = !this.get(name);
+
+            this.set(name, result);
+
+            return result;
+        };
+    };
+
+    /**
+     * User's options
+     * @type {UserConfig}
+     */
+    this.userConfig = new UserConfig();
+};
+
+},{}],26:[function(require,module,exports){
 window.cytubeEnhanced.addTranslation('ru', {
     qCommands: {
         'of course': 'определенно да',
@@ -3697,7 +3486,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'throw a dice': 'кинуть кость',
         'random number between 0 and 999': 'случайное число от 0 до 999',
         'show the random quote': 'показать случайную цитату',
-        'there aren\'t any quotes. If you are the channel administrator, you can download them from https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q': 'цитаты отсутствуют. Если вы администратор канала, то вы можете скачать их на https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q',
+        'there aren\'t any quotes.': 'цитаты отсутствуют.',
         'vote for the video skip': 'проголосовать за пропуск текущего видео',
         'you have been voted for the video skip': 'отдан голос за пропуск текущего видео',
         'play the next video': 'проиграть следующее видео',
@@ -3857,4 +3646,4 @@ window.cytubeEnhanced.addTranslation('ru', {
     'Help': 'Помощь'
 });
 
-},{}]},{},[6,5,24,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,3,4]);
+},{}]},{},[25,24,26,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]);

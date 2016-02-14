@@ -1,4 +1,4 @@
-window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
+window.cytubeEnhanced.addModule('translate', function (app) {
     'use strict';
 
     if ($('#newpollbtn').length !== 0) {

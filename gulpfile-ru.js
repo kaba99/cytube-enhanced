@@ -13,7 +13,7 @@ var buffer = require('vinyl-buffer');
 var globby = require('globby');
 var through = require('through2');
 
-var jsFilesGlob = ['./src/js/main/main.js', './src/js/main/main-ru.js', './src/translations/ru.js', './src/js/modules/*.js', './src/extra/quotes_for_!q/ru/*.js'];
+var jsFilesGlob = ['./src/js/main/main.js', './src/js/main/main-ru.js', './src/translations/ru.js', './src/js/core/*.js', './src/js/extra/**/config.js'];
 var cssFilesGlob = ['./src/css/cytube-enhanced.css', './src/css/videojs-progress.css'];
 
 

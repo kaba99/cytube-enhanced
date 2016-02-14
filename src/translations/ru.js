@@ -21,7 +21,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'throw a dice': 'кинуть кость',
         'random number between 0 and 999': 'случайное число от 0 до 999',
         'show the random quote': 'показать случайную цитату',
-        'there aren\'t any quotes. If you are the channel administrator, you can download them from https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q': 'цитаты отсутствуют. Если вы администратор канала, то вы можете скачать их на https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q',
+        'there aren\'t any quotes.': 'цитаты отсутствуют.',
         'vote for the video skip': 'проголосовать за пропуск текущего видео',
         'you have been voted for the video skip': 'отдан голос за пропуск текущего видео',
         'play the next video': 'проиграть следующее видео',

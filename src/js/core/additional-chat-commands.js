@@ -81,7 +81,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             description: app.t('chatCommands[.]show the random quote'),
             value: function (msg) {
                 if (that.randomQuotes.length === 0) {
-                    msg = app.t('chatCommands[.]there aren\'t any quotes. If you are the channel administrator, you can download them from https://github.com/kaba99/cytube-enhanced/tree/master/files/extra/quotes_for_!q');
+                    msg = app.t('chatCommands[.]there aren\'t any quotes.');
                 } else {
                     msg = that.randomQuotes[Math.floor(Math.random() * (that.randomQuotes.length - 1))];
                 }

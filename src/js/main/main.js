@@ -1,13 +1,16 @@
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
 
+    var that = this;
+
     this.channelName = channelName;
+    this.language = language;
 
     var translations = {};
 
     var modules = {};
-    var MODULE_LOAD_TIMEOUT = 10000; //ms
-    var MODULE_LOAD_PERIOD = 100; //ms
+    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
+    var MODULE_LOAD_PERIOD = 100; //ms (0.1 sec)
 
 
     /**
@@ -18,7 +21,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param {string} moduleName The name of the module
      * @returns {object}
      */
-    this.getModule = function (moduleName) {
+    this.getModule = function (moduleName, namespace) {
         var promise = $.Deferred();
         var time = MODULE_LOAD_TIMEOUT;
 
@@ -98,18 +101,18 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.t = function (text) {
         var translatedText = text;
 
-        if (language !== 'en' && translations[language] !== undefined) {
+        if (that.language !== 'en' && translations[that.language] !== undefined) {
             if (text.indexOf('[.]') !== -1) {
                 var textWithNamespaces = text.split('[.]');
 
-                translatedText = translations[language][textWithNamespaces[0]];
+                translatedText = translations[that.language][textWithNamespaces[0]];
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
                 }
 
                 translatedText = (typeof translatedText !== 'undefined') ? translatedText : textWithNamespaces[textWithNamespaces.length - 1];
             } else {
-                translatedText = translations[language][text];
+                translatedText = translations[that.language][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
