@@ -5277,10 +5277,14 @@ canvas{
 
 
 .btn-link {
-    text-decoration: underline;
+    text-decoration: none;
 }
 .btn-link:hover {
-    text-decoration: none;
+    text-decoration: underline;
+}
+
+#motd-tabs {
+    text-align: center;
 }
 /**
 * Fork of https://github.com/mickey/videojs-progressTips

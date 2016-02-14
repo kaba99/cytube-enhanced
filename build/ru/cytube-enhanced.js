@@ -2483,7 +2483,7 @@ window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
     if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
         $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text(app.t('standardUI[.]Remember me'));
     }
-    if ($('#login')) {
+    if ($('#login').length !== 0) {
         $('#login').text(app.t('standardUI[.]Site login'));
     }
 
@@ -2576,6 +2576,10 @@ window.cytubeEnhanced.addModule('standardUIRussianTranslate', function (app) {
     }
     if ($('#guestlogin')) {
         $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
+    }
+
+    if ($('#chatbtn').length !== 0) {
+        $('#chatbtn').text('Отправить');
     }
 });
 
