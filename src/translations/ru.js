@@ -178,8 +178,5 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'
     },
-    'Help': 'Помощь',
-    settings: {
-        'Extended options': 'Расширенные опции'
-    }
+    'Help': 'Помощь'
 });

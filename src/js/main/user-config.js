@@ -1,9 +1,13 @@
 window.CytubeEnhancedUserConfig = function (app) {
+    var that = this;
+
     /**
      * UserConfig options
      * @type {object}
      */
     this.options = {};
+
+    this.prefix = 'ce-';
 
     /**
      * Sets the user's option and saves it in the user's cookies
@@ -12,7 +16,7 @@ window.CytubeEnhancedUserConfig = function (app) {
      */
     this.set = function (name, value) {
         this.options[name] = value;
-        window.setOpt(window.CHANNEL.name + "_config-" + name, value);
+        window.setOpt(that.prefix + window.CHANNEL.name + "_config-" + name, value);
     };
 
     /**
@@ -25,7 +29,7 @@ window.CytubeEnhancedUserConfig = function (app) {
      */
     this.get = function (name) {
         if (!this.options.hasOwnProperty(name)) {
-            this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+            this.options[name] = window.getOrDefault(that.prefix + window.CHANNEL.name + "_config-" + name, undefined);
         }
 
         return this.options[name];

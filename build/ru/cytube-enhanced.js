@@ -3384,19 +3384,26 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 window.CytubeEnhancedUI = function (app) {
     var that = this;
     var $navbar = $('#nav-collapsible').find('.navbar-nav');
+    this.controlsPrefix = 'ce-';
 
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="cytube-enhanced-ui">' + app.t('settings[.]Extended options') + '</a>');
-    this.$tabsContainerHeader = $('<div class="cytube-enhanced-ui__header"></div>');
-    this.$tabsContainerBody = $('<div class="cytube-enhanced-ui__body"></div>');
+    this.settings = {};
+
+    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + this.controlsPrefix + 'ui">' + app.t('settings[.]Extended options') + '</a>');
+    this.$tabsContainerHeader = $('<div class="' + this.controlsPrefix + 'ui__header"></div>');
+    this.$tabsContainerBody = $('<div class="' + this.controlsPrefix + 'ui__body"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
-    this.$tabsContainerFooter = $('<div class="cytube-enhanced-ui__footer"></div>');
+    this.$tabsContainerFooter = $('<div class="' + this.controlsPrefix + 'ui__footer"></div>');
 
 
     /**
      * Creates settings
      */
     this.initialize = function () {
-
+        app.addTranslation('ru', {
+            settings: {
+                'Extended options': 'Расширенные опции'
+            }
+        });
 
         that.$tabsContainerOpenButton
             .appendTo($navbar)
@@ -3414,26 +3421,48 @@ window.CytubeEnhancedUI = function (app) {
      * Adds new tab
      * @param name The name of the tab
      * @param title The title of the tab
+     * @returns {Object} Returns tab config
      */
     this.addTab = function (name, title) {
         if (that.$tabsContainerTabs.children().length == 0) {
             that.initialize();
         }
 
-        var $newTabButton = $('<li class="active"><a href="#' + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>')
+        var $newTabButton = $('<li class="active"><a href="#' + that.controlsPrefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>')
             .appendTo(that.$tabsContainerTabs);
 
-        var $newTab = $('<div id="' + name + '__content" class="tab-pane">')
+        var $newTab = $('<div id="' + that.controlsPrefix + name + '__content" class="tab-pane">')
             .appendTo(that.$tabsContainerBody);
+
+        return {
+            button: $newTabButton,
+            content: $newTab
+        }
     };
 
 
     /**
      * Gets tab's content by its name
-     * @param name The name of the tab
+     * @param name {String} The name of the tab
+     * @param newTabTitle {String} If passed and tab is not exists, it creates the tab automatically with these name and title
+     * @returns {null|Object} Returns null or tab config
      */
-    this.getTab = function (name) {
-        return $('#' + name + '__content');
+    this.getTab = function (name, newTabTitle) {
+        var $button = $('#' + that.controlsPrefix + name + '__button');
+        var $tab = $('#' + that.controlsPrefix + name + '__content');
+
+        if ($tab.length !== 0 && $button.length !== 0) {
+            return {
+                button: $button,
+                content: $tab
+            };
+        } else {
+            if (newTabTitle) {
+                return that.addTab(name, newTabTitle);
+            } else {
+                return null;
+            }
+        }
     };
 
 
@@ -3442,7 +3471,7 @@ window.CytubeEnhancedUI = function (app) {
      * @param name The name of the tab
      */
     this.openTab = function (name) {
-        $('#' + name + '__button').trigger('click');
+        $('#' + that.controlsPrefix + name + '__button').trigger('click');
     };
 
 
@@ -3483,19 +3512,77 @@ window.CytubeEnhancedUI = function (app) {
 
 
     /**
+     * Creates select with bootstrap markup
+     * @param {String} title Label's title
+     * @param {String} name Name of the select
+     * @param {Object} config Config for the select.
+     * @param {Function} [handler] Callback, which is calling on every select's change.
+     * @returns {jQuery}
+     */
+    this.createSelect = function (title, name, config, handler) {
+        config = config || {};
+        config = $.extend({}, config, {
+            columns: {label: 4, element: 8},
+            options: []
+        });
+
+        var $wrapper = $('<div class="form-group">');
+        var $label = $('<label for="' + that.controlsPrefix + name + '" class="control-label col-sm-' + config.columns.label + '">' + title + '</label>').appendTo($wrapper);
+        var $selectWrapper = $('<div class="col-sm-' + config.columns.element + '">').appendTo($wrapper);
+        var $select = $('<select id="' + that.controlsPrefix + name + '" class="form-control">').appendTo($selectWrapper);
+
+        if (handler) {
+            $select.on('change', handler);
+        }
+
+        var selected;
+        for (var optionIndex = 0, optionsLength = config.options.length; optionIndex < optionsLength; optionIndex++) {
+            selected = config.options[optionIndex].selected ? 'selected' : '';
+            $select.append('<option value="' + config.options[optionIndex].value + '" ' + selected + '>' + config.options[optionIndex].title + '</option>');
+        }
+
+        return $wrapper;
+    };
+
+
+    /**
+     * Creates button
+     * @param {String} title Button's title
+     * @param {String} [type] Bootstrap button's type (default, primary, success, danger, alert, info, link, etc)
+     * @param {Function} [handler] Callback, which is calling on every button's click.
+     */
+    this.createButton = function (title, type, handler) {
+        type = type || 'default';
+
+        var $button = $('<button type="button" class="btn btn-' + type + '">' + title + '</button>');
+        if (handler) {
+            $button.on('click', handler);
+        }
+
+        return $button;
+    };
+
+
+    /**
      * Opens settings modal
+     * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        that.createModalWindow(that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+        that.settings = app.userConfig.get('settings') || {};
+        return that.createModalWindow(that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
     }
 };
 },{}],26:[function(require,module,exports){
 window.CytubeEnhancedUserConfig = function (app) {
+    var that = this;
+
     /**
      * UserConfig options
      * @type {object}
      */
     this.options = {};
+
+    this.prefix = 'ce-';
 
     /**
      * Sets the user's option and saves it in the user's cookies
@@ -3504,7 +3591,7 @@ window.CytubeEnhancedUserConfig = function (app) {
      */
     this.set = function (name, value) {
         this.options[name] = value;
-        window.setOpt(window.CHANNEL.name + "_config-" + name, value);
+        window.setOpt(that.prefix + window.CHANNEL.name + "_config-" + name, value);
     };
 
     /**
@@ -3517,7 +3604,7 @@ window.CytubeEnhancedUserConfig = function (app) {
      */
     this.get = function (name) {
         if (!this.options.hasOwnProperty(name)) {
-            this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+            this.options[name] = window.getOrDefault(that.prefix + window.CHANNEL.name + "_config-" + name, undefined);
         }
 
         return this.options[name];
@@ -3717,10 +3804,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'
     },
-    'Help': 'Помощь',
-    settings: {
-        'Extended options': 'Расширенные опции'
-    }
+    'Help': 'Помощь'
 });
 
 },{}]},{},[24,26,25,23,27,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]);
