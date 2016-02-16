@@ -13,6 +13,8 @@ window.CytubeEnhancedUI = function (app) {
      * Creates settings
      */
     this.initialize = function () {
+
+
         that.$tabsContainerOpenButton
             .appendTo($navbar)
             .wrap('<li>')
