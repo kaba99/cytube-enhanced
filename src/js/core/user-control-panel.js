@@ -276,7 +276,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
 
 
 
-    
+
     this.applyMinimize = function (isMinimized) {
         if (isMinimized) {
             $('#motdrow').data('hiddenByMinimize', '1');
