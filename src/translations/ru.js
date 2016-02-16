@@ -7,7 +7,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'no way': 'определенно нет',
         'don\'t think so': 'вероятность мала',
         'no': 'нет',
-        'fairy is busy': 'фея устала и отвечать не будет',
+        'cirno is busy': 'сырно устала и отвечать не будет',
         'I regret to inform you': 'отказываюсь отвечать'
     },
     chatCommands: {
