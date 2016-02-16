@@ -1206,30 +1206,25 @@ window.cytubeEnhanced.addModule('extraModules', function (app, settings) {
     'use strict';
 
     var that = this;
-    console.log(settings);
+
     var defaultSettings = {
-        baseUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extra',
         enabledModules: ['translate', 'anime-quotes', 'pirate-quotes']
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    console.log(settings);
-
 
     var extraModules = [];
-    this.add = function (language, config) {
-        if (!extraModules[language]) {
-            extraModules[language] = [];
-        }
-
-        extraModules[language].push(config);
+    this.add = function (config) {
+        extraModules[config.name].push(config);
+        console.log(config);
     };
 
 
     this.enabledModules = JSON.parse(app.userConfig.get('enabledExtraModules') || 'null') || settings.enabledModules;
-
     for (var module in this.enabledModules) {
-        $.getScript(settings.baseUrl + '/' + this.enabledModules[module].replace(/[\/\\]/g, '') + '/' + app.language + '/index.js');
+        if (typeof extraModules[this.enabledModules[module]] !== 'undefined' && typeof extraModules[this.enabledModules[module]].url !== 'undefined') {
+            $.getScript(extraModules[this.enabledModules[module]].url);
+        }
     }
 });
 
@@ -2156,8 +2151,6 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
 });
 
 },{}],15:[function(require,module,exports){
-
-},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     'use strict';
 
@@ -2631,7 +2624,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode') + '"]').prop('selected', true);
 });
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -2773,36 +2766,6 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     }
 
 
-    this.createModalWindow = function($headerContent, $bodyContent, $footerContent) {
-        var $outer = $('<div class="modal fade chat-help-modal" role="dialog" tabindex="-1">').appendTo($("body"));
-        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-        var $content = $('<div class="modal-content">').appendTo($modal);
-
-        if ($headerContent != null) {
-            var $header = $('<div class="modal-header">').appendTo($content);
-
-            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
-            $('<h3 class="modal-title">').append($headerContent).appendTo($header);
-        }
-
-        if ($bodyContent != null) {
-            $('<div class="modal-body">').append($bodyContent).appendTo($content);
-        }
-
-        if ($footerContent != null) {
-            $('<div class="modal-footer">').append($footerContent).appendTo($content);
-        }
-
-        $outer.on('hidden.bs.modal', function () {
-            $(this).remove();
-        });
-
-        $outer.modal({keyboard: true});
-
-        return $outer;
-    };
-
-
 
     if (settings.unfixedTopNavbar) {
         $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
@@ -2847,7 +2810,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
     $('#queue').sortable("option", "axis", "y");
 });
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -3060,7 +3023,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -3186,7 +3149,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -3247,38 +3210,14 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],21:[function(require,module,exports){
-cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
-    extraModules.add('ru', {
-        title: 'Аниме-цитаты',
-        name: 'anime-quotes',
-        description: 'Нескучные аниме-цитаты.'
-    });
-});
-},{}],22:[function(require,module,exports){
-cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
-    extraModules.add('ru', {
-        title: 'Цитаты пирата',
-        name: 'pirate-quotes',
-        description: 'Нескучные цитаты Пирата.'
-    });
-});
-},{}],23:[function(require,module,exports){
-cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
-    extraModules.add('ru', {
-        title: 'Перевод интерфейса',
-        name: 'translate',
-        description: 'Русский перевод интерфейса.'
-    });
-});
-},{}],24:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     $('title').text(),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
 );
 
-},{}],25:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
 
@@ -3462,4 +3401,4 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.userConfig = new UserConfig();
 };
 
-},{}]},{},[25,24,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]);
+},{}]},{},[21,20,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
