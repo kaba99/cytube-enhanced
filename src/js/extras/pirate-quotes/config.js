@@ -1,4 +1,4 @@
-cytubeEnhanced.getModule('extraModules').done(function (extraModules) {
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
         title: 'Цитаты пирата',
         name: 'pirate-quotes',

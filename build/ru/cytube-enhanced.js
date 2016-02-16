@@ -1201,7 +1201,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
 });
 
 },{}],8:[function(require,module,exports){
-window.cytubeEnhanced.addModule('extraModules', function (app, settings) {
+window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
 
     var that = this;
@@ -1211,20 +1211,17 @@ window.cytubeEnhanced.addModule('extraModules', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-
-    var extraModules = [];
-    this.add = function (config) {
-        extraModules[config.name].push(config);
-        console.log(config);
-    };
-
-
+    this.extraModules = {};
     this.enabledModules = JSON.parse(app.userConfig.get('enabledExtraModules') || 'null') || settings.enabledModules;
-    for (var module in this.enabledModules) {
-        if (typeof extraModules[this.enabledModules[module]] !== 'undefined' && typeof extraModules[this.enabledModules[module]].url !== 'undefined') {
-            $.getScript(extraModules[this.enabledModules[module]].url);
+
+
+    this.add = function (config) {
+        this.extraModules[config.name] = config;
+
+        if (this.enabledModules.indexOf(config.name) != -1) {
+            $.getScript(this.extraModules[config.name].url);
         }
-    }
+    };
 });
 
 },{}],9:[function(require,module,exports){
@@ -3210,13 +3207,43 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
 });
 
 },{}],20:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Аниме-цитаты',
+        name: 'anime-quotes',
+        description: 'Нескучные аниме-цитаты.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/anime-quotes/anime-quotes.js',
+        languages: ['ru']
+    });
+});
+},{}],21:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Цитаты пирата',
+        name: 'pirate-quotes',
+        description: 'Нескучные цитаты Пирата.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/pirate-quotes/pirate-quotes.js',
+        languages: ['ru']
+    });
+});
+},{}],22:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Перевод интерфейса',
+        name: 'translate',
+        description: 'Русский перевод интерфейса.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/translate/translate.js',
+        languages: ['ru']
+    });
+});
+},{}],23:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     $('title').text(),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
 );
 
-},{}],21:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
 
@@ -3342,65 +3369,168 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     };
 
 
+
+    this.userConfig = new window.CytubeEnhancedUserConfig(this);
+
+    this.UI = new window.CytubeEnhancedUI(this);
+    this.UI.initialize();
+};
+
+},{}],25:[function(require,module,exports){
+window.CytubeEnhancedUI = function (app) {
+    var that = this;
+    var $navbar = $('#nav-collapsible').find('.navbar-nav');
+
+    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="cytube-enhanced-ui">' + app.t('settings[.]Extended options') + '</a>');
+    this.$tabsContainerHeader = $('<div class="cytube-enhanced-ui__header"></div>');
+    this.$tabsContainerBody = $('<div class="cytube-enhanced-ui__body"></div>');
+    this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
+    this.$tabsContainerFooter = $('<div class="cytube-enhanced-ui__footer"></div>');
+
+
     /**
-     * UserConfig constructor
-     * @constructor
+     * Creates settings
      */
-    var UserConfig = function () {
-        /**
-         * UserConfig options
-         * @type {object}
-         */
-        this.options = {};
+    this.initialize = function () {
+        that.$tabsContainerOpenButton
+            .appendTo($navbar)
+            .wrap('<li>')
+            .on('click', function () {
+                that.openSettings();
+            });
 
-        /**
-         * Sets the user's option and saves it in the user's cookies
-         * @param name The name ot the option
-         * @param value The value of the option
-         */
-        this.set = function (name, value) {
-            this.options[name] = value;
-            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
-        };
+        $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
+        that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
+    };
 
-        /**
-         * Gets the value of the user's option
-         *
-         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-         *
-         * @param name Option's name
-         * @returns {*}
-         */
-        this.get = function (name) {
-            if (!this.options.hasOwnProperty(name)) {
-                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
-            }
 
-            return this.options[name];
-        };
+    /**
+     * Adds new tab
+     * @param name The name of the tab
+     * @param title The title of the tab
+     */
+    this.addTab = function (name, title) {
+        if (that.$tabsContainerTabs.children().length == 0) {
+            that.initialize();
+        }
 
-        /**
-         * Toggles user's boolean option
-         * @param name Boolean option's name
-         * @returns {boolean}
-         */
-        this.toggle = function (name) {
-            var result = !this.get(name);
+        var $newTabButton = $('<li class="active"><a href="#' + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>')
+            .appendTo(that.$tabsContainerTabs);
 
-            this.set(name, result);
+        var $newTab = $('<div id="' + name + '__content" class="tab-pane">')
+            .appendTo(that.$tabsContainerBody);
+    };
 
-            return result;
-        };
+
+    /**
+     * Gets tab's content by its name
+     * @param name The name of the tab
+     */
+    this.getTab = function (name) {
+        return $('#' + name + '__content');
+    };
+
+
+    /**
+     * Opens tab by its name
+     * @param name The name of the tab
+     */
+    this.openTab = function (name) {
+        $('#' + name + '__button').trigger('click');
+    };
+
+
+    /**
+     * Creates modal window
+     * @param $headerContent Modal header (optional)
+     * @param $bodyContent Modal body (optional)
+     * @param $footerContent Modal footer (optional)
+     * @returns {jQuery} Modal window
+     */
+    this.createModalWindow = function($headerContent, $bodyContent, $footerContent) {
+        var $outer = $('<div class="modal fade chat-help-modal" role="dialog" tabindex="-1">').appendTo($("body"));
+        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+        var $content = $('<div class="modal-content">').appendTo($modal);
+
+        if ($headerContent != null) {
+            var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+
+            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+        }
+
+        if ($bodyContent != null) {
+            $('<div class="modal-body">').append($bodyContent).appendTo($content);
+        }
+
+        if ($footerContent != null) {
+            $('<div class="modal-footer">').append($footerContent).appendTo($content);
+        }
+
+        $outer.on('hidden.bs.modal', function () {
+            $(this).remove();
+        });
+
+        $outer.modal({keyboard: true});
+
+        return $outer;
+    };
+
+
+    /**
+     * Opens settings modal
+     */
+    this.openSettings = function () {
+        that.createModalWindow(that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+    }
+};
+},{}],26:[function(require,module,exports){
+window.CytubeEnhancedUserConfig = function (app) {
+    /**
+     * UserConfig options
+     * @type {object}
+     */
+    this.options = {};
+
+    /**
+     * Sets the user's option and saves it in the user's cookies
+     * @param name The name ot the option
+     * @param value The value of the option
+     */
+    this.set = function (name, value) {
+        this.options[name] = value;
+        window.setOpt(window.CHANNEL.name + "_config-" + name, value);
     };
 
     /**
-     * User's options
-     * @type {UserConfig}
+     * Gets the value of the user's option
+     *
+     * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
+     *
+     * @param name Option's name
+     * @returns {*}
      */
-    this.userConfig = new UserConfig();
-};
+    this.get = function (name) {
+        if (!this.options.hasOwnProperty(name)) {
+            this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
+        }
 
-},{}],22:[function(require,module,exports){
+        return this.options[name];
+    };
+
+    /**
+     * Toggles user's boolean option
+     * @param name Boolean option's name
+     * @returns {boolean}
+     */
+    this.toggle = function (name) {
+        var result = !this.get(name);
+
+        this.set(name, result);
+
+        return result;
+    };
+};
+},{}],27:[function(require,module,exports){
 window.cytubeEnhanced.addTranslation('ru', {
     qCommands: {
         'of course': 'определенно да',
@@ -3587,4 +3717,4 @@ window.cytubeEnhanced.addTranslation('ru', {
     }
 });
 
-},{}]},{},[21,20,22,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
+},{}]},{},[24,26,25,23,27,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]);
