@@ -139,36 +139,6 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     }
 
 
-    this.createModalWindow = function($headerContent, $bodyContent, $footerContent) {
-        var $outer = $('<div class="modal fade chat-help-modal" role="dialog" tabindex="-1">').appendTo($("body"));
-        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-        var $content = $('<div class="modal-content">').appendTo($modal);
-
-        if ($headerContent != null) {
-            var $header = $('<div class="modal-header">').appendTo($content);
-
-            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').appendTo($header);
-            $('<h3 class="modal-title">').append($headerContent).appendTo($header);
-        }
-
-        if ($bodyContent != null) {
-            $('<div class="modal-body">').append($bodyContent).appendTo($content);
-        }
-
-        if ($footerContent != null) {
-            $('<div class="modal-footer">').append($footerContent).appendTo($content);
-        }
-
-        $outer.on('hidden.bs.modal', function () {
-            $(this).remove();
-        });
-
-        $outer.modal({keyboard: true});
-
-        return $outer;
-    };
-
-
 
     if (settings.unfixedTopNavbar) {
         $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');

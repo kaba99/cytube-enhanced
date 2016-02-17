@@ -6,7 +6,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.channelName = channelName;
     this.language = language;
 
-    var translations = {};
+    this.translations = {};
 
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
@@ -89,7 +89,11 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param translationObject The translation object
      */
     this.addTranslation = function (language, translationObject) {
-        translations[language] = translationObject;
+        if (typeof that.translations[language] == 'undefined') {
+            that.translations[language] = translationObject;
+        } else {
+            $.extend(true, that.translations[language], translationObject);
+        }
     };
 
 
@@ -101,82 +105,31 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.t = function (text) {
         var translatedText = text;
 
-        if (that.language !== 'en' && translations[that.language] !== undefined) {
+        if (that.language !== 'en' && that.translations[that.language]) {
             if (text.indexOf('[.]') !== -1) {
                 var textWithNamespaces = text.split('[.]');
 
-                translatedText = translations[that.language][textWithNamespaces[0]];
+                translatedText = that.translations[that.language][textWithNamespaces[0]];
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
                 }
 
-                translatedText = (typeof translatedText !== 'undefined') ? translatedText : textWithNamespaces[textWithNamespaces.length - 1];
+                translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
             } else {
-                translatedText = translations[that.language][text];
+                translatedText = that.translations[that.language][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
-            translatedText = (typeof translatedText !== 'undefined') ? translatedText : text;
+            translatedText = translatedText || text;
         }
 
         return translatedText;
     };
 
 
-    /**
-     * UserConfig constructor
-     * @constructor
-     */
-    var UserConfig = function () {
-        /**
-         * UserConfig options
-         * @type {object}
-         */
-        this.options = {};
 
-        /**
-         * Sets the user's option and saves it in the user's cookies
-         * @param name The name ot the option
-         * @param value The value of the option
-         */
-        this.set = function (name, value) {
-            this.options[name] = value;
-            window.setOpt(window.CHANNEL.name + "_config-" + name, value);
-        };
+    this.userConfig = new window.CytubeEnhancedUserConfig(this);
 
-        /**
-         * Gets the value of the user's option
-         *
-         * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-         *
-         * @param name Option's name
-         * @returns {*}
-         */
-        this.get = function (name) {
-            if (!this.options.hasOwnProperty(name)) {
-                this.options[name] = window.getOrDefault(window.CHANNEL.name + "_config-" + name, undefined);
-            }
-
-            return this.options[name];
-        };
-
-        /**
-         * Toggles user's boolean option
-         * @param name Boolean option's name
-         * @returns {boolean}
-         */
-        this.toggle = function (name) {
-            var result = !this.get(name);
-
-            this.set(name, result);
-
-            return result;
-        };
-    };
-
-    /**
-     * User's options
-     * @type {UserConfig}
-     */
-    this.userConfig = new UserConfig();
+    this.UI = new window.CytubeEnhancedUI(this);
+    this.UI.initialize();
 };
