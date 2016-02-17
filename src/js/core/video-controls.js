@@ -133,6 +133,14 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     };
 
 
+    if ($('#showmediaurl').length !== 0) {
+        $('#showmediaurl').html(app.t('standardUI[.]Add video'))
+            .attr({title: app.t('standardUI[.]Add video from url')})
+            .detach()
+            .insertBefore($('#showsearch'));
+    }
+
+
     this.expandPlaylist = function ($expandPlaylistBtn) {
         if ($expandPlaylistBtn.hasClass('btn-success')) {//expanded
             $('#queue').css('max-height', settings.playlistHeight + 'px');
