@@ -125,7 +125,7 @@ window.cytubeEnhanced.addModule('animachXtra', function (app) {
         } else {
             if(isCustom == false) {
                 app.getModule('additionalChatCommands').done(function(commandsModule) {
-                    commandsModule.askAnswers = ['100%', 'Определенно да', 'Да', 'Вероятно', 'Ни шанса', 'Определенно нет', 'Вероятность мала', 'Нет', '50/50', 'Фея устала и отвечать не будет', 'Отказываюсь отвечать', ];
+                    commandsModule.askAnswers = ['100%', 'Определенно да', 'Да', 'Вероятно', 'Ни шанса', 'Определенно нет', 'Вероятность мала', 'Нет', '50/50', 'Сырно устала и отвечать не будет', 'Отказываюсь отвечать', ];
                 });
             }
         }
