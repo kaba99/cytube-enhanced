@@ -127,6 +127,46 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     };
 
 
+    /**
+     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * @param {String} jsonString JSON string
+     * @param {*} defaultValue The default value to return if something wrong with jsonString
+     * @returns {*} Something extracted from json string or default value if something wrong with jsonString.
+     */
+    this.parseJSON = function (jsonString, defaultValue) {
+        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
+        var result;
+
+        try {
+            result = window.JSON.parse(jsonString);
+        } catch (error) {
+            result = defaultValue;
+        }
+
+        return result;
+    };
+
+
+    /**
+     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * @param {*} object Something, that will be converted to JSON string
+     * @param {*} defaultValue The default value to return if something wrong
+     * @returns {String} JSON string
+     */
+    this.toJSON = function (object, defaultValue) {
+        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
+        var result;
+
+        try {
+            result = window.JSON.stringify(object);
+        } catch (error) {
+            result = defaultValue;
+        }
+
+        return result;
+    };
+
+
 
     this.userConfig = new window.CytubeEnhancedUserConfig(this);
 

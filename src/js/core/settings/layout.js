@@ -5,8 +5,9 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
 
     var tabConfig = app.UI.getTab('layout', 'Сетка');
     var $tabButton = tabConfig.button;
-    var $tabContent = tabConfig.content;
+    var $tabContent = $('<div class="form-horizontal">').appendTo(tabConfig.content);
     var userSettings = app.UI.settings;
+    userSettings.layout = userSettings.layout || {};
 
     this.layout = {
         'hide-header': {
@@ -50,11 +51,13 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
     for (var itemName in this.layout) {
         layoutItem = this.layout[itemName];
 
-        if (userSettings[itemName]) {
+        if (userSettings.layout[itemName]) {
             for (layoutOption in layoutItem.options) {
-                layoutItem.options[layoutOption].selected = (userSettings[itemName] == layoutItem.options[layoutOption].value)
+                layoutItem.options[layoutOption].selected = (userSettings.layout[itemName] == layoutItem.options[layoutOption].value)
             }
         }
+
+        console.log(layoutItem.options);
 
         app.UI.createSelect(layoutItem.title, itemName, {
             options: layoutItem.options
@@ -63,16 +66,84 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
 
 
     /**
-     * Saving data
+     * Saving and applying settings
      */
-    $tabButton.on('settings.save', function () {
-        var $content = $($tabButton.attr('href'));
+    $(document).on(app.UI.controlsPrefix + 'settings.save', function () {
         userSettings.layout = {};
 
         for (var itemName in that.layout) {
             userSettings.layout[itemName] = $('#' + app.UI.controlsPrefix + itemName).val();
         }
 
-        app.userConfig.set('settings', userSettings);
+        app.userConfig.set('settings', app.toJSON(userSettings));
+        that.applySettings(userSettings.layout);
     });
+
+
+    this.applySettings = function (layoutSettings) {
+        if (layoutSettings['hide-header'] === 'yes') {
+            $('#motdrow').hide();
+            $('#motdrow').data('hiddenByLayout', '1');
+        } else {
+            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
+                $('#motdrow').show();
+            }
+            $('#motdrow').data('hiddenByLayout', '0');
+        }
+
+        if (layoutSettings['player-position'] === 'left') {
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else if (layoutSettings['player-position'] === 'center') {
+            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+
+            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
+            $('#videowrap').addClass('col-md-10 col-md-offset-1');
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else { //right
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#chatwrap').detach().insertBefore($('#videowrap'));
+        }
+
+        if (layoutSettings['playlist-position'] === 'left') {
+            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
+            $('#rightpane').detach().insertBefore($('#leftpane'));
+        } else { //right
+            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
+            $('#leftpane').detach().insertBefore($('#rightpane'));
+        }
+
+        if (layoutSettings['userlist-position'] === 'right') {
+            $('#userlist').addClass('pull-right');
+        } else { //left
+            $('#userlist').removeClass('pull-right');
+        }
+
+
+        $('#refresh-video').click();
+    };
+
+    this.applySettings(userSettings.layout);
 });

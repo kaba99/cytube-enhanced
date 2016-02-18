@@ -5,7 +5,7 @@ window.CytubeEnhancedUI = function (app) {
 
     this.settings = {};
 
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + this.controlsPrefix + 'ui">' + app.t('settings[.]Extended options') + '</a>');
+    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + this.controlsPrefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + this.controlsPrefix + 'ui__header"></div>');
     this.$tabsContainerBody = $('<div class="' + this.controlsPrefix + 'ui__body"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
@@ -18,16 +18,19 @@ window.CytubeEnhancedUI = function (app) {
     this.initialize = function () {
         app.addTranslation('ru', {
             settings: {
-                'Extended options': 'Расширенные опции'
+                'Extended options': 'Расширенные настройки'
             }
         });
 
+        console.log(app.t('settings[.]Extended options'));
+
         that.$tabsContainerOpenButton
-            .appendTo($navbar)
-            .wrap('<li>')
+            .text(app.t('settings[.]Extended options'))
             .on('click', function () {
                 that.openSettings();
-            });
+            })
+            .appendTo($navbar)
+            .wrap('<li>');
 
         $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
         that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
@@ -41,10 +44,6 @@ window.CytubeEnhancedUI = function (app) {
      * @returns {Object} Returns tab config
      */
     this.addTab = function (name, title) {
-        if (that.$tabsContainerTabs.children().length == 0) {
-            that.initialize();
-        }
-
         var $newTabButton = $('<li class="active"><a href="#' + that.controlsPrefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>')
             .appendTo(that.$tabsContainerTabs);
 
@@ -94,35 +93,45 @@ window.CytubeEnhancedUI = function (app) {
 
     /**
      * Creates modal window
+     * @param name Modal name
      * @param $headerContent Modal header (optional)
      * @param $bodyContent Modal body (optional)
      * @param $footerContent Modal footer (optional)
      * @returns {jQuery} Modal window
      */
-    this.createModalWindow = function($headerContent, $bodyContent, $footerContent) {
-        var $outer = $('<div class="modal fade chat-help-modal" role="dialog" tabindex="-1">').appendTo($("body"));
-        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-        var $content = $('<div class="modal-content">').appendTo($modal);
+    this.createModalWindow = function(name, $headerContent, $bodyContent, $footerContent) {
+        $('.modal').modal('hide');
+        name = that.controlsPrefix + 'modal-' + name;
+        var $outer;
 
-        if ($headerContent != null) {
-            var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+        if ($('#' + name).length == 0) {
+            $outer = $('<div class="modal fade" id="' + name + '" role="dialog" tabindex="-1">').appendTo($("body"));
+            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+            var $content = $('<div class="modal-content">').appendTo($modal);
 
-            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+            if ($headerContent != null) {
+                var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+
+                $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+            }
+
+            if ($bodyContent != null) {
+                $('<div class="modal-body">').append($bodyContent).appendTo($content);
+            }
+
+            if ($footerContent != null) {
+                $('<div class="modal-footer">').append($footerContent).appendTo($content);
+            }
+
+            //$outer.on('hidden.bs.modal', function () {
+            //    $(this).remove();
+            //});
+
+            $outer.modal({keyboard: true});
+        } else {
+            $outer = $('#' + name);
+            $outer.modal('show');
         }
-
-        if ($bodyContent != null) {
-            $('<div class="modal-body">').append($bodyContent).appendTo($content);
-        }
-
-        if ($footerContent != null) {
-            $('<div class="modal-footer">').append($footerContent).appendTo($content);
-        }
-
-        $outer.on('hidden.bs.modal', function () {
-            $(this).remove();
-        });
-
-        $outer.modal({keyboard: true});
 
         return $outer;
     };
@@ -138,10 +147,10 @@ window.CytubeEnhancedUI = function (app) {
      */
     this.createSelect = function (title, name, config, handler) {
         config = config || {};
-        config = $.extend({}, config, {
+        config = $.extend({}, {
             columns: {label: 4, element: 8},
             options: []
-        });
+        }, config);
 
         var $wrapper = $('<div class="form-group">');
         var $label = $('<label for="' + that.controlsPrefix + name + '" class="control-label col-sm-' + config.columns.label + '">' + title + '</label>').appendTo($wrapper);
@@ -185,7 +194,7 @@ window.CytubeEnhancedUI = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        that.settings = app.userConfig.get('settings') || {};
-        return that.createModalWindow(that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+        that.settings = app.parseJSON(app.userConfig.get('settings'), {});
+        return that.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
     }
 };

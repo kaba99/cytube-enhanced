@@ -2025,6 +2025,156 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
     };
 });
 },{}],13:[function(require,module,exports){
+window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
+    'use strict';
+
+    var that = this;
+
+    var tabConfig = app.UI.getTab('layout', 'Сетка');
+    var $tabButton = tabConfig.button;
+    var $tabContent = $('<div class="form-horizontal">').appendTo(tabConfig.content);
+    var userSettings = app.UI.settings;
+    userSettings.layout = userSettings.layout || {};
+
+    this.layout = {
+        'hide-header': {
+            title: app.t('userConfig[.]Hide header'),
+            options: [
+                {value: 'yes', title: app.t('userConfig[.]Yes')},
+                {value: 'no', title: app.t('userConfig[.]No'), selected: true}
+            ]
+        },
+        'player-position': {
+            title: app.t('userConfig[.]Player position'),
+            default: 'right',
+            options: [
+                {value: 'left', title: app.t('userConfig[.]Left')},
+                {value: 'right', title: app.t('userConfig[.]Right'), selected: true},
+                {value: 'center', title: app.t('userConfig[.]Center')}
+            ]
+        },
+        'playlist-position': {
+            title: app.t('userConfig[.]Playlist position'),
+            options: [
+                {value: 'left', title: app.t('userConfig[.]Left')},
+                {value: 'right', title: app.t('userConfig[.]Right'), selected: true}
+            ]
+        },
+        'userlist-position': {
+            title: app.t('userConfig[.]Chat\'s userlist position'),
+            options: [
+                {value: 'left', title: app.t('userConfig[.]Left'), selected: true},
+                {value: 'right', title: app.t('userConfig[.]Right')}
+            ]
+        }
+    };
+
+
+    /**
+     * Creating markup
+     */
+    var layoutItem;
+    var layoutOption;
+    for (var itemName in this.layout) {
+        layoutItem = this.layout[itemName];
+
+        if (userSettings.layout[itemName]) {
+            for (layoutOption in layoutItem.options) {
+                layoutItem.options[layoutOption].selected = (userSettings.layout[itemName] == layoutItem.options[layoutOption].value)
+            }
+        }
+
+        console.log(layoutItem.options);
+
+        app.UI.createSelect(layoutItem.title, itemName, {
+            options: layoutItem.options
+        }).appendTo($tabContent);
+    }
+
+
+    /**
+     * Saving and applying settings
+     */
+    $(document).on(app.UI.controlsPrefix + 'settings.save', function () {
+        userSettings.layout = {};
+
+        for (var itemName in that.layout) {
+            userSettings.layout[itemName] = $('#' + app.UI.controlsPrefix + itemName).val();
+        }
+
+        app.userConfig.set('settings', app.toJSON(userSettings));
+        that.applySettings(userSettings.layout);
+    });
+
+
+    this.applySettings = function (layoutSettings) {
+        if (layoutSettings['hide-header'] === 'yes') {
+            $('#motdrow').hide();
+            $('#motdrow').data('hiddenByLayout', '1');
+        } else {
+            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
+                $('#motdrow').show();
+            }
+            $('#motdrow').data('hiddenByLayout', '0');
+        }
+
+        if (layoutSettings['player-position'] === 'left') {
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else if (layoutSettings['player-position'] === 'center') {
+            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+
+            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
+            $('#videowrap').addClass('col-md-10 col-md-offset-1');
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else { //right
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#chatwrap').detach().insertBefore($('#videowrap'));
+        }
+
+        if (layoutSettings['playlist-position'] === 'left') {
+            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
+            $('#rightpane').detach().insertBefore($('#leftpane'));
+        } else { //right
+            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
+            $('#leftpane').detach().insertBefore($('#rightpane'));
+        }
+
+        if (layoutSettings['userlist-position'] === 'right') {
+            $('#userlist').addClass('pull-right');
+        } else { //left
+            $('#userlist').removeClass('pull-right');
+        }
+
+
+        $('#refresh-video').click();
+    };
+
+    this.applySettings(userSettings.layout);
+});
+},{}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -2061,7 +2211,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -2146,7 +2296,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.renderSmiles();
 });
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     'use strict';
 
@@ -2620,7 +2770,7 @@ window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
     this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode') + '"]').prop('selected', true);
 });
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -2806,7 +2956,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
     $('#queue').sortable("option", "axis", "y");
 });
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -3019,7 +3169,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -3145,7 +3295,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -3206,43 +3356,49 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
         title: 'Аниме-цитаты',
         name: 'anime-quotes',
         description: 'Нескучные аниме-цитаты.',
         url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/anime-quotes/anime-quotes.js',
-        languages: ['ru']
-    });
-});
-},{}],21:[function(require,module,exports){
-cytubeEnhanced.getModule('extras').done(function (extraModules) {
-    extraModules.add({
-        title: 'Цитаты пирата',
-        name: 'pirate-quotes',
-        description: 'Нескучные цитаты Пирата.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/pirate-quotes/pirate-quotes.js',
+        picture: "url.jpg",
+        preview: "preview-url.jpg",
         languages: ['ru']
     });
 });
 },{}],22:[function(require,module,exports){
 cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
-        title: 'Перевод интерфейса',
-        name: 'translate',
-        description: 'Русский перевод интерфейса.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/translate/translate.js',
+        title: 'Цитаты пирата',
+        name: 'pirate-quotes',
+        description: 'Нескучные цитаты Пирата.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/pirate-quotes/pirate-quotes.js',
+        picture: "url.jpg",
+        preview: "preview-url.jpg",
         languages: ['ru']
     });
 });
 },{}],23:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Перевод интерфейса',
+        name: 'translate',
+        description: 'Русский перевод интерфейса.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/translate/translate.js',
+        picture: "url.jpg",
+        preview: "preview-url.jpg",
+        languages: ['ru']
+    });
+});
+},{}],24:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     $('title').text(),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
 );
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
 
@@ -3372,6 +3528,46 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     };
 
 
+    /**
+     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * @param {String} jsonString JSON string
+     * @param {*} defaultValue The default value to return if something wrong with jsonString
+     * @returns {*} Something extracted from json string or default value if something wrong with jsonString.
+     */
+    this.parseJSON = function (jsonString, defaultValue) {
+        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
+        var result;
+
+        try {
+            result = window.JSON.parse(jsonString);
+        } catch (error) {
+            result = defaultValue;
+        }
+
+        return result;
+    };
+
+
+    /**
+     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * @param {*} object Something, that will be converted to JSON string
+     * @param {*} defaultValue The default value to return if something wrong
+     * @returns {String} JSON string
+     */
+    this.toJSON = function (object, defaultValue) {
+        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
+        var result;
+
+        try {
+            result = window.JSON.stringify(object);
+        } catch (error) {
+            result = defaultValue;
+        }
+
+        return result;
+    };
+
+
 
     this.userConfig = new window.CytubeEnhancedUserConfig(this);
 
@@ -3379,7 +3575,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.UI.initialize();
 };
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 window.CytubeEnhancedUI = function (app) {
     var that = this;
     var $navbar = $('#nav-collapsible').find('.navbar-nav');
@@ -3387,7 +3583,7 @@ window.CytubeEnhancedUI = function (app) {
 
     this.settings = {};
 
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + this.controlsPrefix + 'ui">' + app.t('settings[.]Extended options') + '</a>');
+    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + this.controlsPrefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + this.controlsPrefix + 'ui__header"></div>');
     this.$tabsContainerBody = $('<div class="' + this.controlsPrefix + 'ui__body"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
@@ -3400,16 +3596,19 @@ window.CytubeEnhancedUI = function (app) {
     this.initialize = function () {
         app.addTranslation('ru', {
             settings: {
-                'Extended options': 'Расширенные опции'
+                'Extended options': 'Расширенные настройки'
             }
         });
 
+        console.log(app.t('settings[.]Extended options'));
+
         that.$tabsContainerOpenButton
-            .appendTo($navbar)
-            .wrap('<li>')
+            .text(app.t('settings[.]Extended options'))
             .on('click', function () {
                 that.openSettings();
-            });
+            })
+            .appendTo($navbar)
+            .wrap('<li>');
 
         $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
         that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
@@ -3423,10 +3622,6 @@ window.CytubeEnhancedUI = function (app) {
      * @returns {Object} Returns tab config
      */
     this.addTab = function (name, title) {
-        if (that.$tabsContainerTabs.children().length == 0) {
-            that.initialize();
-        }
-
         var $newTabButton = $('<li class="active"><a href="#' + that.controlsPrefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>')
             .appendTo(that.$tabsContainerTabs);
 
@@ -3476,35 +3671,45 @@ window.CytubeEnhancedUI = function (app) {
 
     /**
      * Creates modal window
+     * @param name Modal name
      * @param $headerContent Modal header (optional)
      * @param $bodyContent Modal body (optional)
      * @param $footerContent Modal footer (optional)
      * @returns {jQuery} Modal window
      */
-    this.createModalWindow = function($headerContent, $bodyContent, $footerContent) {
-        var $outer = $('<div class="modal fade chat-help-modal" role="dialog" tabindex="-1">').appendTo($("body"));
-        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-        var $content = $('<div class="modal-content">').appendTo($modal);
+    this.createModalWindow = function(name, $headerContent, $bodyContent, $footerContent) {
+        $('.modal').modal('hide');
+        name = that.controlsPrefix + 'modal-' + name;
+        var $outer;
 
-        if ($headerContent != null) {
-            var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+        if ($('#' + name).length == 0) {
+            $outer = $('<div class="modal fade" id="' + name + '" role="dialog" tabindex="-1">').appendTo($("body"));
+            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+            var $content = $('<div class="modal-content">').appendTo($modal);
 
-            $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+            if ($headerContent != null) {
+                var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+
+                $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+            }
+
+            if ($bodyContent != null) {
+                $('<div class="modal-body">').append($bodyContent).appendTo($content);
+            }
+
+            if ($footerContent != null) {
+                $('<div class="modal-footer">').append($footerContent).appendTo($content);
+            }
+
+            //$outer.on('hidden.bs.modal', function () {
+            //    $(this).remove();
+            //});
+
+            $outer.modal({keyboard: true});
+        } else {
+            $outer = $('#' + name);
+            $outer.modal('show');
         }
-
-        if ($bodyContent != null) {
-            $('<div class="modal-body">').append($bodyContent).appendTo($content);
-        }
-
-        if ($footerContent != null) {
-            $('<div class="modal-footer">').append($footerContent).appendTo($content);
-        }
-
-        $outer.on('hidden.bs.modal', function () {
-            $(this).remove();
-        });
-
-        $outer.modal({keyboard: true});
 
         return $outer;
     };
@@ -3520,10 +3725,10 @@ window.CytubeEnhancedUI = function (app) {
      */
     this.createSelect = function (title, name, config, handler) {
         config = config || {};
-        config = $.extend({}, config, {
+        config = $.extend({}, {
             columns: {label: 4, element: 8},
             options: []
-        });
+        }, config);
 
         var $wrapper = $('<div class="form-group">');
         var $label = $('<label for="' + that.controlsPrefix + name + '" class="control-label col-sm-' + config.columns.label + '">' + title + '</label>').appendTo($wrapper);
@@ -3567,11 +3772,11 @@ window.CytubeEnhancedUI = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        that.settings = app.userConfig.get('settings') || {};
-        return that.createModalWindow(that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+        that.settings = app.parseJSON(app.userConfig.get('settings'), {});
+        return that.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
     }
 };
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 window.CytubeEnhancedUserConfig = function (app) {
     var that = this;
 
@@ -3622,4 +3827,4 @@ window.CytubeEnhancedUserConfig = function (app) {
         return result;
     };
 };
-},{}]},{},[24,26,25,23,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]);
+},{}]},{},[25,27,26,24,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]);
