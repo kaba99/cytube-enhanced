@@ -38,7 +38,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
         var i;
         var words = $("#chatline").val().split(" ");
         var current = words[words.length - 1].toLowerCase();
-        if (!current.match(/^[\w-]{1,20}$/)) {
+        if (!current.match(/^[\wа-яА-ЯёЁ-]{1,20}$/)) {
             return;
         }
 

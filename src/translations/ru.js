@@ -7,7 +7,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'no way': 'определенно нет',
         'don\'t think so': 'вероятность мала',
         'no': 'нет',
-        'fairy is busy': 'фея устала и отвечать не будет',
+        'cirno is busy': 'сырно устала и отвечать не будет',
         'I regret to inform you': 'отказываюсь отвечать'
     },
     chatCommands: {
@@ -34,8 +34,7 @@ window.cytubeEnhanced.addTranslation('ru', {
         'show the current video\'s name': 'показать название текущего видео',
         'now: ': 'сейчас играет: ',
         'show the random emote': 'показать случайный смайлик',
-        'the secret command': 'секретная команда',
-        'memes snow': 'мемный снег'
+        'the secret command': 'секретная команда'
     },
     'The list of chat commands': 'Список команд чата',
     'Standard commands': 'Стандартные команды',
