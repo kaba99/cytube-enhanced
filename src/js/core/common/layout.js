@@ -3,10 +3,9 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
 
     var that = this;
 
-    var tabConfig = app.UI.getTab('layout', 'Сетка');
-    var $tabButton = tabConfig.button;
-    var $tabContent = $('<div class="form-horizontal">').appendTo(tabConfig.content);
-    var userSettings = app.UI.settings;
+    var tab = app.Settings.getTab('layout', 'Сетка', 200);
+    var $tabContent = app.UI.createControlsWrapper('horizontal').appendTo(tab.$content);
+    var userSettings = app.Settings.data;
     userSettings.layout = userSettings.layout || {};
 
     this.layout = {
@@ -57,26 +56,21 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
             }
         }
 
-        console.log(layoutItem.options);
-
-        app.UI.createSelect(layoutItem.title, itemName, {
-            options: layoutItem.options
-        }).appendTo($tabContent);
+        app.UI.createSelectControl('horizontal', layoutItem.title, itemName, layoutItem.options).appendTo($tabContent);
     }
 
 
     /**
      * Saving and applying settings
      */
-    $(document).on(app.UI.controlsPrefix + 'settings.save', function () {
-        userSettings.layout = {};
+    app.Settings.onSave(function (settings) {
+        settings.layout = {};
 
         for (var itemName in that.layout) {
-            userSettings.layout[itemName] = $('#' + app.UI.controlsPrefix + itemName).val();
+            settings.layout[itemName] = $('#' + app.prefix + itemName).val();
         }
 
-        app.userConfig.set('settings', app.toJSON(userSettings));
-        that.applySettings(userSettings.layout);
+        that.applySettings(settings.layout);
     });
 
 

@@ -1014,6 +1014,12 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
 },{"jquery.selection":2}],5:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     'use strict';
+    var that = this;
+
+    //var tab = app.UI.Settings.getTab('general', 'Общее');
+    //var $tabContent = $('<div class="form-horizontal">').appendTo(tabConfig.content);
+    var userSettings = app.Settings.data;
+    userSettings.layout = userSettings.layout || {};
 
     if (app.userConfig.get('avatarsMode')) {
         window.formatChatMessage = (function (oldFormatChatMessage) {
@@ -1042,7 +1048,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
             var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
 
-            if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
+            if (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) {
                 var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                     .addClass(avatarCssClasses)
                     .prependTo($messageBlock);
@@ -1201,6 +1207,150 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
 });
 
 },{}],8:[function(require,module,exports){
+window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
+    'use strict';
+
+    var that = this;
+
+    var tab = app.Settings.getTab('layout', 'Сетка', 200);
+    var $tabContent = app.UI.createControlsWrapper('horizontal').appendTo(tab.$content);
+    var userSettings = app.Settings.data;
+    userSettings.layout = userSettings.layout || {};
+
+    this.layout = {
+        'hide-header': {
+            title: app.t('userConfig[.]Hide header'),
+            options: [
+                {value: 'yes', title: app.t('userConfig[.]Yes')},
+                {value: 'no', title: app.t('userConfig[.]No'), selected: true}
+            ]
+        },
+        'player-position': {
+            title: app.t('userConfig[.]Player position'),
+            default: 'right',
+            options: [
+                {value: 'left', title: app.t('userConfig[.]Left')},
+                {value: 'right', title: app.t('userConfig[.]Right'), selected: true},
+                {value: 'center', title: app.t('userConfig[.]Center')}
+            ]
+        },
+        'playlist-position': {
+            title: app.t('userConfig[.]Playlist position'),
+            options: [
+                {value: 'left', title: app.t('userConfig[.]Left')},
+                {value: 'right', title: app.t('userConfig[.]Right'), selected: true}
+            ]
+        },
+        'userlist-position': {
+            title: app.t('userConfig[.]Chat\'s userlist position'),
+            options: [
+                {value: 'left', title: app.t('userConfig[.]Left'), selected: true},
+                {value: 'right', title: app.t('userConfig[.]Right')}
+            ]
+        }
+    };
+
+
+    /**
+     * Creating markup
+     */
+    var layoutItem;
+    var layoutOption;
+    for (var itemName in this.layout) {
+        layoutItem = this.layout[itemName];
+
+        if (userSettings.layout[itemName]) {
+            for (layoutOption in layoutItem.options) {
+                layoutItem.options[layoutOption].selected = (userSettings.layout[itemName] == layoutItem.options[layoutOption].value)
+            }
+        }
+
+        app.UI.createSelectControl('horizontal', layoutItem.title, itemName, layoutItem.options).appendTo($tabContent);
+    }
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        settings.layout = {};
+
+        for (var itemName in that.layout) {
+            settings.layout[itemName] = $('#' + app.prefix + itemName).val();
+        }
+
+        that.applySettings(settings.layout);
+    });
+
+
+    this.applySettings = function (layoutSettings) {
+        if (layoutSettings['hide-header'] === 'yes') {
+            $('#motdrow').hide();
+            $('#motdrow').data('hiddenByLayout', '1');
+        } else {
+            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
+                $('#motdrow').show();
+            }
+            $('#motdrow').data('hiddenByLayout', '0');
+        }
+
+        if (layoutSettings['player-position'] === 'left') {
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else if (layoutSettings['player-position'] === 'center') {
+            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+
+            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
+            $('#videowrap').addClass('col-md-10 col-md-offset-1');
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else { //right
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#chatwrap').detach().insertBefore($('#videowrap'));
+        }
+
+        if (layoutSettings['playlist-position'] === 'left') {
+            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
+            $('#rightpane').detach().insertBefore($('#leftpane'));
+        } else { //right
+            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
+            $('#leftpane').detach().insertBefore($('#rightpane'));
+        }
+
+        if (layoutSettings['userlist-position'] === 'right') {
+            $('#userlist').addClass('pull-right');
+        } else { //left
+            $('#userlist').removeClass('pull-right');
+        }
+
+
+        $('#refresh-video').click();
+    };
+
+    this.applySettings(userSettings.layout);
+});
+},{}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
 
@@ -1224,7 +1374,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
 });
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -1504,7 +1654,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -1620,7 +1770,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":1}],11:[function(require,module,exports){
+},{"jquery-mousewheel":1}],12:[function(require,module,exports){
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
@@ -1910,7 +2060,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     });
 });
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * Saves messages from chat which were sent by other users to you
  */
@@ -2023,156 +2173,6 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
             $modalWindow.modal('hide');
         }
     };
-});
-},{}],13:[function(require,module,exports){
-window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
-    'use strict';
-
-    var that = this;
-
-    var tabConfig = app.UI.getTab('layout', 'Сетка');
-    var $tabButton = tabConfig.button;
-    var $tabContent = $('<div class="form-horizontal">').appendTo(tabConfig.content);
-    var userSettings = app.UI.settings;
-    userSettings.layout = userSettings.layout || {};
-
-    this.layout = {
-        'hide-header': {
-            title: app.t('userConfig[.]Hide header'),
-            options: [
-                {value: 'yes', title: app.t('userConfig[.]Yes')},
-                {value: 'no', title: app.t('userConfig[.]No'), selected: true}
-            ]
-        },
-        'player-position': {
-            title: app.t('userConfig[.]Player position'),
-            default: 'right',
-            options: [
-                {value: 'left', title: app.t('userConfig[.]Left')},
-                {value: 'right', title: app.t('userConfig[.]Right'), selected: true},
-                {value: 'center', title: app.t('userConfig[.]Center')}
-            ]
-        },
-        'playlist-position': {
-            title: app.t('userConfig[.]Playlist position'),
-            options: [
-                {value: 'left', title: app.t('userConfig[.]Left')},
-                {value: 'right', title: app.t('userConfig[.]Right'), selected: true}
-            ]
-        },
-        'userlist-position': {
-            title: app.t('userConfig[.]Chat\'s userlist position'),
-            options: [
-                {value: 'left', title: app.t('userConfig[.]Left'), selected: true},
-                {value: 'right', title: app.t('userConfig[.]Right')}
-            ]
-        }
-    };
-
-
-    /**
-     * Creating markup
-     */
-    var layoutItem;
-    var layoutOption;
-    for (var itemName in this.layout) {
-        layoutItem = this.layout[itemName];
-
-        if (userSettings.layout[itemName]) {
-            for (layoutOption in layoutItem.options) {
-                layoutItem.options[layoutOption].selected = (userSettings.layout[itemName] == layoutItem.options[layoutOption].value)
-            }
-        }
-
-        console.log(layoutItem.options);
-
-        app.UI.createSelect(layoutItem.title, itemName, {
-            options: layoutItem.options
-        }).appendTo($tabContent);
-    }
-
-
-    /**
-     * Saving and applying settings
-     */
-    $(document).on(app.UI.controlsPrefix + 'settings.save', function () {
-        userSettings.layout = {};
-
-        for (var itemName in that.layout) {
-            userSettings.layout[itemName] = $('#' + app.UI.controlsPrefix + itemName).val();
-        }
-
-        app.userConfig.set('settings', app.toJSON(userSettings));
-        that.applySettings(userSettings.layout);
-    });
-
-
-    this.applySettings = function (layoutSettings) {
-        if (layoutSettings['hide-header'] === 'yes') {
-            $('#motdrow').hide();
-            $('#motdrow').data('hiddenByLayout', '1');
-        } else {
-            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
-                $('#motdrow').show();
-            }
-            $('#motdrow').data('hiddenByLayout', '0');
-        }
-
-        if (layoutSettings['player-position'] === 'left') {
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (layoutSettings['player-position'] === 'center') {
-            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-
-            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
-            $('#videowrap').addClass('col-md-10 col-md-offset-1');
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else { //right
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#chatwrap').detach().insertBefore($('#videowrap'));
-        }
-
-        if (layoutSettings['playlist-position'] === 'left') {
-            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
-            $('#rightpane').detach().insertBefore($('#leftpane'));
-        } else { //right
-            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
-            $('#leftpane').detach().insertBefore($('#rightpane'));
-        }
-
-        if (layoutSettings['userlist-position'] === 'right') {
-            $('#userlist').addClass('pull-right');
-        } else { //left
-            $('#userlist').removeClass('pull-right');
-        }
-
-
-        $('#refresh-video').click();
-    };
-
-    this.applySettings(userSettings.layout);
 });
 },{}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
@@ -3402,13 +3402,12 @@ window.cytubeEnhanced = new window.CytubeEnhanced(
 },{}],25:[function(require,module,exports){
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
-
     var that = this;
 
     this.channelName = channelName;
     this.language = language;
-
     this.translations = {};
+    this.prefix = 'ce-';
 
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
@@ -3569,91 +3568,102 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     };
 
 
-
     this.userConfig = new window.CytubeEnhancedUserConfig(this);
-
     this.UI = new window.CytubeEnhancedUI(this);
-    this.UI.initialize();
+    this.Settings = new window.CytubeEnhancedUISettings(this);
 };
 
 },{}],26:[function(require,module,exports){
-window.CytubeEnhancedUI = function (app) {
+window.CytubeEnhancedUISettings = function (app) {
+    'use strict';
     var that = this;
-    var $navbar = $('#nav-collapsible').find('.navbar-nav');
-    this.controlsPrefix = 'ce-';
 
-    this.settings = {};
-
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + this.controlsPrefix + 'ui"></a>');
-    this.$tabsContainerHeader = $('<div class="' + this.controlsPrefix + 'ui__header"></div>');
-    this.$tabsContainerBody = $('<div class="' + this.controlsPrefix + 'ui__body"></div>');
+    this.$navbar = $('#nav-collapsible').find('.navbar-nav');
+    this.tabs = {};
+    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
+    this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
+    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
-    this.$tabsContainerFooter = $('<div class="' + this.controlsPrefix + 'ui__footer"></div>');
+    this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
+
+    /**
+     * Data, stored from tabs.
+     * @type {{}}
+     */
+    this.data = {};
+
+
+    app.addTranslation('ru', {
+        settings: {
+            'Extended options': 'Расширенные настройки'
+        }
+    });
+
+    that.$tabsContainerOpenButton
+        .text(app.t('settings[.]Extended options'))
+        .on('click', function () {
+            that.openSettings();
+        })
+        .appendTo(that.$navbar)
+        .wrap('<li>');
+
+    $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
+    that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
+
 
 
     /**
-     * Creates settings
+     * Adds action on settings save
+     * @param callback Callback to be called on settings save
      */
-    this.initialize = function () {
-        app.addTranslation('ru', {
-            settings: {
-                'Extended options': 'Расширенные настройки'
-            }
+    this.onSave = function (callback) {
+        $(document).on(app.prefix + 'settings.save', function () {
+            callback(that.data);
         });
+    };
 
-        console.log(app.t('settings[.]Extended options'));
 
-        that.$tabsContainerOpenButton
-            .text(app.t('settings[.]Extended options'))
-            .on('click', function () {
-                that.openSettings();
-            })
-            .appendTo($navbar)
-            .wrap('<li>');
-
-        $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
-        that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
+    /**
+     * Saves and applies data from tabs
+     */
+    this.save = function () {
+        $(document).trigger(app.prefix + 'settings.save');
+        app.userConfig.set('settings', app.toJSON(that.data));
     };
 
 
     /**
      * Adds new tab
-     * @param name The name of the tab
-     * @param title The title of the tab
-     * @returns {Object} Returns tab config
+     * @param {String} name The name of the tab
+     * @param {String} title The title of the tab
+     * @param {Number} [sort] Position of tab (the higher the value, the "lefter" the tab)
+     * @returns {Object} Returns tab object
      */
-    this.addTab = function (name, title) {
-        var $newTabButton = $('<li class="active"><a href="#' + that.controlsPrefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>')
-            .appendTo(that.$tabsContainerTabs);
+    var addTab = function (name, title, sort) {
+        var tab = new window.CytubeEnhancedUITab(app, name, title, sort);
 
-        var $newTab = $('<div id="' + that.controlsPrefix + name + '__content" class="tab-pane">')
-            .appendTo(that.$tabsContainerBody);
+        tab.$button.appendTo(that.$tabsContainerTabs);
+        tab.$content.appendTo(that.$tabsContainerBody);
+        that.tabs[name] = tab;
 
-        return {
-            button: $newTabButton,
-            content: $newTab
-        }
+        that.sortTabs();
+
+        return tab;
     };
 
 
     /**
      * Gets tab's content by its name
-     * @param name {String} The name of the tab
-     * @param newTabTitle {String} If passed and tab is not exists, it creates the tab automatically with these name and title
+     * @param {String} name The name of the tab
+     * @param {String} newTabTitle If passed and tab is not exists, it creates the tab automatically with these name and title
      * @returns {null|Object} Returns null or tab config
      */
     this.getTab = function (name, newTabTitle) {
-        var $button = $('#' + that.controlsPrefix + name + '__button');
-        var $tab = $('#' + that.controlsPrefix + name + '__content');
-
-        if ($tab.length !== 0 && $button.length !== 0) {
-            return {
-                button: $button,
-                content: $tab
-            };
+        if (typeof that.tabs[name] !== 'undefined') {
+            return that.tabs[name];
         } else {
             if (newTabTitle) {
-                return that.addTab(name, newTabTitle);
+                return addTab(name, newTabTitle);
             } else {
                 return null;
             }
@@ -3663,27 +3673,91 @@ window.CytubeEnhancedUI = function (app) {
 
     /**
      * Opens tab by its name
-     * @param name The name of the tab
+     * @param {String} name The name of the tab
      */
     this.openTab = function (name) {
-        $('#' + that.controlsPrefix + name + '__button').trigger('click');
+        that.tabs[name].show();
     };
 
 
     /**
+     * Sorts tabs
+     */
+    this.sortTabs = function () {
+        //that.tabs
+    };
+
+
+    /**
+     * Opens settings modal
+     * @returns {jQuery} Modal window
+     */
+    this.openSettings = function () {
+        that.data = app.parseJSON(app.userConfig.get('settings'), {});
+        return app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+    }
+};
+},{}],27:[function(require,module,exports){
+window.CytubeEnhancedUITab = function (app, name, title, sort) {
+    'use strict';
+    var that = this;
+
+    this.$button = $('<li class="active"><a href="#' + app.prefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>');
+    this.$content = $('<div id="' + app.prefix + name + '__content" class="tab-pane">');
+    this.sort = parseInt(sort, 10) || 0;
+    this.controls = {};
+
+
+    /**
+     * Shows the tab
+     */
+    this.show = function () {
+        that.$tabButton.trigger('click');
+    };
+
+
+    /**
+     * Adds custom control to tab
+     * @param {String} type Type of control function
+     * @param {String} controlType Control's type (default, horizontal, inline)
+     * @param {String} title Label's title
+     * @param {String} name Name of the control
+     * @param {Object} [options] Options for the control.
+     * @param {Function} [handler] Callback, which is calling on every control's change.
+     * @param {Number} [sort] Position of tab (the higher the value, the "lefter" the tab)
+     * @returns {jQuery}
+     */
+    this.addControl = function (type, controlType, title, name, options, handler, sort) {
+        type = (['select', 'checkbox'].indexOf(type) != -1) ? type : 'select';
+        sort = parseInt(sort, 10) || 0;
+        var controlFunctionName = 'create' + type.slice(0, 1).toUpperCase() + type.slice(1) + 'Control';
+
+        var $control = app.UI[controlFunctionName](controlType, title, name, options, handler);
+        $control.data('sort', sort);
+        that.controls[name] = {$el: $control, sort: sort}
+
+        return $control;
+    };
+};
+},{}],28:[function(require,module,exports){
+window.CytubeEnhancedUI = function (app) {
+    var that = this;
+
+
+    /**
      * Creates modal window
-     * @param name Modal name
+     * @param id Modal id
      * @param $headerContent Modal header (optional)
      * @param $bodyContent Modal body (optional)
      * @param $footerContent Modal footer (optional)
      * @returns {jQuery} Modal window
      */
-    this.createModalWindow = function(name, $headerContent, $bodyContent, $footerContent) {
+    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
         $('.modal').modal('hide');
-        name = that.controlsPrefix + 'modal-' + name;
+        id = app.prefix + 'modal-' + name;
         var $outer;
 
-        if ($('#' + name).length == 0) {
+        if ($('#' + id).length == 0) {
             $outer = $('<div class="modal fade" id="' + name + '" role="dialog" tabindex="-1">').appendTo($("body"));
             var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
             var $content = $('<div class="modal-content">').appendTo($modal);
@@ -3691,7 +3765,7 @@ window.CytubeEnhancedUI = function (app) {
             if ($headerContent != null) {
                 var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
 
-                $('<button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+                $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
             }
 
             if ($bodyContent != null) {
@@ -3717,33 +3791,48 @@ window.CytubeEnhancedUI = function (app) {
 
 
     /**
+     * Creates wrapper for control elements.
+     * @param type Type of wrapper (default, horizontal, inline).
+     * @returns {jQuery}
+     */
+    this.createControlsWrapper = function (type) {
+        type = (['default', 'horizontal', 'inline'].indexOf(type) != -1) ? type : 'default';
+
+        return $('<div class="form-' + type + '">');
+    };
+
+
+    /**
      * Creates select with bootstrap markup
+     * @param {String} type Control's type (default, horizontal, inline)
      * @param {String} title Label's title
      * @param {String} name Name of the select
-     * @param {Object} config Config for the select.
+     * @param {Object} [options] Options for the select. An example of options: [{value: 'value 1', title: 'title 1', selected: true}, {value: 'value 2', title: 'title 2'}]
      * @param {Function} [handler] Callback, which is calling on every select's change.
      * @returns {jQuery}
      */
-    this.createSelect = function (title, name, config, handler) {
-        config = config || {};
-        config = $.extend({}, {
-            columns: {label: 4, element: 8},
-            options: []
-        }, config);
-
+    this.createSelectControl = function (type, title, name, options, handler) {
+        options = options || [];
         var $wrapper = $('<div class="form-group">');
-        var $label = $('<label for="' + that.controlsPrefix + name + '" class="control-label col-sm-' + config.columns.label + '">' + title + '</label>').appendTo($wrapper);
-        var $selectWrapper = $('<div class="col-sm-' + config.columns.element + '">').appendTo($wrapper);
-        var $select = $('<select id="' + that.controlsPrefix + name + '" class="form-control">').appendTo($selectWrapper);
+        var $select;
+
+        if (type == 'horizontal') {
+            $('<label for="' + app.prefix + name + '" class="control-label col-sm-4">' + title + '</label>').appendTo($wrapper);
+            var $selectWrapper = $('<div class="col-sm-8">').appendTo($wrapper);
+            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($selectWrapper);
+        } else { //inline or default
+            $('<label for="' + app.prefix + name + '">' + title + '</label>').appendTo($wrapper);
+            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($wrapper);
+        }
 
         if (handler) {
             $select.on('change', handler);
         }
 
         var selected;
-        for (var optionIndex = 0, optionsLength = config.options.length; optionIndex < optionsLength; optionIndex++) {
-            selected = config.options[optionIndex].selected ? 'selected' : '';
-            $select.append('<option value="' + config.options[optionIndex].value + '" ' + selected + '>' + config.options[optionIndex].title + '</option>');
+        for (var optionIndex = 0, optionsLength = options.length; optionIndex < optionsLength; optionIndex++) {
+            selected = options[optionIndex].selected ? 'selected' : '';
+            $select.append('<option value="' + options[optionIndex].value + '" ' + selected + '>' + options[optionIndex].title + '</option>');
         }
 
         return $wrapper;
@@ -3752,32 +3841,21 @@ window.CytubeEnhancedUI = function (app) {
 
     /**
      * Creates button
-     * @param {String} title Button's title
      * @param {String} [type] Bootstrap button's type (default, primary, success, danger, alert, info, link, etc)
+     * @param {String} title Button's title
      * @param {Function} [handler] Callback, which is calling on every button's click.
      */
-    this.createButton = function (title, type, handler) {
-        type = type || 'default';
-
+    this.createButton = function (type, title, handler) {
         var $button = $('<button type="button" class="btn btn-' + type + '">' + title + '</button>');
+
         if (handler) {
             $button.on('click', handler);
         }
 
         return $button;
     };
-
-
-    /**
-     * Opens settings modal
-     * @returns {jQuery} Modal window
-     */
-    this.openSettings = function () {
-        that.settings = app.parseJSON(app.userConfig.get('settings'), {});
-        return that.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
-    }
 };
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 window.CytubeEnhancedUserConfig = function (app) {
     var that = this;
 
@@ -3828,7 +3906,7 @@ window.CytubeEnhancedUserConfig = function (app) {
         return result;
     };
 };
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 window.cytubeEnhanced.addTranslation('ru', {
     qCommands: {
         'of course': 'определенно да',
@@ -4009,7 +4087,8 @@ window.cytubeEnhanced.addTranslation('ru', {
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'
     },
-    'Help': 'Помощь'
+    'Help': 'Помощь',
+    'Close': 'Закрыть'
 });
 
-},{}]},{},[25,27,26,24,28,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]);
+},{}]},{},[25,29,28,26,27,24,30,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]);

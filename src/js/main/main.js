@@ -1,12 +1,11 @@
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
-
     var that = this;
 
     this.channelName = channelName;
     this.language = language;
-
     this.translations = {};
+    this.prefix = 'ce-';
 
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
@@ -167,9 +166,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     };
 
 
-
     this.userConfig = new window.CytubeEnhancedUserConfig(this);
-
     this.UI = new window.CytubeEnhancedUI(this);
-    this.UI.initialize();
+    this.Settings = new window.CytubeEnhancedUISettings(this);
 };

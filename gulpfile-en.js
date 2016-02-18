@@ -13,7 +13,7 @@ var buffer = require('vinyl-buffer');
 var globby = require('globby');
 var through = require('through2');
 
-var jsFilesGlob = ['./src/js/main/main.js', './src/js/main/user-config.js', './src/js/main/ui.js', './src/js/main/main-en.js', './src/js/core/**/*.js', './src/js/extras/**/config.js'];
+var jsFilesGlob = ['./src/js/main/main.js', './src/js/main/user-config/user-config.js', './src/js/main/ui/ui.js', './src/js/main/settings/settings.js', './src/js/main/settings/tab.js', './src/js/main/main-en.js', './src/js/core/**/*.js', './src/js/extras/**/config.js'];
 var cssFilesGlob = ['./src/css/cytube-enhanced.css', './src/css/videojs-progress.css'];
 
 
@@ -38,7 +38,7 @@ gulp.task('build-js', function () {
         // Add gulp plugins to the pipeline here.
         .pipe(gulp.dest('./build/en'))
         .pipe(rename('cytube-enhanced.min.js'))
-        .pipe(uglify({mangle: false}))
+        .pipe(uglify({mangle: false, preserveComments: ''}))
         .pipe(gulp.dest('./build/en'));
 
     // "globby" replaces the normal "gulp.src" as Browserify
@@ -67,7 +67,7 @@ gulp.task('build-css', function () {
     return gulp.src(cssFilesGlob)
         .pipe(concat('cytube-enhanced.css'))
         .pipe(autoprefixer({
-            browsers: ['last 2 versions'],
+            browsers: ['last 7 versions'],
             cascade: false
         }))
         .pipe(gulp.dest('./build/en'))
