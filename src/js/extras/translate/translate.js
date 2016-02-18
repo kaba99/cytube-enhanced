@@ -5,13 +5,6 @@ window.cytubeEnhanced.addModule('translate', function (app) {
         $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
     }
 
-    if ($('#showmediaurl').length !== 0) {
-        $('#showmediaurl').html(app.t('standardUI[.]Add video'))
-            .attr({title: app.t('standardUI[.]Add video from url')})
-            .detach()
-            .insertBefore($('#showsearch'));
-    }
-
     if ($('.navbar-brand').length !== 0) {
         $('.navbar-brand').text(app.channelName);
     }
