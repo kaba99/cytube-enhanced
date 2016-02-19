@@ -1,4 +1,5 @@
-window.cytubeEnhanced.addTranslation('ru', {
+window.cytubeEnhancedDefaultTranslates = window.cytubeEnhancedDefaultTranslates || {};
+window.cytubeEnhancedDefaultTranslates['ru'] = {
     qCommands: {
         'of course': 'определенно да',
         'yes': 'да',
@@ -80,33 +81,32 @@ window.cytubeEnhanced.addTranslation('ru', {
     emotes: {
         'Show emotes': 'Показать смайлики'
     },
-    userConfig: {
+    settings: {
+        'Extended settings': 'Расширенные настройки',
+        'Save': 'Сохранить',
+        'Cancel': 'Отмена',
+        'Some settings need to refresh the page to get to work. Do it now?': 'Для нормальной работы некоторых настроек требуется перезагрузить страницу. Сделать это сейчас?',
+        'Yes': 'Да',
+        'No': 'Нет'
+    },
+    general: {
+        'Smiles and pictures together': 'Смайлики и картинки вместе',
+        'Show emotes and favorite images': 'Показать смайлики и избранные изображения'
+    },
+    layout: {
         'Hide header': 'Скрывать шапку',
         'Player position': 'Положение плеера',
         'Playlist position': 'Положение плейлиста',
         'Chat\'s userlist position': 'Позиция списка пользователей чата',
-        'Yes': 'Да',
-        'No': 'Нет',
         'Left': 'Слева',
         'Right': 'Справа',
-        'Center': 'По центру',
-        'Show emotes and favorite images': 'Показать смайлики и избранные картинки',
-        'Settings': 'Настройки',
-        'Layout': 'Оформление',
-        'User CSS': 'Пользовательское CSS',
-        'Cancel': 'Отмена',
-        'Reset settings': 'Сбросить настройки',
-        'All the settings including user css will be reset, continue?': 'Все настройки, в том числе и пользовательское CSS будут сброшены, продолжить?',
-        'Save': 'Сохранить',
-        'Layout settings': 'Настройки оформления',
-        'Minimize': 'Минимизировать',
-        'Common': 'Общее',
-        'and': 'и',
+        'Center': 'По центру'
+    },
+    chatAvatars: {
         'Chat avatars': 'Аватарки в чате',
-        'Turned off': 'Выключены',
+        'Disabled': 'Выключены',
         'Small': 'Маленькие',
         'Big': 'Большие'
-
     },
     standardUI: {   //app.t('standardUI[.]')
         'Create a poll': 'Создать опрос',
@@ -179,4 +179,4 @@ window.cytubeEnhanced.addTranslation('ru', {
     },
     'Help': 'Помощь',
     'Close': 'Закрыть'
-});
+};

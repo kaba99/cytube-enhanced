@@ -20,7 +20,6 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
         .html('<i class="glyphicon glyphicon-picture"></i>')
         .prependTo('#chat-controls');
 
-
     this.$smilesPanel = $('<div id="smiles-panel">')
         .prependTo('#chat-panel')
         .hide();
@@ -76,6 +75,12 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
         that.handleSmileBtn($(this));
     });
 
+
+    this.makeSmilesAndPicturesTogether = function () {
+        that.smilesAndPicturesTogether = true;
+        that.$smilesBtn.hide();
+        that.$smilesPanel.hide();
+    };
 
 
 

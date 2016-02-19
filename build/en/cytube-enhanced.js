@@ -593,7 +593,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     }
 
 
-    this.askAnswers = ["100%", app.t('qCommands[.]of course'), app.t('qCommands[.]yes'), app.t('qCommands[.]maybe'), app.t('qCommands[.]impossible'), app.t('qCommands[.]no way'), app.t('qCommands[.]don\'t think so'), app.t('qCommands[.]no'), "50/50", app.t('qCommands[.]fairy is busy'), app.t('qCommands[.]I regret to inform you')];
+    this.askAnswers = ["100%", app.t('qCommands[.]of course'), app.t('qCommands[.]yes'), app.t('qCommands[.]maybe'), app.t('qCommands[.]impossible'), app.t('qCommands[.]no way'), app.t('qCommands[.]don\'t think so'), app.t('qCommands[.]no'), "50/50", app.t('qCommands[.]cirno is busy'), app.t('qCommands[.]I regret to inform you')];
 
 
     this.randomQuotes = [];
@@ -890,6 +890,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         that.sendUserChatMessage(e);
     });
 });
+
 },{}],4:[function(require,module,exports){
 require('jquery.selection');
 
@@ -1016,17 +1017,61 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     'use strict';
     var that = this;
 
-    //var tab = app.UI.Settings.getTab('general', 'Общее');
-    //var $tabContent = $('<div class="form-horizontal">').appendTo(tabConfig.content);
+    var tab = app.Settings.getTab('general', 'Общее', 100);
     var userSettings = app.Settings.data;
-    userSettings.layout = userSettings.layout || {};
+    userSettings.avatars = userSettings.avatars || {};
 
-    if (app.userConfig.get('avatarsMode')) {
+
+    this.scheme = {
+        'avatars-mode': {
+            title: app.t('chatAvatars[.]Chat avatars'),
+            options: [
+                {value: '', title: app.t('chatAvatars[.]Disabled'), selected: true},
+                {value: 'small', title: app.t('chatAvatars[.]Small')},
+                {value: 'big', title: app.t('chatAvatars[.]Big')}
+            ]
+        }
+    };
+
+
+    /**
+     * Creating markup for settings
+     */
+    var schemeItem;
+    var option;
+    for (var itemName in this.scheme) {
+        schemeItem = this.scheme[itemName];
+
+        if (userSettings.avatars[itemName]) {
+            for (option in schemeItem.options) {
+                schemeItem.options[option].selected = (userSettings.avatars[itemName] == schemeItem.options[option].value)
+            }
+        }
+
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, 100);
+    }
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        settings.avatars = settings.avatars || {};
+
+        for (var itemName in that.scheme) {
+            settings.avatars[itemName] = $('#' + app.prefix + itemName).val();
+        }
+    });
+
+
+    /**
+     * Applying settings
+     */
+    if (userSettings.avatars['avatars-mode']) {
         window.formatChatMessage = (function (oldFormatChatMessage) {
             return function (data, last) {
                 var div = oldFormatChatMessage(data, last);
-
-                var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
+                var avatarCssClasses = (userSettings.avatars['avatars-mode'] == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
 
                 if ((window.findUserlistItem(data.username) != null) && (window.findUserlistItem(data.username).data('profile').image != "")) {
                     var $avatar = $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
@@ -1046,14 +1091,14 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
         $('.username').each(function () {
             var $messageBlock = $(this).parent();
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
-            var avatarCssClasses = (app.userConfig.get('avatarsMode') == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
+            var avatarCssClasses = (userSettings.avatars['avatars-mode'] == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
 
             if (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) {
                 var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                     .addClass(avatarCssClasses)
                     .prependTo($messageBlock);
 
-                if (app.userConfig.get('avatarsMode') == 'big') {
+                if (userSettings.avatars['avatars-mode'] == 'big') {
                     $(this).css('display', 'none');
                     $avatar.attr('title', username);
                 }
@@ -1207,150 +1252,6 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
 });
 
 },{}],8:[function(require,module,exports){
-window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
-    'use strict';
-
-    var that = this;
-
-    var tab = app.Settings.getTab('layout', 'Сетка', 200);
-    var $tabContent = app.UI.createControlsWrapper('horizontal').appendTo(tab.$content);
-    var userSettings = app.Settings.data;
-    userSettings.layout = userSettings.layout || {};
-
-    this.layout = {
-        'hide-header': {
-            title: app.t('userConfig[.]Hide header'),
-            options: [
-                {value: 'yes', title: app.t('userConfig[.]Yes')},
-                {value: 'no', title: app.t('userConfig[.]No'), selected: true}
-            ]
-        },
-        'player-position': {
-            title: app.t('userConfig[.]Player position'),
-            default: 'right',
-            options: [
-                {value: 'left', title: app.t('userConfig[.]Left')},
-                {value: 'right', title: app.t('userConfig[.]Right'), selected: true},
-                {value: 'center', title: app.t('userConfig[.]Center')}
-            ]
-        },
-        'playlist-position': {
-            title: app.t('userConfig[.]Playlist position'),
-            options: [
-                {value: 'left', title: app.t('userConfig[.]Left')},
-                {value: 'right', title: app.t('userConfig[.]Right'), selected: true}
-            ]
-        },
-        'userlist-position': {
-            title: app.t('userConfig[.]Chat\'s userlist position'),
-            options: [
-                {value: 'left', title: app.t('userConfig[.]Left'), selected: true},
-                {value: 'right', title: app.t('userConfig[.]Right')}
-            ]
-        }
-    };
-
-
-    /**
-     * Creating markup
-     */
-    var layoutItem;
-    var layoutOption;
-    for (var itemName in this.layout) {
-        layoutItem = this.layout[itemName];
-
-        if (userSettings.layout[itemName]) {
-            for (layoutOption in layoutItem.options) {
-                layoutItem.options[layoutOption].selected = (userSettings.layout[itemName] == layoutItem.options[layoutOption].value)
-            }
-        }
-
-        app.UI.createSelectControl('horizontal', layoutItem.title, itemName, layoutItem.options).appendTo($tabContent);
-    }
-
-
-    /**
-     * Saving and applying settings
-     */
-    app.Settings.onSave(function (settings) {
-        settings.layout = {};
-
-        for (var itemName in that.layout) {
-            settings.layout[itemName] = $('#' + app.prefix + itemName).val();
-        }
-
-        that.applySettings(settings.layout);
-    });
-
-
-    this.applySettings = function (layoutSettings) {
-        if (layoutSettings['hide-header'] === 'yes') {
-            $('#motdrow').hide();
-            $('#motdrow').data('hiddenByLayout', '1');
-        } else {
-            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
-                $('#motdrow').show();
-            }
-            $('#motdrow').data('hiddenByLayout', '0');
-        }
-
-        if (layoutSettings['player-position'] === 'left') {
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (layoutSettings['player-position'] === 'center') {
-            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-
-            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
-            $('#videowrap').addClass('col-md-10 col-md-offset-1');
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else { //right
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#chatwrap').detach().insertBefore($('#videowrap'));
-        }
-
-        if (layoutSettings['playlist-position'] === 'left') {
-            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
-            $('#rightpane').detach().insertBefore($('#leftpane'));
-        } else { //right
-            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
-            $('#leftpane').detach().insertBefore($('#rightpane'));
-        }
-
-        if (layoutSettings['userlist-position'] === 'right') {
-            $('#userlist').addClass('pull-right');
-        } else { //left
-            $('#userlist').removeClass('pull-right');
-        }
-
-
-        $('#refresh-video').click();
-    };
-
-    this.applySettings(userSettings.layout);
-});
-},{}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
 
@@ -1374,7 +1275,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
 });
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -1441,6 +1342,13 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         '</div>')
         .appendTo(this.$favouritePicturesControlPanel);
 
+
+
+    this.makeSmilesAndPicturesTogether = function () {
+        that.smilesAndPicturesTogether = true;
+        that.$toggleFavouritePicturesPanelBtn.hide();
+        that.$favouritePicturesPanel.hide();
+    };
 
 
 
@@ -1654,7 +1562,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -1770,7 +1678,151 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":1}],12:[function(require,module,exports){
+},{"jquery-mousewheel":1}],11:[function(require,module,exports){
+window.cytubeEnhanced.addModule('Layout', function (app, settings) {
+    'use strict';
+
+    var that = this;
+
+    var tab = app.Settings.getTab('layout', 'Сетка', 200);
+    var userSettings = app.Settings.data;
+    userSettings.layout = userSettings.layout || {};
+
+
+    this.scheme = {
+        'hide-header': {
+            title: app.t('layout[.]Hide header'),
+            options: [
+                {value: 'yes', title: app.t('settings[.]Yes')},
+                {value: 'no', title: app.t('settings[.]No'), selected: true}
+            ]
+        },
+        'player-position': {
+            title: app.t('layout[.]Player position'),
+            default: 'right',
+            options: [
+                {value: 'left', title: app.t('layout[.]Left')},
+                {value: 'right', title: app.t('layout[.]Right'), selected: true},
+                {value: 'center', title: app.t('layout[.]Center')}
+            ]
+        },
+        'playlist-position': {
+            title: app.t('layout[.]Playlist position'),
+            options: [
+                {value: 'left', title: app.t('layout[.]Left')},
+                {value: 'right', title: app.t('layout[.]Right'), selected: true}
+            ]
+        },
+        'userlist-position': {
+            title: app.t('layout[.]Chat\'s userlist position'),
+            options: [
+                {value: 'left', title: app.t('layout[.]Left'), selected: true},
+                {value: 'right', title: app.t('layout[.]Right')}
+            ]
+        }
+    };
+
+
+    /**
+     * Creating markup
+     */
+    var schemeItem;
+    var option;
+    for (var itemName in this.scheme) {
+        schemeItem = this.scheme[itemName];
+
+        if (userSettings.layout[itemName]) {
+            for (option in schemeItem.options) {
+                schemeItem.options[option].selected = (userSettings.layout[itemName] == schemeItem.options[option].value)
+            }
+        }
+
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, 100);
+    }
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        settings.layout = settings.layout || {};
+
+        for (var itemName in that.scheme) {
+            settings.layout[itemName] = $('#' + app.prefix + itemName).val();
+        }
+
+        that.applySettings(settings.layout);
+    });
+
+
+    this.applySettings = function (layoutSettings) {
+        if (layoutSettings['hide-header'] === 'yes') {
+            $('#motdrow').hide();
+            $('#motdrow').data('hiddenByLayout', '1');
+        } else {
+            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
+                $('#motdrow').show();
+            }
+            $('#motdrow').data('hiddenByLayout', '0');
+        }
+
+        if (layoutSettings['player-position'] === 'left') {
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else if (layoutSettings['player-position'] === 'center') {
+            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
+                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
+            });
+
+            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
+            $('#videowrap').addClass('col-md-10 col-md-offset-1');
+
+            $('#videowrap').detach().insertBefore($('#chatwrap'));
+        } else { //right
+            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
+                $('#chatwrap').addClass('col-lg-5 col-md-5');
+            }
+            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
+                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
+                $('#videowrap').addClass('col-lg-7 col-md-7');
+            }
+
+            $('#chatwrap').detach().insertBefore($('#videowrap'));
+        }
+
+        if (layoutSettings['playlist-position'] === 'left') {
+            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
+            $('#rightpane').detach().insertBefore($('#leftpane'));
+        } else { //right
+            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
+            $('#leftpane').detach().insertBefore($('#rightpane'));
+        }
+
+        if (layoutSettings['userlist-position'] === 'right') {
+            $('#userlist').addClass('pull-right');
+        } else { //left
+            $('#userlist').removeClass('pull-right');
+        }
+
+
+        $('#refresh-video').click();
+    };
+
+    this.applySettings(userSettings.layout);
+});
+},{}],12:[function(require,module,exports){
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
@@ -2212,6 +2264,63 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
 });
 
 },{}],15:[function(require,module,exports){
+window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
+    'use strict';
+    var that = this;
+
+    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var userSettings = app.Settings.data;
+
+
+    if (!app.isModulePermitted('smiles') || !app.isModulePermitted('favouritePictures')) {
+        return;
+    }
+
+
+    /**
+     * Creating markup for settings
+     */
+    tab.addControl('select', 'horizontal', app.t('general[.]Smiles and pictures together'), 'smiles-and-favourite-pictures-together', [
+        {value: 'yes', title: app.t('settings[.]Yes')},
+        {value: 'no', title: app.t('settings[.]No'), selected: true}
+    ], null, 200);
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        settings.smilesAndFavouritePicturesTogether = $('#' + app.prefix + 'smiles-and-favourite-pictures-together').val();
+    });
+
+
+    if (userSettings.smilesAndFavouritePicturesTogether == 'yes') {
+        app.getModule('smiles').done(function (smilesModule) {
+            smilesModule.makeSmilesAndPicturesTogether();
+        });
+
+        app.getModule('favouritePictures').done(function (favouritePicturesModule) {
+            favouritePicturesModule.makeSmilesAndPicturesTogether();
+        });
+
+        $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="' + app.t('general[.]Show emotes and favorite images') + '">')
+            .html('<i class="glyphicon glyphicon-th-large"></i>')
+            .prependTo($('#chat-controls'))
+            .on('click', function () {
+                $('#smiles-btn').click();
+                $('#favourite-pictures-btn').click();
+
+                if ($(this).hasClass('btn-default')) {
+                    $(this).removeClass('btn-default');
+                    $(this).addClass('btn-success');
+                } else {
+                    $(this).removeClass('btn-success');
+                    $(this).addClass('btn-default');
+                }
+            });
+    }
+});
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -2233,7 +2342,6 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="' + app.t('emotes[.]Show emotes') + '">')
         .html('<i class="glyphicon glyphicon-picture"></i>')
         .prependTo('#chat-controls');
-
 
     this.$smilesPanel = $('<div id="smiles-panel">')
         .prependTo('#chat-panel')
@@ -2291,483 +2399,15 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     });
 
 
+    this.makeSmilesAndPicturesTogether = function () {
+        that.smilesAndPicturesTogether = true;
+        that.$smilesBtn.hide();
+        that.$smilesPanel.hide();
+    };
+
 
 
     this.renderSmiles();
-});
-
-},{}],16:[function(require,module,exports){
-window.cytubeEnhanced.addModule('userControlPanel', function (app, settings) {
-    'use strict';
-
-    var that = this;
-
-    var defaultSettings = {
-        layoutConfigButton: true,
-        smilesAndPicturesTogetherButton: true,
-        minimizeButton: true
-    };
-    settings = $.extend({}, defaultSettings, settings);
-
-
-
-
-    this.$configWrapper = $('<div id="config-wrapper" class="col-lg-12 col-md-12">').appendTo("#leftpane-inner");
-    if (!app.userConfig.get('hide-config-panel')) {
-        this.$configWrapper.show();
-    }
-
-    this.$configBody = $('<div id="config-body" class="well form-horizontal">').appendTo(this.$configWrapper);
-
-    this.handleConfigBtn = function () {
-        app.userConfig.toggle('hide-config-panel');
-        this.$configWrapper.toggle();
-    };
-    this.$configBtn = $('<button id="layout-btn" class="btn btn-sm btn-default pull-right">')
-        .html('<span class="glyphicon glyphicon-cog"></span> ' + app.t('userConfig[.]Settings'))
-        .appendTo('#leftcontrols')
-        .on('click', function() {
-            that.handleConfigBtn();
-        });
-
-
-
-
-    this.$layoutForm = $('<div id="layout-config-form" class="form-group">').appendTo(this.$configBody)
-        .append($('<div class="col-lg-3 col-md-3 control-label">' + app.t('userConfig[.]Layout') + '</div>'));
-    this.$layoutWrapper = $('<div id="layout-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$layoutForm);
-    this.$layoutBtnWrapper = $('<div id="layout-config-btn-wrapper" class="btn-group">').appendTo(this.$layoutWrapper);
-    if (!settings.layoutConfigButton && !settings.minimizeButton) {
-        this.$layoutForm.hide();
-    }
-
-
-    this.layoutOptions = {
-        'hide-header': {
-            title: app.t('userConfig[.]Hide header'),
-            default: 'no',
-            values: {
-                yes: app.t('userConfig[.]Yes'),
-                no: app.t('userConfig[.]No')
-            }
-        },
-        'player-position': {
-            title: app.t('userConfig[.]Player position'),
-            default: 'right',
-            values: {
-                left: app.t('userConfig[.]Left'),
-                right: app.t('userConfig[.]Right'),
-                center: app.t('userConfig[.]Center')
-            }
-        },
-        'playlist-position': {
-            title: app.t('userConfig[.]Playlist position'),
-            default: 'right',
-            values: {
-                left: app.t('userConfig[.]Left'),
-                right: app.t('userConfig[.]Right')
-            }
-        },
-        'userlist-position': {
-            title: app.t('userConfig[.]Chat\'s userlist position'),
-            default: 'left',
-            values: {
-                left: app.t('userConfig[.]Left'),
-                right: app.t('userConfig[.]Right')
-            }
-        }
-    };
-
-    this.configUserLayout = function (layoutValues) {
-        var $settingsWrapper = $('<div class="form-horizontal">');
-
-        for (var layoutOption in this.layoutOptions) {
-            if (this.layoutOptions.hasOwnProperty(layoutOption)) {
-                var $formGroup = $('<div class="form-group">').appendTo($settingsWrapper);
-
-                $('<label for="' + layoutOption + '" class="col-sm-2 control-label">' + this.layoutOptions[layoutOption].title + '</label>').appendTo($formGroup);
-
-                var $selectWrapper = $('<div class="col-sm-10">').appendTo($formGroup);
-                var $select = $('<select id="' + layoutOption + '" class="form-control">').appendTo($selectWrapper);
-
-                for (var selectOption in this.layoutOptions[layoutOption].values) {
-                    if (this.layoutOptions[layoutOption].values.hasOwnProperty(selectOption)) {
-                        $('<option value="' + selectOption + '">' + this.layoutOptions[layoutOption].values[selectOption] + '</option>').appendTo($select);
-                    }
-                }
-
-                if (layoutValues.hasOwnProperty(layoutOption)) {
-                    $select.val(layoutValues[layoutOption]);
-                } else {
-                    $select.val(this.layoutOptions[layoutOption].default);
-                }
-            }
-        }
-
-        var $userCssWrapper = $('<div class="form-group">').appendTo($settingsWrapper);
-        $('<label for="user-css" class="col-sm-2 control-label">' + app.t('userConfig[.]User CSS') + '</label>').appendTo($userCssWrapper);
-        var $userCssTextareaWrapper = $('<div class="col-sm-10">').appendTo($userCssWrapper);
-        $('<textarea id="user-css" class="form-control" rows="7">')
-            .appendTo($userCssTextareaWrapper)
-            .val(layoutValues['user-css'] || '');
-
-
-        var $btnWrapper = $('<div>');
-
-        $('<button type="button" id="cancel-user-layout" class="btn btn-info" data-dismiss="modal">' + app.t('userConfig[.]Cancel') + '</button>').appendTo($btnWrapper);
-
-        $('<button type="button" id="reset-user-layout" class="btn btn-danger">' + app.t('userConfig[.]Reset settings') + '</button>')
-            .appendTo($btnWrapper)
-            .on('click', function () {
-                if (window.confirm(app.t('userConfig[.]All the settings including user css will be reset, continue?'))) {
-                    for (var layoutOption in that.layoutOptions) {
-                        if (that.layoutOptions.hasOwnProperty(layoutOption)) {
-                            layoutValues[layoutOption] = that.layoutOptions[layoutOption].default;
-                        }
-                    }
-                    layoutValues['user-css'] = '';
-
-
-                    app.userConfig.set('layout', JSON.stringify(layoutValues));
-
-                    that.applyLayoutSettings(layoutValues);
-
-                    $modalWindow.modal('hide');
-                }
-            });
-
-        $('<button type="button" id="save-user-layout" class="btn btn-success">')
-            .text(app.t('userConfig[.]Save'))
-            .appendTo($btnWrapper)
-            .on('click', function () {
-                for (var layoutOption in that.layoutOptions) {
-                    if (that.layoutOptions.hasOwnProperty(layoutOption)) {
-                        if ($('#' + layoutOption).length !== 0) {
-                            layoutValues[layoutOption] = $('#' + layoutOption).val();
-                        } else {
-                            layoutValues[layoutOption] = that.layoutOptions[layoutOption].default;
-                        }
-                    }
-                }
-                if ($('#user-css').length !== 0) {
-                    layoutValues['user-css'] = $('#user-css').val();
-                } else {
-                    layoutValues['user-css'] = '';
-                }
-
-
-                app.userConfig.set('layout', JSON.stringify(layoutValues));
-
-                that.applyLayoutSettings(layoutValues);
-
-                $modalWindow.modal('hide');
-            });
-
-
-        var $modalWindow;
-        app.getModule('utils').done(function (utilsModule) {
-            $modalWindow = utilsModule.createModalWindow(app.t('userConfig[.]Layout settings'), $settingsWrapper, $btnWrapper);
-        });
-    };
-
-    this.applyLayoutSettings = function (layoutValues) {
-        if (layoutValues['hide-header'] === 'yes') {
-            $('#motdrow').hide();
-            $('#motdrow').data('hiddenByLayout', '1');
-        } else {
-            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
-                $('#motdrow').show();
-            }
-            $('#motdrow').data('hiddenByLayout', '0');
-        }
-
-        if (layoutValues['player-position'] === 'left') {
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (layoutValues['player-position'] === 'center') {
-            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-
-            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
-            $('#videowrap').addClass('col-md-10 col-md-offset-1');
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else { //right
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#chatwrap').detach().insertBefore($('#videowrap'));
-        }
-
-        if (layoutValues['playlist-position'] === 'left') {
-            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
-            $('#rightpane').detach().insertBefore($('#leftpane'));
-        } else { //right
-            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
-            $('#leftpane').detach().insertBefore($('#rightpane'));
-        }
-
-        if (layoutValues['userlist-position'] === 'right') {
-            $('#userlist').addClass('pull-right');
-        } else { //left
-            $('#userlist').removeClass('pull-right');
-        }
-
-        if (layoutValues.hasOwnProperty('user-css') && layoutValues['user-css'] !== '') {
-            $("head").append('<style id="user-style" type="text/css">' + layoutValues['user-css'] + '</style>');
-        } else if ($('#user-style').length !== 0) {
-            $('#user-style').remove();
-        }
-
-
-        $('#refresh-video').click();
-    };
-
-    this.handleLayout = function () {
-        var userLayout;
-        try {
-            userLayout = window.JSON.parse(app.userConfig.get('layout')) || {};
-        } catch (e) {
-            userLayout = {};
-        }
-
-        this.configUserLayout(userLayout);
-    };
-    this.$layoutConfigBtn = $('<button id="layout-configuration-btn" class="btn btn-default">')
-        .text(app.t('userConfig[.]Settings'))
-        .appendTo(this.$layoutBtnWrapper)
-        .on('click', function() {
-            that.handleLayout();
-        });
-
-    var userLayout;
-    if (settings.layoutConfigButton) {
-        try {
-            userLayout = window.JSON.parse(app.userConfig.get('layout')) || {};
-        } catch (e) {
-            userLayout = {};
-        }
-
-        this.applyLayoutSettings(userLayout);
-    } else {
-        this.$layoutConfigBtn.hide();
-    }
-
-
-
-
-
-    
-    this.applyMinimize = function (isMinimized) {
-        if (isMinimized) {
-            $('#motdrow').data('hiddenByMinimize', '1');
-            $('#motdrow').hide();
-            $('#queue').parent().hide();
-
-            that.$minBtn.removeClass('btn-default');
-            that.$minBtn.addClass('btn-success');
-        } else {
-            if ($('#motdrow').data('hiddenByLayout') !== '1') {
-                $('#motdrow').show();
-            }
-            $('#motdrow').data('hiddenByMinimize', '0');
-            $('#queue').parent().show();
-
-            that.$minBtn.removeClass('btn-success');
-            that.$minBtn.addClass('btn-default');
-        }
-    };
-
-    this.$minBtn = $('<button id="layout-min-btn" class="btn btn-default">')
-        .text(app.t('userConfig[.]Minimize'))
-        .appendTo(this.$layoutBtnWrapper)
-        .on('click', function() {
-            that.applyMinimize(app.userConfig.toggle('isMinimized'));
-        });
-
-    if (settings.minimizeButton) {
-        this.applyMinimize(app.userConfig.get('isMinimized'));
-    } else {
-        this.$minBtn.hide();
-    }
-
-
-
-
-    this.$commonConfigForm = $('<div id="common-config-form" class="form-group">')
-        .append($('<div class="col-lg-3 col-md-3 control-label">').text(app.t('userConfig[.]Common')))
-        .appendTo(this.$configBody);
-    this.$commonConfigWrapper = $('<div id="common-config-wrapper" class="col-lg-9 col-md-9 text-center">').appendTo(this.$commonConfigForm);
-    this.$commonConfigBtnWrapper = $('<div id="common-config-btn-wrapper" class="btn-group">').appendTo(this.$commonConfigWrapper);
-
-    if (!(settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures'))) {
-        this.$commonConfigForm.hide();
-    }
-
-
-    this.applySmilesAndPictures = function (isTurnedOn) {
-        app.getModule('smiles').done(function (smilesModule) {
-            smilesModule.smilesAndPicturesTogether = isTurnedOn;
-        });
-
-        app.getModule('favouritePictures').done(function (favouritePicturesModule) {
-            favouritePicturesModule.smilesAndPicturesTogether = isTurnedOn;
-        });
-
-
-        if (isTurnedOn) {
-            that.$smilesAndPicturesBtn.removeClass('btn-default');
-            that.$smilesAndPicturesBtn.addClass('btn-success');
-
-            $('#smiles-btn').hide();
-            $('#smiles-panel').hide();
-            $('#smiles-btn').addClass('btn-default');
-            $('#smiles-btn').removeClass('btn-success');
-
-            $('#favourite-pictures-btn').hide();
-            $('#favourite-pictures-panel').hide();
-            $('#favourite-pictures-btn').addClass('btn-default');
-            $('#favourite-pictures-btn').removeClass('btn-success');
-
-            $('<button id="smiles-and-picture-btn" class="btn btn-sm btn-default" title="' + app.t('userConfig[.]Show emotes and favorite images') + '">')
-                .html('<i class="glyphicon glyphicon-picture"></i> и <i class="glyphicon glyphicon-th"></i>')
-                .prependTo($('#chat-controls'))
-                .on('click', function () {
-                    $('#smiles-btn').click();
-                    $('#favourite-pictures-btn').click();
-
-                    if ($(this).hasClass('btn-default')) {
-                        $(this).removeClass('btn-default');
-                        $(this).addClass('btn-success');
-                    } else {
-                        $(this).removeClass('btn-success');
-                        $(this).addClass('btn-default');
-                    }
-                });
-        } else {
-            if ($('#smiles-and-picture-btn').length !== 0) {
-                $('#smiles-and-picture-btn').remove();
-            }
-
-            that.$smilesAndPicturesBtn.removeClass('btn-success');
-            that.$smilesAndPicturesBtn.addClass('btn-default');
-
-            $('#smiles-btn').show();
-            $('#favourite-pictures-btn').show();
-
-            $('#smiles-panel').hide();
-            $('#favourite-pictures-panel').hide();
-        }
-    };
-
-    this.$smilesAndPicturesBtn = $('<button id="common-config-smiles-and-pictures-btn" class="btn btn-default">')
-        .html('<i class="glyphicon glyphicon-picture"></i> ' + app.t('userConfig[.]and') + ' <i class="glyphicon glyphicon-th"></i>')
-        .appendTo(that.$commonConfigBtnWrapper)
-        .on('click', function() {
-            that.applySmilesAndPictures(app.userConfig.toggle('smiles-and-pictures'));
-        });
-
-    if (settings.smilesAndPicturesTogetherButton && app.isModulePermitted('smiles') && app.isModulePermitted('favouritePictures')) {
-        this.applySmilesAndPictures(app.userConfig.get('smiles-and-pictures'));
-    } else {
-        this.$smilesAndPicturesBtn.hide();
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    this.$avatarsForm = $('<div id="avatars-config-form" class="form-group">').appendTo(this.$configBody)
-        .append($('<div class="col-lg-3 col-md-3 control-label">' + app.t('userConfig[.]Chat avatars') + '</div>'));
-    this.$avatarsWrapper = $('<div id="avatars-config-wrapper" class="col-md-8 col-md-offset-1 col-lg-6 col-lg-offset-2 text-center">').appendTo(this.$avatarsForm);
-
-
-    this.handleAvatars = function (mode) {
-        app.userConfig.set('avatarsMode', mode);
-        var previousModeInTurnedOff = false;
-
-        $('.username').each(function () {
-            var $avatar;
-            var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
-            var $messageBlock = $(this).parent();
-
-            if ($('.chat-avatar').length === 0) {
-                previousModeInTurnedOff = true;
-            }
-
-            if ((mode == 'small' || mode == 'big') && previousModeInTurnedOff) {
-                var avatarCssClasses = (mode == 'big' ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small');
-
-                if ((window.findUserlistItem(username) != null) && (window.findUserlistItem(username).data('profile').image != "")) {
-                    $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
-                        .addClass(avatarCssClasses)
-                        .prependTo($messageBlock);
-                }
-            }
-
-            if (mode == 'big') {
-                $avatar = $messageBlock.find('.chat-avatar');
-                if ($avatar.length !== 0) {
-                    $avatar.attr('title', username);
-                }
-
-                $(this).css('display', 'none');
-            } else {
-                $(this).css('display', 'inline-block');
-
-                $avatar = $messageBlock.find('.chat-avatar');
-                if ($avatar.length !== 0) {
-                    $avatar.removeAttr('title');
-                }
-            }
-        });
-
-        if (mode == 'small') {
-            $('.chat-avatar_big').removeClass('chat-avatar_big').addClass('chat-avatar_small');
-        } else if (mode == 'big') {
-            $('.chat-avatar_small').removeClass('chat-avatar_small').addClass('chat-avatar_big');
-        } else {
-            $('.chat-avatar').remove();
-        }
-    };
-    this.$avatarsSelect = $('<select class="form-control">')
-        .append('<option value="">' + app.t('userConfig[.]Turned off') + '</option>')
-        .append('<option value="small">' + app.t('userConfig[.]Small') + '</option>')
-        .append('<option value="big">' + app.t('userConfig[.]Big') + '</option>')
-        .appendTo(this.$avatarsWrapper)
-        .on('change', function () {
-            that.handleAvatars($(this).val());
-        });
-
-    this.$avatarsSelect.find('option[value="' + app.userConfig.get('avatarsMode') + '"]').prop('selected', true);
 });
 
 },{}],17:[function(require,module,exports){
@@ -2811,7 +2451,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
         var i;
         var words = $("#chatline").val().split(" ");
         var current = words[words.length - 1].toLowerCase();
-        if (!current.match(/^[\w-]{1,20}$/)) {
+        if (!current.match(/^[\wа-яА-ЯёЁ-]{1,20}$/)) {
             return;
         }
 
@@ -2956,6 +2596,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
     $('#queue').sortable("option", "axis", "y");
 });
+
 },{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
@@ -3090,6 +2731,14 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
         $("#us-joinmessage").prop("checked", window.USEROPTS.joinmessage);
         $("#us-shadowchat").prop("checked", window.USEROPTS.show_shadowchat);
     };
+
+
+    if ($('#showmediaurl').length !== 0) {
+        $('#showmediaurl').html(app.t('standardUI[.]Add video'))
+            .attr({title: app.t('standardUI[.]Add video from url')})
+            .detach()
+            .insertBefore($('#showsearch'));
+    }
 
 
     this.expandPlaylist = function ($expandPlaylistBtn) {
@@ -3421,12 +3070,12 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param {string} moduleName The name of the module
      * @returns {object}
      */
-    this.getModule = function (moduleName, namespace) {
+    this.getModule = function (moduleName) {
         var promise = $.Deferred();
         var time = MODULE_LOAD_TIMEOUT;
 
         (function getModuleRecursive() {
-            if (modules[moduleName] !== undefined) {
+            if (typeof modules[moduleName] != 'undefined') {
                 promise.resolve(modules[moduleName]);
             } else if (time <= 0) {
                 throw new Error("Load timeout for module " + moduleName + '.');
@@ -3510,8 +3159,16 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
                 var textWithNamespaces = text.split('[.]');
 
                 translatedText = that.translations[that.language][textWithNamespaces[0]];
+                if (typeof translatedText == 'undefined') {
+                    translatedText = text.split('[.]').pop();
+                    return translatedText || text;
+                }
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
+                    if (typeof translatedText == 'undefined') {
+                        translatedText = text.split('[.]').pop();
+                        return  translatedText || text;
+                    }
                 }
 
                 translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
@@ -3567,6 +3224,14 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     };
 
 
+
+
+    if (window.cytubeEnhancedDefaultTranslates) {
+        for (var translateLanguage in window.cytubeEnhancedDefaultTranslates) {
+            this.addTranslation(translateLanguage, window.cytubeEnhancedDefaultTranslates[translateLanguage]);
+        }
+    }
+
     this.userConfig = new window.CytubeEnhancedUserConfig(this);
     this.UI = new window.CytubeEnhancedUI(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
@@ -3581,7 +3246,7 @@ window.CytubeEnhancedUISettings = function (app) {
     this.tabs = {};
     this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
-    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body"></div>');
+    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
 
@@ -3589,25 +3254,24 @@ window.CytubeEnhancedUISettings = function (app) {
      * Data, stored from tabs.
      * @type {{}}
      */
-    this.data = {};
+    this.data = app.parseJSON(app.userConfig.get('settings'), {});
 
-
-    app.addTranslation('ru', {
-        settings: {
-            'Extended options': 'Расширенные настройки'
-        }
-    });
 
     that.$tabsContainerOpenButton
-        .text(app.t('settings[.]Extended options'))
+        .text(app.t('settings[.]Extended settings'))
         .on('click', function () {
             that.openSettings();
         })
         .appendTo(that.$navbar)
         .wrap('<li>');
 
-    $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
+    $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
     that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
+
+    $('<button type="button" data-dismiss="modal" class="btn btn-success">' + app.t('settings[.]Save') + '</button>').appendTo(that.$tabsContainerFooter).on('click', function () {
+        that.save();
+    });
+    $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('settings[.]Cancel') + '</button>').appendTo(that.$tabsContainerFooter);
 
 
 
@@ -3628,6 +3292,10 @@ window.CytubeEnhancedUISettings = function (app) {
     this.save = function () {
         $(document).trigger(app.prefix + 'settings.save');
         app.userConfig.set('settings', app.toJSON(that.data));
+
+        if (window.confirm(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'))) {
+            window.location.reload();
+        }
     };
 
 
@@ -3635,7 +3303,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * Adds new tab
      * @param {String} name The name of the tab
      * @param {String} title The title of the tab
-     * @param {Number} [sort] Position of tab (the higher the value, the "lefter" the tab)
+     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "righter" the tab)
      * @returns {Object} Returns tab object
      */
     var addTab = function (name, title, sort) {
@@ -3683,7 +3351,25 @@ window.CytubeEnhancedUISettings = function (app) {
      * Sorts tabs
      */
     this.sortTabs = function () {
-        //that.tabs
+        var tabsArray = [];
+        for (var tab in that.tabs) {
+            tabsArray.push(that.tabs[tab]);
+        }
+
+        tabsArray = tabsArray.sort(function (a, b) {
+            if (a.sort > b.sort) {
+                return 1;
+            } else if (a.sort < b.sort) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+
+        for (var tabIndex = 0, tabsLength = tabsArray.length; tabIndex < tabsLength; tabIndex++) {
+            tabsArray[tabIndex].$button.detach().appendTo(that.$tabsContainerTabs);
+        }
     };
 
 
@@ -3692,18 +3378,26 @@ window.CytubeEnhancedUISettings = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        that.data = app.parseJSON(app.userConfig.get('settings'), {});
-        return app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
-    }
+        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+
+        var tabToOpen;
+        for (var tab in that.tabs) {
+            if (typeof tabToOpen == 'undefined' || typeof tabToOpen.sort == 'undefined' || tabToOpen.sort > that.tabs[tab].sort) {
+                tabToOpen = that.tabs[tab];
+            }
+        }
+        tabToOpen.show();
+    };
 };
 },{}],27:[function(require,module,exports){
 window.CytubeEnhancedUITab = function (app, name, title, sort) {
     'use strict';
     var that = this;
 
-    this.$button = $('<li class="active"><a href="#' + app.prefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>');
+    this.$button = $('<li><a href="#' + app.prefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>');
     this.$content = $('<div id="' + app.prefix + name + '__content" class="tab-pane">');
-    this.sort = parseInt(sort, 10) || 0;
+    this.$form = app.UI.createControlsWrapper('horizontal').appendTo(this.$content);
+    this.sort = Math.abs(parseInt(sort, 10)) || 0;
     this.controls = {};
 
 
@@ -3711,7 +3405,7 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
      * Shows the tab
      */
     this.show = function () {
-        that.$tabButton.trigger('click');
+        that.$button.find('a').tab('show');
     };
 
 
@@ -3723,17 +3417,24 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
      * @param {String} name Name of the control
      * @param {Object} [options] Options for the control.
      * @param {Function} [handler] Callback, which is calling on every control's change.
-     * @param {Number} [sort] Position of tab (the higher the value, the "lefter" the tab)
+     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "bottomer" the tab)
+     * @param {jQuery} [$customContainer] Custom container for control
      * @returns {jQuery}
      */
-    this.addControl = function (type, controlType, title, name, options, handler, sort) {
+    this.addControl = function (type, controlType, title, name, options, handler, sort, $customContainer) {
         type = (['select', 'checkbox'].indexOf(type) != -1) ? type : 'select';
-        sort = parseInt(sort, 10) || 0;
+        sort = Math.abs(parseInt(sort, 10)) || 0;
         var controlFunctionName = 'create' + type.slice(0, 1).toUpperCase() + type.slice(1) + 'Control';
 
         var $control = app.UI[controlFunctionName](controlType, title, name, options, handler);
         $control.data('sort', sort);
-        that.controls[name] = {$el: $control, sort: sort}
+
+        that.controls[name] = {$el: $control, sort: sort};
+        if ($customContainer) {
+            $control.appendTo($customContainer);
+        } else {
+            $control.appendTo(that.$form);
+        }
 
         return $control;
     };
@@ -3753,11 +3454,11 @@ window.CytubeEnhancedUI = function (app) {
      */
     this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
         $('.modal').modal('hide');
-        id = app.prefix + 'modal-' + name;
+        id = app.prefix + 'modal-' + id;
         var $outer;
 
         if ($('#' + id).length == 0) {
-            $outer = $('<div class="modal fade" id="' + name + '" role="dialog" tabindex="-1">').appendTo($("body"));
+            $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
             var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
             var $content = $('<div class="modal-content">').appendTo($modal);
 
@@ -3781,7 +3482,7 @@ window.CytubeEnhancedUI = function (app) {
 
             $outer.modal({keyboard: true});
         } else {
-            $outer = $('#' + name);
+            $outer = $('#' + id);
             $outer.modal('show');
         }
 

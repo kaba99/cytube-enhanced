@@ -66,6 +66,13 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
 
+    this.makeSmilesAndPicturesTogether = function () {
+        that.smilesAndPicturesTogether = true;
+        that.$toggleFavouritePicturesPanelBtn.hide();
+        that.$favouritePicturesPanel.hide();
+    };
+
+
 
     this.entityMap = {
         "&": "&amp;",

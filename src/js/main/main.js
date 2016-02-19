@@ -20,12 +20,12 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param {string} moduleName The name of the module
      * @returns {object}
      */
-    this.getModule = function (moduleName, namespace) {
+    this.getModule = function (moduleName) {
         var promise = $.Deferred();
         var time = MODULE_LOAD_TIMEOUT;
 
         (function getModuleRecursive() {
-            if (modules[moduleName] !== undefined) {
+            if (typeof modules[moduleName] != 'undefined') {
                 promise.resolve(modules[moduleName]);
             } else if (time <= 0) {
                 throw new Error("Load timeout for module " + moduleName + '.');
@@ -109,8 +109,16 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
                 var textWithNamespaces = text.split('[.]');
 
                 translatedText = that.translations[that.language][textWithNamespaces[0]];
+                if (typeof translatedText == 'undefined') {
+                    translatedText = text.split('[.]').pop();
+                    return translatedText || text;
+                }
                 for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
                     translatedText = translatedText[textWithNamespaces[namespace]];
+                    if (typeof translatedText == 'undefined') {
+                        translatedText = text.split('[.]').pop();
+                        return  translatedText || text;
+                    }
                 }
 
                 translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
@@ -165,6 +173,14 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
         return result;
     };
 
+
+
+
+    if (window.cytubeEnhancedDefaultTranslates) {
+        for (var translateLanguage in window.cytubeEnhancedDefaultTranslates) {
+            this.addTranslation(translateLanguage, window.cytubeEnhancedDefaultTranslates[translateLanguage]);
+        }
+    }
 
     this.userConfig = new window.CytubeEnhancedUserConfig(this);
     this.UI = new window.CytubeEnhancedUI(this);

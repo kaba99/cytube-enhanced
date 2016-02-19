@@ -1,42 +1,42 @@
-window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
+window.cytubeEnhanced.addModule('Layout', function (app, settings) {
     'use strict';
 
     var that = this;
 
     var tab = app.Settings.getTab('layout', 'Сетка', 200);
-    var $tabContent = app.UI.createControlsWrapper('horizontal').appendTo(tab.$content);
     var userSettings = app.Settings.data;
     userSettings.layout = userSettings.layout || {};
 
-    this.layout = {
+
+    this.scheme = {
         'hide-header': {
-            title: app.t('userConfig[.]Hide header'),
+            title: app.t('layout[.]Hide header'),
             options: [
-                {value: 'yes', title: app.t('userConfig[.]Yes')},
-                {value: 'no', title: app.t('userConfig[.]No'), selected: true}
+                {value: 'yes', title: app.t('settings[.]Yes')},
+                {value: 'no', title: app.t('settings[.]No'), selected: true}
             ]
         },
         'player-position': {
-            title: app.t('userConfig[.]Player position'),
+            title: app.t('layout[.]Player position'),
             default: 'right',
             options: [
-                {value: 'left', title: app.t('userConfig[.]Left')},
-                {value: 'right', title: app.t('userConfig[.]Right'), selected: true},
-                {value: 'center', title: app.t('userConfig[.]Center')}
+                {value: 'left', title: app.t('layout[.]Left')},
+                {value: 'right', title: app.t('layout[.]Right'), selected: true},
+                {value: 'center', title: app.t('layout[.]Center')}
             ]
         },
         'playlist-position': {
-            title: app.t('userConfig[.]Playlist position'),
+            title: app.t('layout[.]Playlist position'),
             options: [
-                {value: 'left', title: app.t('userConfig[.]Left')},
-                {value: 'right', title: app.t('userConfig[.]Right'), selected: true}
+                {value: 'left', title: app.t('layout[.]Left')},
+                {value: 'right', title: app.t('layout[.]Right'), selected: true}
             ]
         },
         'userlist-position': {
-            title: app.t('userConfig[.]Chat\'s userlist position'),
+            title: app.t('layout[.]Chat\'s userlist position'),
             options: [
-                {value: 'left', title: app.t('userConfig[.]Left'), selected: true},
-                {value: 'right', title: app.t('userConfig[.]Right')}
+                {value: 'left', title: app.t('layout[.]Left'), selected: true},
+                {value: 'right', title: app.t('layout[.]Right')}
             ]
         }
     };
@@ -45,18 +45,18 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
     /**
      * Creating markup
      */
-    var layoutItem;
-    var layoutOption;
-    for (var itemName in this.layout) {
-        layoutItem = this.layout[itemName];
+    var schemeItem;
+    var option;
+    for (var itemName in this.scheme) {
+        schemeItem = this.scheme[itemName];
 
         if (userSettings.layout[itemName]) {
-            for (layoutOption in layoutItem.options) {
-                layoutItem.options[layoutOption].selected = (userSettings.layout[itemName] == layoutItem.options[layoutOption].value)
+            for (option in schemeItem.options) {
+                schemeItem.options[option].selected = (userSettings.layout[itemName] == schemeItem.options[option].value)
             }
         }
 
-        app.UI.createSelectControl('horizontal', layoutItem.title, itemName, layoutItem.options).appendTo($tabContent);
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, 100);
     }
 
 
@@ -64,9 +64,9 @@ window.cytubeEnhanced.addModule('settings.layout', function (app, settings) {
      * Saving and applying settings
      */
     app.Settings.onSave(function (settings) {
-        settings.layout = {};
+        settings.layout = settings.layout || {};
 
-        for (var itemName in that.layout) {
+        for (var itemName in that.scheme) {
             settings.layout[itemName] = $('#' + app.prefix + itemName).val();
         }
 

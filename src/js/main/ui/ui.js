@@ -12,11 +12,11 @@ window.CytubeEnhancedUI = function (app) {
      */
     this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
         $('.modal').modal('hide');
-        id = app.prefix + 'modal-' + name;
+        id = app.prefix + 'modal-' + id;
         var $outer;
 
         if ($('#' + id).length == 0) {
-            $outer = $('<div class="modal fade" id="' + name + '" role="dialog" tabindex="-1">').appendTo($("body"));
+            $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
             var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
             var $content = $('<div class="modal-content">').appendTo($modal);
 
@@ -40,7 +40,7 @@ window.CytubeEnhancedUI = function (app) {
 
             $outer.modal({keyboard: true});
         } else {
-            $outer = $('#' + name);
+            $outer = $('#' + id);
             $outer.modal('show');
         }
 

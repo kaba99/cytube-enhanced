@@ -6,7 +6,7 @@ window.CytubeEnhancedUISettings = function (app) {
     this.tabs = {};
     this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
-    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body"></div>');
+    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
 
@@ -14,25 +14,24 @@ window.CytubeEnhancedUISettings = function (app) {
      * Data, stored from tabs.
      * @type {{}}
      */
-    this.data = {};
+    this.data = app.parseJSON(app.userConfig.get('settings'), {});
 
-
-    app.addTranslation('ru', {
-        settings: {
-            'Extended options': 'Расширенные настройки'
-        }
-    });
 
     that.$tabsContainerOpenButton
-        .text(app.t('settings[.]Extended options'))
+        .text(app.t('settings[.]Extended settings'))
         .on('click', function () {
             that.openSettings();
         })
         .appendTo(that.$navbar)
         .wrap('<li>');
 
-    $('<h4>' + app.t('settings[.]Extended options') + '</h4>').appendTo(that.$tabsContainerHeader);
+    $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
     that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
+
+    $('<button type="button" data-dismiss="modal" class="btn btn-success">' + app.t('settings[.]Save') + '</button>').appendTo(that.$tabsContainerFooter).on('click', function () {
+        that.save();
+    });
+    $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('settings[.]Cancel') + '</button>').appendTo(that.$tabsContainerFooter);
 
 
 
@@ -53,6 +52,10 @@ window.CytubeEnhancedUISettings = function (app) {
     this.save = function () {
         $(document).trigger(app.prefix + 'settings.save');
         app.userConfig.set('settings', app.toJSON(that.data));
+
+        if (window.confirm(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'))) {
+            window.location.reload();
+        }
     };
 
 
@@ -60,7 +63,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * Adds new tab
      * @param {String} name The name of the tab
      * @param {String} title The title of the tab
-     * @param {Number} [sort] Position of tab (the higher the value, the "lefter" the tab)
+     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "righter" the tab)
      * @returns {Object} Returns tab object
      */
     var addTab = function (name, title, sort) {
@@ -108,7 +111,25 @@ window.CytubeEnhancedUISettings = function (app) {
      * Sorts tabs
      */
     this.sortTabs = function () {
-        //that.tabs
+        var tabsArray = [];
+        for (var tab in that.tabs) {
+            tabsArray.push(that.tabs[tab]);
+        }
+
+        tabsArray = tabsArray.sort(function (a, b) {
+            if (a.sort > b.sort) {
+                return 1;
+            } else if (a.sort < b.sort) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+
+        for (var tabIndex = 0, tabsLength = tabsArray.length; tabIndex < tabsLength; tabIndex++) {
+            tabsArray[tabIndex].$button.detach().appendTo(that.$tabsContainerTabs);
+        }
     };
 
 
@@ -117,7 +138,14 @@ window.CytubeEnhancedUISettings = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        that.data = app.parseJSON(app.userConfig.get('settings'), {});
-        return app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
-    }
+        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+
+        var tabToOpen;
+        for (var tab in that.tabs) {
+            if (typeof tabToOpen == 'undefined' || typeof tabToOpen.sort == 'undefined' || tabToOpen.sort > that.tabs[tab].sort) {
+                tabToOpen = that.tabs[tab];
+            }
+        }
+        tabToOpen.show();
+    };
 };
