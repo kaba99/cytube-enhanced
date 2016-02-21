@@ -4,20 +4,25 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
 
     var defaultData = {};
+    var initialData = {};
     var data = {};
-    var dirtyData = {};
 
     try {
         data = JSON.parse(window.localStorage.getItem(storageName + '-' + (isGlobal ? '' : CHANNEL.name) + storageName));
-        data = $.isPlainObject(data) ? data : {};
+        data = _.isPlainObject(data) ? data : {};
     } catch (error) {
         data = {};
     }
+    initialData = _.cloneDeep(data);
+    console.log(initialData);
 
 
     this.setDefault = function (name, value) {
+        value = _.cloneDeep(value);
+
         defaultData[name] = value;
         data[name] = (typeof data[name] !== 'undefined') ? data[name] : value;
+        initialData[name] = (typeof initialData[name] !== 'undefined') ? initialData[name] : value;
     };
 
 
@@ -27,11 +32,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
 
 
     this.set = function (name, value) {
-        if (data[name] != value) {
-            dirtyData[name] = true;
-        }
-
-        return data[name] = value;
+        return data[name] = _.cloneDeep(value);
     };
 
 
@@ -43,15 +44,15 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
     this.isDirty = function (nameData) {
         var isDirty = false;
 
-        if ($.isArray()) {
+        if (_.isArray(nameData)) {
             for (var name in nameData) {
-                if (!!dirtyData[nameData[name]]) {
+                if (!isEqual(data[name], initialData[name])) {
                     isDirty = true;
                     break;
                 }
             }
         } else {
-            isDirty = !!dirtyData[nameData];
+            isDirty = !isEqual(data[nameData], initialData[nameData]);
         }
 
         return isDirty;
@@ -68,6 +69,15 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
 
 
     this.reset = function () {
-        data = $.extend({}, defaultData);
-    }
+        data = _.cloneDeep(defaultData);
+    };
+
+
+    var isEqual = function (value1, value2) {
+        if (_.isArray(value1) && _.isArray(value2)) {
+            return (_.difference(value1, value2).length === 0 && _.difference(value2, value1).length === 0);
+        } else {
+            return _.isEqual(value1, value2);
+        }
+    };
 };

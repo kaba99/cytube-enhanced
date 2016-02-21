@@ -1,3 +1,4 @@
+require('lodash');
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
     var that = this;
