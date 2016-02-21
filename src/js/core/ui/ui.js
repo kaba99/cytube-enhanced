@@ -48,6 +48,13 @@ window.CytubeEnhancedUI = function (app) {
     };
 
 
+    this.createConfirmWindow = function (message, callback) {
+        if (window.confirm(message)) {
+            callback();
+        }
+    };
+
+
     /**
      * Creates wrapper for control elements.
      * @param type Type of wrapper (default, horizontal, inline).

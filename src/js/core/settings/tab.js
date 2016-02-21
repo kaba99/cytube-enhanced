@@ -14,6 +14,21 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
      */
     this.show = function () {
         that.$button.find('a').tab('show');
+        $(document).trigger(app.prefix + 'tab-' + name + '.show');
+    };
+    this.$button.on('show.bs.tab', function () {
+        $(document).trigger(app.prefix + 'tab-' + name + '.show');
+    });
+
+
+    /**
+     * Adds action on selecting tab
+     * @param callback Callback to be called on selecting tab
+     */
+    this.onShow = function (callback) {
+        $(document).on(app.prefix + 'tab-' + name + '.show', function () {
+            callback(that);
+        });
     };
 
 
@@ -25,7 +40,7 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
      * @param {String} name Name of the control
      * @param {Object} [options] Options for the control.
      * @param {Function} [handler] Callback, which is calling on every control's change.
-     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "bottomer" the tab)
+     * @param {Number} [sort] Position of control (positive integer number, the higher the value, the "bottomer" the control)
      * @param {jQuery} [$customContainer] Custom container for control
      * @returns {jQuery}
      */
@@ -45,5 +60,13 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
         }
 
         return $control;
+    };
+
+
+    /**
+     * Returns tab's name
+     */
+    this.getName = function () {
+        return name;
     };
 };

@@ -12,9 +12,10 @@ window.CytubeEnhancedUISettings = function (app) {
 
     /**
      * Data, stored from tabs.
-     * @type {{}}
+     * @type {CytubeEnhancedStorage}
      */
-    this.data = app.parseJSON(app.userConfig.get('settings'), {});
+    this.data = new CytubeEnhancedStorage('settings');
+    var pageReloadRequested = false;
 
 
     that.$tabsContainerOpenButton
@@ -51,11 +52,25 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.save = function () {
         $(document).trigger(app.prefix + 'settings.save');
-        app.userConfig.set('settings', app.toJSON(that.data));
+        that.data.save();
 
-        if (window.confirm(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'))) {
-            window.location.reload();
+        if (pageReloadRequested) {
+            app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
+                window.location.reload();
+            });
         }
+    };
+
+
+    /**
+     * Resets settings
+     */
+    this.reset = function () {
+        that.data.reset();
+
+        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
+            window.location.reload();
+        });
     };
 
 
@@ -82,15 +97,16 @@ window.CytubeEnhancedUISettings = function (app) {
     /**
      * Gets tab's content by its name
      * @param {String} name The name of the tab
-     * @param {String} newTabTitle If passed and tab is not exists, it creates the tab automatically with these name and title
+     * @param {String} [newTabTitle] If passed and tab is not exists, it creates the tab automatically with these name and title
+     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "bottomer" the tab)
      * @returns {null|Object} Returns null or tab config
      */
-    this.getTab = function (name, newTabTitle) {
+    this.getTab = function (name, newTabTitle, sort) {
         if (typeof that.tabs[name] !== 'undefined') {
             return that.tabs[name];
         } else {
             if (newTabTitle) {
-                return addTab(name, newTabTitle);
+                return addTab(name, newTabTitle, sort);
             } else {
                 return null;
             }
@@ -126,7 +142,6 @@ window.CytubeEnhancedUISettings = function (app) {
             }
         });
 
-
         for (var tabIndex = 0, tabsLength = tabsArray.length; tabIndex < tabsLength; tabIndex++) {
             tabsArray[tabIndex].$button.detach().appendTo(that.$tabsContainerTabs);
         }
@@ -147,5 +162,13 @@ window.CytubeEnhancedUISettings = function (app) {
             }
         }
         tabToOpen.show();
+    };
+
+
+    /**
+     * Requests page reload on settings saving
+     */
+    this.requestPageReload = function () {
+        pageReloadRequested = true;
     };
 };

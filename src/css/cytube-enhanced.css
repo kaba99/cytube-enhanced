@@ -5301,3 +5301,42 @@ canvas{
 #motd-tabs {
     text-align: center;
 }
+
+
+
+.ce-custom-editor-textarea {
+    width: 100%;
+    outline: none;
+    background: #1D1F21;
+    color: #C5C8C6;
+    height: 420px;
+    border: none;
+    font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+
+.ce-extras {
+    font-size: 0;
+}
+.ce-extras .col-sm-6 {
+    width: 50%;
+    display: inline-block;
+    vertical-align: top;
+    float: none;
+}
+.ce-extras__item {
+    font-size: 14px;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-top: 1px solid #555;
+}
+.ce-extras__item__title {
+    font-size: 16px;
+    color: #ffffff;
+}
+.ce-extras__item__description {
+    color: #ccc;
+}
+.ce-extras__item__button {
+    margin-top: 4px;
+}

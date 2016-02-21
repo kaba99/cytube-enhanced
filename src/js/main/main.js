@@ -175,6 +175,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
 
 
+    $.ajaxSetup({cache: true});
 
     if (window.cytubeEnhancedDefaultTranslates) {
         for (var translateLanguage in window.cytubeEnhancedDefaultTranslates) {

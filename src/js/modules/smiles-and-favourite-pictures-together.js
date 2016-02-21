@@ -10,25 +10,56 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
         return;
     }
 
+    var namespace = 'general';
+    this.scheme = {
+        'smiles-and-favourite-pictures-together': {
+            title: app.t('general[.]Smiles and pictures together'),
+            default: 'no',
+            options: [
+                {value: 'yes', title: app.t('settings[.]Yes')},
+                {value: 'no', title: app.t('settings[.]No')}
+            ]
+        }
+    };
+
 
     /**
      * Creating markup for settings
      */
-    tab.addControl('select', 'horizontal', app.t('general[.]Smiles and pictures together'), 'smiles-and-favourite-pictures-together', [
-        {value: 'yes', title: app.t('settings[.]Yes')},
-        {value: 'no', title: app.t('settings[.]No'), selected: true}
-    ], null, 200);
+    var schemeItem;
+    var option;
+    var sort = 10000;
+    for (var itemName in this.scheme) {
+        schemeItem = this.scheme[itemName];
+
+        userSettings.setDefault(namespace + '.' + itemName, schemeItem.default);
+
+        if (userSettings.get(namespace + '.' + itemName)) {
+            for (option in schemeItem.options) {
+                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
+            }
+        }
+
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, sort);
+        sort += 100;
+    }
 
 
     /**
      * Saving and applying settings
      */
     app.Settings.onSave(function (settings) {
-        settings.smilesAndFavouritePicturesTogether = $('#' + app.prefix + 'smiles-and-favourite-pictures-together').val();
+        for (var itemName in that.scheme) {
+            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
+        }
+
+        if (settings.isDirty(namespace + '.smiles-and-favourite-pictures-together')) {
+            app.Settings.requestPageReload();
+        }
     });
 
 
-    if (userSettings.smilesAndFavouritePicturesTogether == 'yes') {
+    if (userSettings.get(namespace + '.smiles-and-favourite-pictures-together')  == 'yes') {
         app.getModule('smiles').done(function (smilesModule) {
             smilesModule.makeSmilesAndPicturesTogether();
         });

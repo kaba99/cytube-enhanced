@@ -1,4 +1,44 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Аниме-цитаты',
+        name: 'anime-quotes',
+        description: 'Нескучные аниме-цитаты.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
+        languages: ['ru']
+    });
+});
+},{}],2:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Цитаты пирата',
+        name: 'pirate-quotes',
+        description: 'Нескучные цитаты Пирата.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
+        languages: ['ru']
+    });
+});
+},{}],3:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Скрипт пирата',
+        name: 'pirate-script',
+        description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
+        url: 'https://rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
+        languages: ['ru']
+    });
+});
+},{}],4:[function(require,module,exports){
+cytubeEnhanced.getModule('extras').done(function (extraModules) {
+    extraModules.add({
+        title: 'Перевод интерфейса',
+        name: 'translate',
+        description: 'Русский перевод интерфейса.',
+        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
+        languages: ['ru']
+    });
+});
+},{}],5:[function(require,module,exports){
 /*!
  * jQuery Mousewheel 3.1.13
  *
@@ -221,7 +261,7 @@
 
 }));
 
-},{}],2:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*!
  * jQuery.selection - jQuery Plugin
  *
@@ -577,7 +617,701 @@
     });
 })(jQuery, window, window.document);
 
-},{}],3:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+window.CytubeEnhancedStorage = function (storageName, isGlobal) {
+    var that = this;
+    var storagePrefix = 'ce';
+    isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
+
+    var defaultData = {};
+    var data = {};
+    var dirtyData = {};
+
+    try {
+        data = JSON.parse(window.localStorage.getItem(storageName + '-' + (isGlobal ? '' : CHANNEL.name) + storageName));
+        data = $.isPlainObject(data) ? data : {};
+    } catch (error) {
+        data = {};
+    }
+
+
+    this.setDefault = function (name, value) {
+        defaultData[name] = value;
+        data[name] = (typeof data[name] !== 'undefined') ? data[name] : value;
+    };
+
+
+    this.get = function (name) {
+        return data[name];
+    };
+
+
+    this.set = function (name, value) {
+        if (data[name] != value) {
+            dirtyData[name] = true;
+        }
+
+        return data[name] = value;
+    };
+
+
+    /**
+     * Checks if attribute was changed
+     * @param {String|Array} nameData Name of the attribute (you can pass array of names)
+     * @returns {boolean}
+     */
+    this.isDirty = function (nameData) {
+        var isDirty = false;
+
+        if ($.isArray()) {
+            for (var name in nameData) {
+                if (!!dirtyData[nameData[name]]) {
+                    isDirty = true;
+                    break;
+                }
+            }
+        } else {
+            isDirty = !!dirtyData[nameData];
+        }
+
+        return isDirty;
+    };
+
+
+    this.save = function () {
+        try {
+            return window.localStorage.setItem(storageName + '-' + (isGlobal ? '' : CHANNEL.name) + storageName, JSON.stringify(data))
+        } catch (error) {
+            return false;
+        }
+    };
+
+
+    this.reset = function () {
+        data = $.extend({}, defaultData);
+    }
+};
+},{}],8:[function(require,module,exports){
+window.CytubeEnhancedUISettings = function (app) {
+    'use strict';
+    var that = this;
+
+    this.$navbar = $('#nav-collapsible').find('.navbar-nav');
+    this.tabs = {};
+    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
+    this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
+    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
+    this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
+    this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
+
+    /**
+     * Data, stored from tabs.
+     * @type {CytubeEnhancedStorage}
+     */
+    this.data = new CytubeEnhancedStorage('settings');
+    var pageReloadRequested = false;
+
+
+    that.$tabsContainerOpenButton
+        .text(app.t('settings[.]Extended settings'))
+        .on('click', function () {
+            that.openSettings();
+        })
+        .appendTo(that.$navbar)
+        .wrap('<li>');
+
+    $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
+    that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
+
+    $('<button type="button" data-dismiss="modal" class="btn btn-success">' + app.t('settings[.]Save') + '</button>').appendTo(that.$tabsContainerFooter).on('click', function () {
+        that.save();
+    });
+    $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('settings[.]Cancel') + '</button>').appendTo(that.$tabsContainerFooter);
+
+
+
+    /**
+     * Adds action on settings save
+     * @param callback Callback to be called on settings save
+     */
+    this.onSave = function (callback) {
+        $(document).on(app.prefix + 'settings.save', function () {
+            callback(that.data);
+        });
+    };
+
+
+    /**
+     * Saves and applies data from tabs
+     */
+    this.save = function () {
+        $(document).trigger(app.prefix + 'settings.save');
+        that.data.save();
+
+        if (pageReloadRequested) {
+            app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
+                window.location.reload();
+            });
+        }
+    };
+
+
+    /**
+     * Resets settings
+     */
+    this.reset = function () {
+        that.data.reset();
+
+        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
+            window.location.reload();
+        });
+    };
+
+
+    /**
+     * Adds new tab
+     * @param {String} name The name of the tab
+     * @param {String} title The title of the tab
+     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "righter" the tab)
+     * @returns {Object} Returns tab object
+     */
+    var addTab = function (name, title, sort) {
+        var tab = new window.CytubeEnhancedUITab(app, name, title, sort);
+
+        tab.$button.appendTo(that.$tabsContainerTabs);
+        tab.$content.appendTo(that.$tabsContainerBody);
+        that.tabs[name] = tab;
+
+        that.sortTabs();
+
+        return tab;
+    };
+
+
+    /**
+     * Gets tab's content by its name
+     * @param {String} name The name of the tab
+     * @param {String} [newTabTitle] If passed and tab is not exists, it creates the tab automatically with these name and title
+     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "bottomer" the tab)
+     * @returns {null|Object} Returns null or tab config
+     */
+    this.getTab = function (name, newTabTitle, sort) {
+        if (typeof that.tabs[name] !== 'undefined') {
+            return that.tabs[name];
+        } else {
+            if (newTabTitle) {
+                return addTab(name, newTabTitle, sort);
+            } else {
+                return null;
+            }
+        }
+    };
+
+
+    /**
+     * Opens tab by its name
+     * @param {String} name The name of the tab
+     */
+    this.openTab = function (name) {
+        that.tabs[name].show();
+    };
+
+
+    /**
+     * Sorts tabs
+     */
+    this.sortTabs = function () {
+        var tabsArray = [];
+        for (var tab in that.tabs) {
+            tabsArray.push(that.tabs[tab]);
+        }
+
+        tabsArray = tabsArray.sort(function (a, b) {
+            if (a.sort > b.sort) {
+                return 1;
+            } else if (a.sort < b.sort) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (var tabIndex = 0, tabsLength = tabsArray.length; tabIndex < tabsLength; tabIndex++) {
+            tabsArray[tabIndex].$button.detach().appendTo(that.$tabsContainerTabs);
+        }
+    };
+
+
+    /**
+     * Opens settings modal
+     * @returns {jQuery} Modal window
+     */
+    this.openSettings = function () {
+        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+
+        var tabToOpen;
+        for (var tab in that.tabs) {
+            if (typeof tabToOpen == 'undefined' || typeof tabToOpen.sort == 'undefined' || tabToOpen.sort > that.tabs[tab].sort) {
+                tabToOpen = that.tabs[tab];
+            }
+        }
+        tabToOpen.show();
+    };
+
+
+    /**
+     * Requests page reload on settings saving
+     */
+    this.requestPageReload = function () {
+        pageReloadRequested = true;
+    };
+};
+},{}],9:[function(require,module,exports){
+window.CytubeEnhancedUITab = function (app, name, title, sort) {
+    'use strict';
+    var that = this;
+
+    this.$button = $('<li><a href="#' + app.prefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>');
+    this.$content = $('<div id="' + app.prefix + name + '__content" class="tab-pane">');
+    this.$form = app.UI.createControlsWrapper('horizontal').appendTo(this.$content);
+    this.sort = Math.abs(parseInt(sort, 10)) || 0;
+    this.controls = {};
+
+
+    /**
+     * Shows the tab
+     */
+    this.show = function () {
+        that.$button.find('a').tab('show');
+        $(document).trigger(app.prefix + 'tab-' + name + '.show');
+    };
+    this.$button.on('show.bs.tab', function () {
+        $(document).trigger(app.prefix + 'tab-' + name + '.show');
+    });
+
+
+    /**
+     * Adds action on selecting tab
+     * @param callback Callback to be called on selecting tab
+     */
+    this.onShow = function (callback) {
+        $(document).on(app.prefix + 'tab-' + name + '.show', function () {
+            callback(that);
+        });
+    };
+
+
+    /**
+     * Adds custom control to tab
+     * @param {String} type Type of control function
+     * @param {String} controlType Control's type (default, horizontal, inline)
+     * @param {String} title Label's title
+     * @param {String} name Name of the control
+     * @param {Object} [options] Options for the control.
+     * @param {Function} [handler] Callback, which is calling on every control's change.
+     * @param {Number} [sort] Position of control (positive integer number, the higher the value, the "bottomer" the control)
+     * @param {jQuery} [$customContainer] Custom container for control
+     * @returns {jQuery}
+     */
+    this.addControl = function (type, controlType, title, name, options, handler, sort, $customContainer) {
+        type = (['select', 'checkbox'].indexOf(type) != -1) ? type : 'select';
+        sort = Math.abs(parseInt(sort, 10)) || 0;
+        var controlFunctionName = 'create' + type.slice(0, 1).toUpperCase() + type.slice(1) + 'Control';
+
+        var $control = app.UI[controlFunctionName](controlType, title, name, options, handler);
+        $control.data('sort', sort);
+
+        that.controls[name] = {$el: $control, sort: sort};
+        if ($customContainer) {
+            $control.appendTo($customContainer);
+        } else {
+            $control.appendTo(that.$form);
+        }
+
+        return $control;
+    };
+
+
+    /**
+     * Returns tab's name
+     */
+    this.getName = function () {
+        return name;
+    };
+};
+},{}],10:[function(require,module,exports){
+window.CytubeEnhancedUI = function (app) {
+    var that = this;
+
+
+    /**
+     * Creates modal window
+     * @param id Modal id
+     * @param $headerContent Modal header (optional)
+     * @param $bodyContent Modal body (optional)
+     * @param $footerContent Modal footer (optional)
+     * @returns {jQuery} Modal window
+     */
+    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
+        $('.modal').modal('hide');
+        id = app.prefix + 'modal-' + id;
+        var $outer;
+
+        if ($('#' + id).length == 0) {
+            $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
+            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+            var $content = $('<div class="modal-content">').appendTo($modal);
+
+            if ($headerContent != null) {
+                var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+
+                $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+            }
+
+            if ($bodyContent != null) {
+                $('<div class="modal-body">').append($bodyContent).appendTo($content);
+            }
+
+            if ($footerContent != null) {
+                $('<div class="modal-footer">').append($footerContent).appendTo($content);
+            }
+
+            //$outer.on('hidden.bs.modal', function () {
+            //    $(this).remove();
+            //});
+
+            $outer.modal({keyboard: true});
+        } else {
+            $outer = $('#' + id);
+            $outer.modal('show');
+        }
+
+        return $outer;
+    };
+
+
+    this.createConfirmWindow = function (message, callback) {
+        if (window.confirm(message)) {
+            callback();
+        }
+    };
+
+
+    /**
+     * Creates wrapper for control elements.
+     * @param type Type of wrapper (default, horizontal, inline).
+     * @returns {jQuery}
+     */
+    this.createControlsWrapper = function (type) {
+        type = (['default', 'horizontal', 'inline'].indexOf(type) != -1) ? type : 'default';
+
+        return $('<div class="form-' + type + '">');
+    };
+
+
+    /**
+     * Creates select with bootstrap markup
+     * @param {String} type Control's type (default, horizontal, inline)
+     * @param {String} title Label's title
+     * @param {String} name Name of the select
+     * @param {Object} [options] Options for the select. An example of options: [{value: 'value 1', title: 'title 1', selected: true}, {value: 'value 2', title: 'title 2'}]
+     * @param {Function} [handler] Callback, which is calling on every select's change.
+     * @returns {jQuery}
+     */
+    this.createSelectControl = function (type, title, name, options, handler) {
+        options = options || [];
+        var $wrapper = $('<div class="form-group">');
+        var $select;
+
+        if (type == 'horizontal') {
+            $('<label for="' + app.prefix + name + '" class="control-label col-sm-4">' + title + '</label>').appendTo($wrapper);
+            var $selectWrapper = $('<div class="col-sm-8">').appendTo($wrapper);
+            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($selectWrapper);
+        } else { //inline or default
+            $('<label for="' + app.prefix + name + '">' + title + '</label>').appendTo($wrapper);
+            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($wrapper);
+        }
+
+        if (handler) {
+            $select.on('change', handler);
+        }
+
+        var selected;
+        for (var optionIndex = 0, optionsLength = options.length; optionIndex < optionsLength; optionIndex++) {
+            selected = options[optionIndex].selected ? 'selected' : '';
+            $select.append('<option value="' + options[optionIndex].value + '" ' + selected + '>' + options[optionIndex].title + '</option>');
+        }
+
+        return $wrapper;
+    };
+
+
+    /**
+     * Creates button
+     * @param {String} [type] Bootstrap button's type (default, primary, success, danger, alert, info, link, etc)
+     * @param {String} title Button's title
+     * @param {Function} [handler] Callback, which is calling on every button's click.
+     */
+    this.createButton = function (type, title, handler) {
+        var $button = $('<button type="button" class="btn btn-' + type + '">' + title + '</button>');
+
+        if (handler) {
+            $button.on('click', handler);
+        }
+
+        return $button;
+    };
+};
+},{}],11:[function(require,module,exports){
+window.CytubeEnhancedUserConfig = function (app) {
+    var that = this;
+
+    /**
+     * UserConfig options
+     * @type {object}
+     */
+    this.options = {};
+
+    this.prefix = 'ce-';
+
+    /**
+     * Sets the user's option and saves it in the user's cookies
+     * @param name The name ot the option
+     * @param value The value of the option
+     */
+    this.set = function (name, value) {
+        this.options[name] = value;
+        window.setOpt(that.prefix + window.CHANNEL.name + "_config-" + name, value);
+    };
+
+    /**
+     * Gets the value of the user's option
+     *
+     * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
+     *
+     * @param name Option's name
+     * @returns {*}
+     */
+    this.get = function (name) {
+        if (!this.options.hasOwnProperty(name)) {
+            this.options[name] = window.getOrDefault(that.prefix + window.CHANNEL.name + "_config-" + name, undefined);
+        }
+
+        return this.options[name];
+    };
+
+    /**
+     * Toggles user's boolean option
+     * @param name Boolean option's name
+     * @returns {boolean}
+     */
+    this.toggle = function (name) {
+        var result = !this.get(name);
+
+        this.set(name, result);
+
+        return result;
+    };
+};
+},{}],12:[function(require,module,exports){
+window.cytubeEnhanced = new window.CytubeEnhanced(
+    $('title').text(),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
+);
+
+},{}],13:[function(require,module,exports){
+window.CytubeEnhanced = function(channelName, language, modulesSettings) {
+    'use strict';
+    var that = this;
+
+    this.channelName = channelName;
+    this.language = language;
+    this.translations = {};
+    this.prefix = 'ce-';
+
+    var modules = {};
+    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
+    var MODULE_LOAD_PERIOD = 100; //ms (0.1 sec)
+
+
+    /**
+     * Gets the module
+     *
+     * Returns $.Deferred() promise object and throws error exception if timeout
+     *
+     * @param {string} moduleName The name of the module
+     * @returns {object}
+     */
+    this.getModule = function (moduleName) {
+        var promise = $.Deferred();
+        var time = MODULE_LOAD_TIMEOUT;
+
+        (function getModuleRecursive() {
+            if (typeof modules[moduleName] != 'undefined') {
+                promise.resolve(modules[moduleName]);
+            } else if (time <= 0) {
+                throw new Error("Load timeout for module " + moduleName + '.');
+            } else {
+                time -= MODULE_LOAD_PERIOD;
+
+                setTimeout(getModuleRecursive, MODULE_LOAD_PERIOD);
+            }
+        })();
+
+        return promise;
+    };
+
+
+    /**
+     * Adds the module
+     *
+     * @param {string} moduleName The name of the module
+     * @param ModuleConstructor The module's constructor
+     */
+    this.addModule = function (moduleName, ModuleConstructor) {
+        if (this.isModulePermitted(moduleName)) {
+            var moduleSettings = modulesSettings[moduleName] || {};
+
+            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
+            modules[moduleName].settings = moduleSettings;
+        }
+    };
+
+
+    /**
+     * Configures the module
+     *
+     * Previous options don't reset.
+     *
+     * @param {string} moduleName  The name of the module
+     * @param moduleOptions The module's options
+     */
+    this.configureModule = function (moduleName, moduleOptions) {
+        $.extend(true, modulesSettings[moduleName], moduleOptions);
+    };
+
+
+    /**
+     * Checks if module is permitted
+     *
+     * @param moduleName The name of the module to check
+     * @returns {boolean}
+     */
+    this.isModulePermitted = function (moduleName) {
+        return modulesSettings.hasOwnProperty(moduleName) ?
+            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
+            true;
+    };
+
+
+    /**
+     * Adds the translation object
+     * @param language The language identifier
+     * @param translationObject The translation object
+     */
+    this.addTranslation = function (language, translationObject) {
+        if (typeof that.translations[language] == 'undefined') {
+            that.translations[language] = translationObject;
+        } else {
+            $.extend(true, that.translations[language], translationObject);
+        }
+    };
+
+
+    /**
+     * Translates the text
+     * @param text The text to translate
+     * @returns {string}
+     */
+    this.t = function (text) {
+        var translatedText = text;
+
+        if (that.language !== 'en' && that.translations[that.language]) {
+            if (text.indexOf('[.]') !== -1) {
+                var textWithNamespaces = text.split('[.]');
+
+                translatedText = that.translations[that.language][textWithNamespaces[0]];
+                if (typeof translatedText == 'undefined') {
+                    translatedText = text.split('[.]').pop();
+                    return translatedText || text;
+                }
+                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
+                    translatedText = translatedText[textWithNamespaces[namespace]];
+                    if (typeof translatedText == 'undefined') {
+                        translatedText = text.split('[.]').pop();
+                        return  translatedText || text;
+                    }
+                }
+
+                translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
+            } else {
+                translatedText = that.translations[that.language][text];
+            }
+        } else if (text.indexOf('[.]') !== -1) { //English text by default
+            translatedText = text.split('[.]').pop();
+            translatedText = translatedText || text;
+        }
+
+        return translatedText;
+    };
+
+
+    /**
+     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * @param {String} jsonString JSON string
+     * @param {*} defaultValue The default value to return if something wrong with jsonString
+     * @returns {*} Something extracted from json string or default value if something wrong with jsonString.
+     */
+    this.parseJSON = function (jsonString, defaultValue) {
+        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
+        var result;
+
+        try {
+            result = window.JSON.parse(jsonString);
+        } catch (error) {
+            result = defaultValue;
+        }
+
+        return result;
+    };
+
+
+    /**
+     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * @param {*} object Something, that will be converted to JSON string
+     * @param {*} defaultValue The default value to return if something wrong
+     * @returns {String} JSON string
+     */
+    this.toJSON = function (object, defaultValue) {
+        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
+        var result;
+
+        try {
+            result = window.JSON.stringify(object);
+        } catch (error) {
+            result = defaultValue;
+        }
+
+        return result;
+    };
+
+
+
+    $.ajaxSetup({cache: true});
+
+    if (window.cytubeEnhancedDefaultTranslates) {
+        for (var translateLanguage in window.cytubeEnhancedDefaultTranslates) {
+            this.addTranslation(translateLanguage, window.cytubeEnhancedDefaultTranslates[translateLanguage]);
+        }
+    }
+
+    this.userConfig = new window.CytubeEnhancedUserConfig(this);
+    this.UI = new window.CytubeEnhancedUI(this);
+    this.Settings = new window.CytubeEnhancedUISettings(this);
+};
+
+},{}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
 
@@ -891,7 +1625,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     });
 });
 
-},{}],4:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
@@ -1012,21 +1746,22 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     });
 });
 
-},{"jquery.selection":2}],5:[function(require,module,exports){
+},{"jquery.selection":6}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     'use strict';
     var that = this;
 
     var tab = app.Settings.getTab('general', 'Общее', 100);
     var userSettings = app.Settings.data;
-    userSettings.avatars = userSettings.avatars || {};
 
 
+    var namespace = 'avatars';
     this.scheme = {
         'avatars-mode': {
             title: app.t('chatAvatars[.]Chat avatars'),
+            default: '',
             options: [
-                {value: '', title: app.t('chatAvatars[.]Disabled'), selected: true},
+                {value: '', title: app.t('chatAvatars[.]Disabled')},
                 {value: 'small', title: app.t('chatAvatars[.]Small')},
                 {value: 'big', title: app.t('chatAvatars[.]Big')}
             ]
@@ -1039,16 +1774,20 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
      */
     var schemeItem;
     var option;
+    var sort = 100;
     for (var itemName in this.scheme) {
         schemeItem = this.scheme[itemName];
 
-        if (userSettings.avatars[itemName]) {
+        userSettings.setDefault(namespace + '.' + itemName, schemeItem.default);
+
+        if (userSettings.get(namespace + '.' + itemName)) {
             for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (userSettings.avatars[itemName] == schemeItem.options[option].value)
+                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
             }
         }
 
-        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, 100);
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, sort);
+        sort += 100;
     }
 
 
@@ -1056,10 +1795,12 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
      * Saving and applying settings
      */
     app.Settings.onSave(function (settings) {
-        settings.avatars = settings.avatars || {};
-
         for (var itemName in that.scheme) {
-            settings.avatars[itemName] = $('#' + app.prefix + itemName).val();
+            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
+        }
+
+        if (settings.isDirty(namespace + '.avatars-mode')) {
+            app.Settings.requestPageReload();
         }
     });
 
@@ -1067,11 +1808,11 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     /**
      * Applying settings
      */
-    if (userSettings.avatars['avatars-mode']) {
+    if (userSettings.get(namespace + '.avatars-mode')) {
         window.formatChatMessage = (function (oldFormatChatMessage) {
             return function (data, last) {
                 var div = oldFormatChatMessage(data, last);
-                var avatarCssClasses = (userSettings.avatars['avatars-mode'] == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
+                var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
 
                 if ((window.findUserlistItem(data.username) != null) && (window.findUserlistItem(data.username).data('profile').image != "")) {
                     var $avatar = $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
@@ -1091,14 +1832,14 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
         $('.username').each(function () {
             var $messageBlock = $(this).parent();
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
-            var avatarCssClasses = (userSettings.avatars['avatars-mode'] == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
+            var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
 
             if (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) {
                 var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
                     .addClass(avatarCssClasses)
                     .prependTo($messageBlock);
 
-                if (userSettings.avatars['avatars-mode'] == 'big') {
+                if (userSettings.get(namespace + '.avatars-mode') == 'big') {
                     $(this).css('display', 'none');
                     $avatar.attr('title', username);
                 }
@@ -1106,7 +1847,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
         });
     }
 });
-},{}],6:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
     'use strict';
 
@@ -1171,7 +1912,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
         });
 });
 
-},{}],7:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -1251,10 +1992,155 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
-},{}],8:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
+window.cytubeEnhanced.addModule('customCss', function (app, settings) {
+    'use strict';
+    var that = this;
+
+    var defaultSettings = {
+        aceUrl: 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js'
+    };
+    settings = $.extend({}, defaultSettings, settings);
+
+    var tab = app.Settings.getTab('custom-css', 'CSS', 300);
+    var namespace = 'user-code';
+    app.Settings.data.setDefault(namespace + '.css', '');
+
+    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.data.get(namespace + '.css')).appendTo(tab.$content);
+    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.data.get(namespace + '.css'));
+    var aceEditor;
+
+
+    tab.onShow(function () {
+        if (typeof aceEditor === 'undefined') {
+            if (typeof window.ace === 'undefined') {
+                $.getScript(settings.aceUrl, function () {
+                    that.initializeAceEditor();
+                })
+            } else {
+                that.initializeAceEditor();
+            }
+        }
+    });
+
+
+    this.applyUserCss = function (css) {
+        $('#' + app.prefix + 'user-css').remove();
+        $('head').append('<style id="' + app.prefix + 'user-css" type="text/css">' + css + '</style>');
+    };
+
+
+    this.initializeAceEditor = function () {
+        $aceEditor.text($editor.val());
+        $editor.replaceWith($aceEditor);
+
+        aceEditor = window.ace.edit(app.prefix + 'css-editor');
+        aceEditor.setTheme("ace/theme/tomorrow_night");
+        aceEditor.getSession().setMode("ace/mode/css");
+        aceEditor.getSession().setTabSize(4);
+        aceEditor.getSession().setUseSoftTabs(true);
+        aceEditor.getSession().setUseWrapMode(true);
+        aceEditor.getSession().setWrapLimitRange();
+        aceEditor.setOptions({
+            minLines: 30,
+            maxLines: 30,
+            autoScrollEditorIntoView: true,
+            highlightActiveLine: true
+        });
+    };
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        if (aceEditor) {
+            settings.set(namespace + '.css', aceEditor.getValue());
+        } else {
+            settings.set(namespace + '.css', $editor.val());
+        }
+
+        that.applyUserCss(settings.get(namespace + '.css'));
+    });
+    this.applyUserCss(app.Settings.data.get(namespace + '.css'))
+});
+
+},{}],20:[function(require,module,exports){
+window.cytubeEnhanced.addModule('customJs', function (app, settings) {
+    'use strict';
+    var that = this;
+
+    var defaultSettings = {
+        aceUrl: 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js'
+    };
+    settings = $.extend({}, defaultSettings, settings);
+
+    var tab = app.Settings.getTab('custom-js', 'JS', 400);
+    var namespace = 'user-code';
+    app.Settings.data.setDefault(namespace + '.js', '');
+
+    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.data.get(namespace + '.js')).appendTo(tab.$content);
+    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'js-editor"></div>').text(app.Settings.data.get(namespace + '.js'));
+    var aceEditor;
+
+
+    tab.onShow(function () {
+        if (typeof aceEditor === 'undefined') {
+            if (typeof window.ace === 'undefined') {
+                $.getScript(settings.aceUrl, function () {
+                    that.initializeAceEditor();
+                })
+            } else {
+                that.initializeAceEditor();
+            }
+        }
+    });
+
+
+    this.applyUserCss = function (js) {
+        $('#' + app.prefix + 'user-js').remove();
+        $('body').append('<script id="' + app.prefix + 'user-js" type="text/javascript">' + js + '</script>');
+    };
+
+
+    this.initializeAceEditor = function () {
+        $aceEditor.text($editor.val());
+        $editor.replaceWith($aceEditor);
+
+        aceEditor = window.ace.edit(app.prefix + 'js-editor');
+        aceEditor.setTheme("ace/theme/tomorrow_night");
+        aceEditor.getSession().setMode("ace/mode/javascript");
+        aceEditor.getSession().setTabSize(4);
+        aceEditor.getSession().setUseSoftTabs(true);
+        aceEditor.getSession().setUseWrapMode(true);
+        aceEditor.getSession().setWrapLimitRange();
+        aceEditor.setOptions({
+            minLines: 30,
+            maxLines: 30,
+            autoScrollEditorIntoView: true,
+            highlightActiveLine: true
+        });
+    };
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        if (aceEditor) {
+            settings.set(namespace + '.js', aceEditor.getValue());
+        } else {
+            settings.set(namespace + '.js', $editor.val());
+        }
+
+        that.applyUserCss(settings.get(namespace + '.js'));
+    });
+    this.applyUserCss(app.Settings.data.get(namespace + '.js'))
+});
+
+},{}],21:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -1262,20 +2148,117 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
+    var tab = app.Settings.getTab('extra', 'Сторонние модули', 500);
+    $('<p>').text('Модули от сторонних поставщиков.').prependTo(tab.$content);
+    var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
+    var userSettings = app.Settings.data;
+
+    var namespace = 'extras';
+    userSettings.setDefault(namespace + '.enabled', settings.enabledModules);
+    this.enabledModules = userSettings.get(namespace + '.enabled') || [];
     this.extraModules = {};
-    this.enabledModules = JSON.parse(app.userConfig.get('enabledExtraModules') || 'null') || settings.enabledModules;
 
 
     this.add = function (config) {
-        this.extraModules[config.name] = config;
+        that.extraModules[config.name] = config;
+        that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
+        that.sort();
 
-        if (this.enabledModules.indexOf(config.name) != -1) {
-            $.getScript(this.extraModules[config.name].url);
+        if (that.enabledModules.indexOf(config.name) != -1) {
+            $.getScript(that.extraModules[config.name].url + '?ac=' + Date.now());
         }
     };
+
+
+    this.enable = function (name) {
+        return that.enabledModules.push(name);
+    };
+
+
+    this.disable = function (name) {
+        var position = that.enabledModules.indexOf(name);
+
+        if (position !== -1) {
+            return that.enabledModules.splice(position, 1);
+        } else {
+            return false;
+        }
+    };
+
+
+    this.addMarkup = function (config) {
+        var $moduleInfo = $('<div class="' + app.prefix + 'extras__item">');
+        $moduleInfo.data('name', config.name);
+
+        var $title = $('<div class="' + app.prefix + 'extras__item__title">').text(config.title).appendTo($moduleInfo);
+        var $description = $('<div class="' + app.prefix + 'extras__item__description">').text(config.description || 'Нет описания').appendTo($moduleInfo);
+        var $toggleModuleButton = $('<div class="' + app.prefix + 'extras__item__button btn btn-xs">').appendTo($moduleInfo).data('enabled', that.enabledModules.indexOf(config.name) != -1).on('click', function () {
+            if ($(this).data('enabled')) {
+                $(this).data('enabled', false);
+                that.disable(config.name);
+                $(this).removeClass('btn-danger').addClass('btn-success').text('Включить');
+            } else {
+                $(this).data('enabled', true);
+                that.enable(config.name);
+                $(this).removeClass('btn-success').addClass('btn-danger').text('Выключить');
+            }
+        });
+        if (that.enabledModules.indexOf(config.name) != -1) {
+            $toggleModuleButton.addClass('btn-danger').text('Выключить');
+        } else {
+            $toggleModuleButton.addClass('btn-success').text('Включить');
+        }
+
+        $moduleInfo = $('<div class="col-md-6">').append($moduleInfo);
+
+        return $moduleInfo;
+    };
+
+
+    this.sort = function () {
+        var extraModulesArray = [];
+        for (var module in that.extraModules) {
+            extraModulesArray.push(that.extraModules[module]);
+        }
+
+        extraModulesArray = extraModulesArray.sort(function (a, b) {
+            var aSort = +(that.enabledModules.indexOf(a.name) != -1);
+            var bSort = +(that.enabledModules.indexOf(b.name) != -1);
+
+            if (aSort < bSort) {
+                return 1;
+            } else if (aSort > bSort) {
+                return -1;
+            } else {
+                if (a.title.toLowerCase() > b.title.toLowerCase()) {
+                    return 1;
+                } else if (a.title.toLowerCase() < b.title.toLowerCase()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        for (var extraModuleIndex = 0, extraModulesLength = extraModulesArray.length; extraModuleIndex < extraModulesLength; extraModuleIndex++) {
+            extraModulesArray[extraModuleIndex].$el.detach().appendTo($tabContent);
+        }
+    };
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        settings.set(namespace + '.enabled', that.enabledModules);
+
+        if (settings.isDirty(namespace + '.enabled')) {
+            app.Settings.requestPageReload();
+        }
+    });
 });
 
-},{}],9:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -1562,7 +2545,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],10:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -1678,7 +2661,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":1}],11:[function(require,module,exports){
+},{"jquery-mousewheel":5}],24:[function(require,module,exports){
 window.cytubeEnhanced.addModule('Layout', function (app, settings) {
     'use strict';
 
@@ -1686,15 +2669,16 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
 
     var tab = app.Settings.getTab('layout', 'Сетка', 200);
     var userSettings = app.Settings.data;
-    userSettings.layout = userSettings.layout || {};
 
 
+    var namespace = 'layout';
     this.scheme = {
         'hide-header': {
             title: app.t('layout[.]Hide header'),
+            default: 'no',
             options: [
                 {value: 'yes', title: app.t('settings[.]Yes')},
-                {value: 'no', title: app.t('settings[.]No'), selected: true}
+                {value: 'no', title: app.t('settings[.]No')}
             ]
         },
         'player-position': {
@@ -1702,21 +2686,23 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
             default: 'right',
             options: [
                 {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right'), selected: true},
+                {value: 'right', title: app.t('layout[.]Right')},
                 {value: 'center', title: app.t('layout[.]Center')}
             ]
         },
         'playlist-position': {
             title: app.t('layout[.]Playlist position'),
+            default: 'right',
             options: [
                 {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right'), selected: true}
+                {value: 'right', title: app.t('layout[.]Right')}
             ]
         },
         'userlist-position': {
             title: app.t('layout[.]Chat\'s userlist position'),
+            default: 'left',
             options: [
-                {value: 'left', title: app.t('layout[.]Left'), selected: true},
+                {value: 'left', title: app.t('layout[.]Left')},
                 {value: 'right', title: app.t('layout[.]Right')}
             ]
         }
@@ -1724,39 +2710,29 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
 
 
     /**
-     * Creating markup
+     * Initializing
      */
     var schemeItem;
     var option;
+    var sort = 100;
     for (var itemName in this.scheme) {
         schemeItem = this.scheme[itemName];
 
-        if (userSettings.layout[itemName]) {
+        userSettings.setDefault(namespace + '.' + itemName, schemeItem.default);
+
+        if (userSettings.get(namespace + '.' + itemName)) {
             for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (userSettings.layout[itemName] == schemeItem.options[option].value)
+                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
             }
         }
 
-        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, 100);
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, sort);
+        sort += 100;
     }
 
 
-    /**
-     * Saving and applying settings
-     */
-    app.Settings.onSave(function (settings) {
-        settings.layout = settings.layout || {};
-
-        for (var itemName in that.scheme) {
-            settings.layout[itemName] = $('#' + app.prefix + itemName).val();
-        }
-
-        that.applySettings(settings.layout);
-    });
-
-
-    this.applySettings = function (layoutSettings) {
-        if (layoutSettings['hide-header'] === 'yes') {
+    this.applySettings = function (userSettings) {
+        if (userSettings.get(namespace + '.hide-header') === 'yes') {
             $('#motdrow').hide();
             $('#motdrow').data('hiddenByLayout', '1');
         } else {
@@ -1766,7 +2742,7 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
             $('#motdrow').data('hiddenByLayout', '0');
         }
 
-        if (layoutSettings['player-position'] === 'left') {
+        if (userSettings.get(namespace + '.player-position') === 'left') {
             if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
                 $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
                 $('#chatwrap').addClass('col-lg-5 col-md-5');
@@ -1777,7 +2753,7 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
             }
 
             $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (layoutSettings['player-position'] === 'center') {
+        } else if (userSettings.get(namespace + '.player-position') === 'center') {
             $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
                 return (css.match(/(\s)*col-(\S)+/g) || []).join('');
             });
@@ -1802,7 +2778,7 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
             $('#chatwrap').detach().insertBefore($('#videowrap'));
         }
 
-        if (layoutSettings['playlist-position'] === 'left') {
+        if (userSettings.get(namespace + '.playlist-position') === 'left') {
             $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
             $('#rightpane').detach().insertBefore($('#leftpane'));
         } else { //right
@@ -1810,7 +2786,7 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
             $('#leftpane').detach().insertBefore($('#rightpane'));
         }
 
-        if (layoutSettings['userlist-position'] === 'right') {
+        if (userSettings.get(namespace + '.userlist-position') === 'right') {
             $('#userlist').addClass('pull-right');
         } else { //left
             $('#userlist').removeClass('pull-right');
@@ -1820,9 +2796,20 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
         $('#refresh-video').click();
     };
 
-    this.applySettings(userSettings.layout);
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        for (var itemName in that.scheme) {
+            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
+        }
+
+        that.applySettings(settings, namespace);
+    });
+    this.applySettings(userSettings, namespace);
 });
-},{}],12:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 //You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
@@ -2112,7 +3099,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     });
 });
 
-},{}],13:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /**
  * Saves messages from chat which were sent by other users to you
  */
@@ -2226,7 +3213,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         }
     };
 });
-},{}],14:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -2263,7 +3250,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],15:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -2276,25 +3263,56 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
         return;
     }
 
+    var namespace = 'general';
+    this.scheme = {
+        'smiles-and-favourite-pictures-together': {
+            title: app.t('general[.]Smiles and pictures together'),
+            default: 'no',
+            options: [
+                {value: 'yes', title: app.t('settings[.]Yes')},
+                {value: 'no', title: app.t('settings[.]No')}
+            ]
+        }
+    };
+
 
     /**
      * Creating markup for settings
      */
-    tab.addControl('select', 'horizontal', app.t('general[.]Smiles and pictures together'), 'smiles-and-favourite-pictures-together', [
-        {value: 'yes', title: app.t('settings[.]Yes')},
-        {value: 'no', title: app.t('settings[.]No'), selected: true}
-    ], null, 200);
+    var schemeItem;
+    var option;
+    var sort = 10000;
+    for (var itemName in this.scheme) {
+        schemeItem = this.scheme[itemName];
+
+        userSettings.setDefault(namespace + '.' + itemName, schemeItem.default);
+
+        if (userSettings.get(namespace + '.' + itemName)) {
+            for (option in schemeItem.options) {
+                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
+            }
+        }
+
+        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, sort);
+        sort += 100;
+    }
 
 
     /**
      * Saving and applying settings
      */
     app.Settings.onSave(function (settings) {
-        settings.smilesAndFavouritePicturesTogether = $('#' + app.prefix + 'smiles-and-favourite-pictures-together').val();
+        for (var itemName in that.scheme) {
+            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
+        }
+
+        if (settings.isDirty(namespace + '.smiles-and-favourite-pictures-together')) {
+            app.Settings.requestPageReload();
+        }
     });
 
 
-    if (userSettings.smilesAndFavouritePicturesTogether == 'yes') {
+    if (userSettings.get(namespace + '.smiles-and-favourite-pictures-together')  == 'yes') {
         app.getModule('smiles').done(function (smilesModule) {
             smilesModule.makeSmilesAndPicturesTogether();
         });
@@ -2320,7 +3338,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
             });
     }
 });
-},{}],16:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -2410,7 +3428,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.renderSmiles();
 });
 
-},{}],17:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -2597,7 +3615,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('#queue').sortable("option", "axis", "y");
 });
 
-},{}],18:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -2818,7 +3836,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],19:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -2944,7 +3962,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],20:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -3005,609 +4023,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],21:[function(require,module,exports){
-cytubeEnhanced.getModule('extras').done(function (extraModules) {
-    extraModules.add({
-        title: 'Аниме-цитаты',
-        name: 'anime-quotes',
-        description: 'Нескучные аниме-цитаты.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/anime-quotes/anime-quotes.js',
-        picture: "url.jpg",
-        preview: "preview-url.jpg",
-        languages: ['ru']
-    });
-});
-},{}],22:[function(require,module,exports){
-cytubeEnhanced.getModule('extras').done(function (extraModules) {
-    extraModules.add({
-        title: 'Цитаты пирата',
-        name: 'pirate-quotes',
-        description: 'Нескучные цитаты Пирата.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/pirate-quotes/pirate-quotes.js',
-        picture: "url.jpg",
-        preview: "preview-url.jpg",
-        languages: ['ru']
-    });
-});
-},{}],23:[function(require,module,exports){
-cytubeEnhanced.getModule('extras').done(function (extraModules) {
-    extraModules.add({
-        title: 'Перевод интерфейса',
-        name: 'translate',
-        description: 'Русский перевод интерфейса.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/src/js/extras/translate/translate.js',
-        picture: "url.jpg",
-        preview: "preview-url.jpg",
-        languages: ['ru']
-    });
-});
-},{}],24:[function(require,module,exports){
-window.cytubeEnhanced = new window.CytubeEnhanced(
-    $('title').text(),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
-);
-
-},{}],25:[function(require,module,exports){
-window.CytubeEnhanced = function(channelName, language, modulesSettings) {
-    'use strict';
-    var that = this;
-
-    this.channelName = channelName;
-    this.language = language;
-    this.translations = {};
-    this.prefix = 'ce-';
-
-    var modules = {};
-    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
-    var MODULE_LOAD_PERIOD = 100; //ms (0.1 sec)
-
-
-    /**
-     * Gets the module
-     *
-     * Returns $.Deferred() promise object and throws error exception if timeout
-     *
-     * @param {string} moduleName The name of the module
-     * @returns {object}
-     */
-    this.getModule = function (moduleName) {
-        var promise = $.Deferred();
-        var time = MODULE_LOAD_TIMEOUT;
-
-        (function getModuleRecursive() {
-            if (typeof modules[moduleName] != 'undefined') {
-                promise.resolve(modules[moduleName]);
-            } else if (time <= 0) {
-                throw new Error("Load timeout for module " + moduleName + '.');
-            } else {
-                time -= MODULE_LOAD_PERIOD;
-
-                setTimeout(getModuleRecursive, MODULE_LOAD_PERIOD);
-            }
-        })();
-
-        return promise;
-    };
-
-
-    /**
-     * Adds the module
-     *
-     * @param {string} moduleName The name of the module
-     * @param ModuleConstructor The module's constructor
-     */
-    this.addModule = function (moduleName, ModuleConstructor) {
-        if (this.isModulePermitted(moduleName)) {
-            var moduleSettings = modulesSettings[moduleName] || {};
-
-            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
-            modules[moduleName].settings = moduleSettings;
-        }
-    };
-
-
-    /**
-     * Configures the module
-     *
-     * Previous options don't reset.
-     *
-     * @param {string} moduleName  The name of the module
-     * @param moduleOptions The module's options
-     */
-    this.configureModule = function (moduleName, moduleOptions) {
-        $.extend(true, modulesSettings[moduleName], moduleOptions);
-    };
-
-
-    /**
-     * Checks if module is permitted
-     *
-     * @param moduleName The name of the module to check
-     * @returns {boolean}
-     */
-    this.isModulePermitted = function (moduleName) {
-        return modulesSettings.hasOwnProperty(moduleName) ?
-            (modulesSettings[moduleName].hasOwnProperty('enabled') ? modulesSettings[moduleName].enabled : true) :
-            true;
-    };
-
-
-    /**
-     * Adds the translation object
-     * @param language The language identifier
-     * @param translationObject The translation object
-     */
-    this.addTranslation = function (language, translationObject) {
-        if (typeof that.translations[language] == 'undefined') {
-            that.translations[language] = translationObject;
-        } else {
-            $.extend(true, that.translations[language], translationObject);
-        }
-    };
-
-
-    /**
-     * Translates the text
-     * @param text The text to translate
-     * @returns {string}
-     */
-    this.t = function (text) {
-        var translatedText = text;
-
-        if (that.language !== 'en' && that.translations[that.language]) {
-            if (text.indexOf('[.]') !== -1) {
-                var textWithNamespaces = text.split('[.]');
-
-                translatedText = that.translations[that.language][textWithNamespaces[0]];
-                if (typeof translatedText == 'undefined') {
-                    translatedText = text.split('[.]').pop();
-                    return translatedText || text;
-                }
-                for (var namespace = 1, namespacesLen = textWithNamespaces.length; namespace < namespacesLen; namespace++) {
-                    translatedText = translatedText[textWithNamespaces[namespace]];
-                    if (typeof translatedText == 'undefined') {
-                        translatedText = text.split('[.]').pop();
-                        return  translatedText || text;
-                    }
-                }
-
-                translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
-            } else {
-                translatedText = that.translations[that.language][text];
-            }
-        } else if (text.indexOf('[.]') !== -1) { //English text by default
-            translatedText = text.split('[.]').pop();
-            translatedText = translatedText || text;
-        }
-
-        return translatedText;
-    };
-
-
-    /**
-     * Parsers JSON. Returns defaultValue if it can't be parsed.
-     * @param {String} jsonString JSON string
-     * @param {*} defaultValue The default value to return if something wrong with jsonString
-     * @returns {*} Something extracted from json string or default value if something wrong with jsonString.
-     */
-    this.parseJSON = function (jsonString, defaultValue) {
-        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
-        var result;
-
-        try {
-            result = window.JSON.parse(jsonString);
-        } catch (error) {
-            result = defaultValue;
-        }
-
-        return result;
-    };
-
-
-    /**
-     * Parsers JSON. Returns defaultValue if it can't be parsed.
-     * @param {*} object Something, that will be converted to JSON string
-     * @param {*} defaultValue The default value to return if something wrong
-     * @returns {String} JSON string
-     */
-    this.toJSON = function (object, defaultValue) {
-        defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : null;
-        var result;
-
-        try {
-            result = window.JSON.stringify(object);
-        } catch (error) {
-            result = defaultValue;
-        }
-
-        return result;
-    };
-
-
-
-
-    if (window.cytubeEnhancedDefaultTranslates) {
-        for (var translateLanguage in window.cytubeEnhancedDefaultTranslates) {
-            this.addTranslation(translateLanguage, window.cytubeEnhancedDefaultTranslates[translateLanguage]);
-        }
-    }
-
-    this.userConfig = new window.CytubeEnhancedUserConfig(this);
-    this.UI = new window.CytubeEnhancedUI(this);
-    this.Settings = new window.CytubeEnhancedUISettings(this);
-};
-
-},{}],26:[function(require,module,exports){
-window.CytubeEnhancedUISettings = function (app) {
-    'use strict';
-    var that = this;
-
-    this.$navbar = $('#nav-collapsible').find('.navbar-nav');
-    this.tabs = {};
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
-    this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
-    this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
-    this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
-    this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
-
-    /**
-     * Data, stored from tabs.
-     * @type {{}}
-     */
-    this.data = app.parseJSON(app.userConfig.get('settings'), {});
-
-
-    that.$tabsContainerOpenButton
-        .text(app.t('settings[.]Extended settings'))
-        .on('click', function () {
-            that.openSettings();
-        })
-        .appendTo(that.$navbar)
-        .wrap('<li>');
-
-    $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
-    that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
-
-    $('<button type="button" data-dismiss="modal" class="btn btn-success">' + app.t('settings[.]Save') + '</button>').appendTo(that.$tabsContainerFooter).on('click', function () {
-        that.save();
-    });
-    $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('settings[.]Cancel') + '</button>').appendTo(that.$tabsContainerFooter);
-
-
-
-    /**
-     * Adds action on settings save
-     * @param callback Callback to be called on settings save
-     */
-    this.onSave = function (callback) {
-        $(document).on(app.prefix + 'settings.save', function () {
-            callback(that.data);
-        });
-    };
-
-
-    /**
-     * Saves and applies data from tabs
-     */
-    this.save = function () {
-        $(document).trigger(app.prefix + 'settings.save');
-        app.userConfig.set('settings', app.toJSON(that.data));
-
-        if (window.confirm(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'))) {
-            window.location.reload();
-        }
-    };
-
-
-    /**
-     * Adds new tab
-     * @param {String} name The name of the tab
-     * @param {String} title The title of the tab
-     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "righter" the tab)
-     * @returns {Object} Returns tab object
-     */
-    var addTab = function (name, title, sort) {
-        var tab = new window.CytubeEnhancedUITab(app, name, title, sort);
-
-        tab.$button.appendTo(that.$tabsContainerTabs);
-        tab.$content.appendTo(that.$tabsContainerBody);
-        that.tabs[name] = tab;
-
-        that.sortTabs();
-
-        return tab;
-    };
-
-
-    /**
-     * Gets tab's content by its name
-     * @param {String} name The name of the tab
-     * @param {String} newTabTitle If passed and tab is not exists, it creates the tab automatically with these name and title
-     * @returns {null|Object} Returns null or tab config
-     */
-    this.getTab = function (name, newTabTitle) {
-        if (typeof that.tabs[name] !== 'undefined') {
-            return that.tabs[name];
-        } else {
-            if (newTabTitle) {
-                return addTab(name, newTabTitle);
-            } else {
-                return null;
-            }
-        }
-    };
-
-
-    /**
-     * Opens tab by its name
-     * @param {String} name The name of the tab
-     */
-    this.openTab = function (name) {
-        that.tabs[name].show();
-    };
-
-
-    /**
-     * Sorts tabs
-     */
-    this.sortTabs = function () {
-        var tabsArray = [];
-        for (var tab in that.tabs) {
-            tabsArray.push(that.tabs[tab]);
-        }
-
-        tabsArray = tabsArray.sort(function (a, b) {
-            if (a.sort > b.sort) {
-                return 1;
-            } else if (a.sort < b.sort) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
-
-        for (var tabIndex = 0, tabsLength = tabsArray.length; tabIndex < tabsLength; tabIndex++) {
-            tabsArray[tabIndex].$button.detach().appendTo(that.$tabsContainerTabs);
-        }
-    };
-
-
-    /**
-     * Opens settings modal
-     * @returns {jQuery} Modal window
-     */
-    this.openSettings = function () {
-        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
-
-        var tabToOpen;
-        for (var tab in that.tabs) {
-            if (typeof tabToOpen == 'undefined' || typeof tabToOpen.sort == 'undefined' || tabToOpen.sort > that.tabs[tab].sort) {
-                tabToOpen = that.tabs[tab];
-            }
-        }
-        tabToOpen.show();
-    };
-};
-},{}],27:[function(require,module,exports){
-window.CytubeEnhancedUITab = function (app, name, title, sort) {
-    'use strict';
-    var that = this;
-
-    this.$button = $('<li><a href="#' + app.prefix + name + '__content" class="' + name + '__button" data-toggle="tab">' + title + '</a></li>');
-    this.$content = $('<div id="' + app.prefix + name + '__content" class="tab-pane">');
-    this.$form = app.UI.createControlsWrapper('horizontal').appendTo(this.$content);
-    this.sort = Math.abs(parseInt(sort, 10)) || 0;
-    this.controls = {};
-
-
-    /**
-     * Shows the tab
-     */
-    this.show = function () {
-        that.$button.find('a').tab('show');
-    };
-
-
-    /**
-     * Adds custom control to tab
-     * @param {String} type Type of control function
-     * @param {String} controlType Control's type (default, horizontal, inline)
-     * @param {String} title Label's title
-     * @param {String} name Name of the control
-     * @param {Object} [options] Options for the control.
-     * @param {Function} [handler] Callback, which is calling on every control's change.
-     * @param {Number} [sort] Position of tab (positive integer number, the higher the value, the "bottomer" the tab)
-     * @param {jQuery} [$customContainer] Custom container for control
-     * @returns {jQuery}
-     */
-    this.addControl = function (type, controlType, title, name, options, handler, sort, $customContainer) {
-        type = (['select', 'checkbox'].indexOf(type) != -1) ? type : 'select';
-        sort = Math.abs(parseInt(sort, 10)) || 0;
-        var controlFunctionName = 'create' + type.slice(0, 1).toUpperCase() + type.slice(1) + 'Control';
-
-        var $control = app.UI[controlFunctionName](controlType, title, name, options, handler);
-        $control.data('sort', sort);
-
-        that.controls[name] = {$el: $control, sort: sort};
-        if ($customContainer) {
-            $control.appendTo($customContainer);
-        } else {
-            $control.appendTo(that.$form);
-        }
-
-        return $control;
-    };
-};
-},{}],28:[function(require,module,exports){
-window.CytubeEnhancedUI = function (app) {
-    var that = this;
-
-
-    /**
-     * Creates modal window
-     * @param id Modal id
-     * @param $headerContent Modal header (optional)
-     * @param $bodyContent Modal body (optional)
-     * @param $footerContent Modal footer (optional)
-     * @returns {jQuery} Modal window
-     */
-    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
-        $('.modal').modal('hide');
-        id = app.prefix + 'modal-' + id;
-        var $outer;
-
-        if ($('#' + id).length == 0) {
-            $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            if ($headerContent != null) {
-                var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
-
-                $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
-            }
-
-            if ($bodyContent != null) {
-                $('<div class="modal-body">').append($bodyContent).appendTo($content);
-            }
-
-            if ($footerContent != null) {
-                $('<div class="modal-footer">').append($footerContent).appendTo($content);
-            }
-
-            //$outer.on('hidden.bs.modal', function () {
-            //    $(this).remove();
-            //});
-
-            $outer.modal({keyboard: true});
-        } else {
-            $outer = $('#' + id);
-            $outer.modal('show');
-        }
-
-        return $outer;
-    };
-
-
-    /**
-     * Creates wrapper for control elements.
-     * @param type Type of wrapper (default, horizontal, inline).
-     * @returns {jQuery}
-     */
-    this.createControlsWrapper = function (type) {
-        type = (['default', 'horizontal', 'inline'].indexOf(type) != -1) ? type : 'default';
-
-        return $('<div class="form-' + type + '">');
-    };
-
-
-    /**
-     * Creates select with bootstrap markup
-     * @param {String} type Control's type (default, horizontal, inline)
-     * @param {String} title Label's title
-     * @param {String} name Name of the select
-     * @param {Object} [options] Options for the select. An example of options: [{value: 'value 1', title: 'title 1', selected: true}, {value: 'value 2', title: 'title 2'}]
-     * @param {Function} [handler] Callback, which is calling on every select's change.
-     * @returns {jQuery}
-     */
-    this.createSelectControl = function (type, title, name, options, handler) {
-        options = options || [];
-        var $wrapper = $('<div class="form-group">');
-        var $select;
-
-        if (type == 'horizontal') {
-            $('<label for="' + app.prefix + name + '" class="control-label col-sm-4">' + title + '</label>').appendTo($wrapper);
-            var $selectWrapper = $('<div class="col-sm-8">').appendTo($wrapper);
-            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($selectWrapper);
-        } else { //inline or default
-            $('<label for="' + app.prefix + name + '">' + title + '</label>').appendTo($wrapper);
-            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($wrapper);
-        }
-
-        if (handler) {
-            $select.on('change', handler);
-        }
-
-        var selected;
-        for (var optionIndex = 0, optionsLength = options.length; optionIndex < optionsLength; optionIndex++) {
-            selected = options[optionIndex].selected ? 'selected' : '';
-            $select.append('<option value="' + options[optionIndex].value + '" ' + selected + '>' + options[optionIndex].title + '</option>');
-        }
-
-        return $wrapper;
-    };
-
-
-    /**
-     * Creates button
-     * @param {String} [type] Bootstrap button's type (default, primary, success, danger, alert, info, link, etc)
-     * @param {String} title Button's title
-     * @param {Function} [handler] Callback, which is calling on every button's click.
-     */
-    this.createButton = function (type, title, handler) {
-        var $button = $('<button type="button" class="btn btn-' + type + '">' + title + '</button>');
-
-        if (handler) {
-            $button.on('click', handler);
-        }
-
-        return $button;
-    };
-};
-},{}],29:[function(require,module,exports){
-window.CytubeEnhancedUserConfig = function (app) {
-    var that = this;
-
-    /**
-     * UserConfig options
-     * @type {object}
-     */
-    this.options = {};
-
-    this.prefix = 'ce-';
-
-    /**
-     * Sets the user's option and saves it in the user's cookies
-     * @param name The name ot the option
-     * @param value The value of the option
-     */
-    this.set = function (name, value) {
-        this.options[name] = value;
-        window.setOpt(that.prefix + window.CHANNEL.name + "_config-" + name, value);
-    };
-
-    /**
-     * Gets the value of the user's option
-     *
-     * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-     *
-     * @param name Option's name
-     * @returns {*}
-     */
-    this.get = function (name) {
-        if (!this.options.hasOwnProperty(name)) {
-            this.options[name] = window.getOrDefault(that.prefix + window.CHANNEL.name + "_config-" + name, undefined);
-        }
-
-        return this.options[name];
-    };
-
-    /**
-     * Toggles user's boolean option
-     * @param name Boolean option's name
-     * @returns {boolean}
-     */
-    this.toggle = function (name) {
-        var result = !this.get(name);
-
-        this.set(name, result);
-
-        return result;
-    };
-};
-},{}],30:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 window.cytubeEnhancedDefaultTranslates = window.cytubeEnhancedDefaultTranslates || {};
 window.cytubeEnhancedDefaultTranslates['ru'] = {
     qCommands: {
@@ -3790,4 +4206,4 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     'Help': 'Помощь',
     'Close': 'Закрыть'
 };
-},{}]},{},[30,25,29,28,26,27,24,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]);
+},{}]},{},[34,7,8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,1,2,3,4]);
