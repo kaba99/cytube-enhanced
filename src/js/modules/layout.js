@@ -4,7 +4,7 @@ window.cytubeEnhanced.addModule('Layout', function (app, settings) {
     var that = this;
 
     var tab = app.Settings.getTab('layout', 'Сетка', 200);
-    var userSettings = app.Settings.data;
+    var userSettings = app.Settings.storage;
 
 
     var namespace = 'layout';

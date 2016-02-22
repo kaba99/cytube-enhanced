@@ -4,35 +4,10 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        unfixedTopNavbar: true,
-        insertUsernameOnClick: true,
-        showScriptInfo: true
+        insertUsernameOnClick: true
     };
     settings = $.extend({}, defaultSettings, settings);
 
-
-
-    //$('#messagebuffer, #queue').nanoScroller({
-    //    alwaysVisible: true,
-    //    preventPageScrolling: true
-    //});
-    //
-    //this.handleChatScrollBar = function() {
-    //    $('#messagebuffer')[0].nanoscroller.reset();
-    //};
-    //window.socket.on("chatMsg", that.handleChatScrollBar);
-    //window.socket.on("clearchat", that.handleChatScrollBar);
-    //
-    //this.handlePlaylistScrollBar = function() {
-    //    $('#queue')[0].nanoscroller.reset();
-    //};
-    //window.socket.on("playlist", that.handlePlaylistScrollBar);
-    //window.socket.on("queue", that.handlePlaylistScrollBar);
-    //window.socket.on("setPlaylistMeta", that.handlePlaylistScrollBar);
-    //
-    //$(window).resize(function () {
-    //    $('#messagebuffer, #queue')[0].nanoscroller.reset();
-    //});
 
     window.chatTabComplete = function () {
         var i;
@@ -140,13 +115,8 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
 
-    if (settings.unfixedTopNavbar) {
-        $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
-    }
-
-    if (settings.showScriptInfo) {
-        $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
-    }
+    $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
+    $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
 
     setTimeout(function () {
         window.handleWindowResize(); //chat height fix
@@ -154,8 +124,6 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     setTimeout(function () {
         window.handleWindowResize(); //chat height fix
     }, 10000);
-
-
 
 
 
@@ -174,11 +142,6 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('.user-dropdown>strong').click(function () {
         $('#chatline').val($(this).text() + ": " + $(chatline).val()).focus();
     });
-
-
-
-
-
 
 
     $('#queue').sortable("option", "axis", "y");

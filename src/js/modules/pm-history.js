@@ -6,10 +6,11 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
 
     var that = this;
 
+    app.storage.setDefault('pmHistory', []);
 
     window.socket.on('chatMsg', function (data) {
         if (window.CLIENT.name && data.msg.toLowerCase().indexOf(window.CLIENT.name.toLowerCase()) != -1) {
-            var pmHistory = JSON.parse(app.userConfig.get('pmHistory') || '[]') || [];
+            var pmHistory = app.storage.get('pmHistory');
             if (!$.isArray(pmHistory)) {
                 pmHistory = [];
             }
@@ -24,7 +25,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
                 time: data.time
             });
 
-            app.userConfig.set('pmHistory', JSON.stringify(pmHistory));
+            app.storage.set('pmHistory', pmHistory);
         }
     });
 
@@ -62,7 +63,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
 
     this.showChatHistory = function () {
         var $modalWindow;
-        var pmHistory = JSON.parse(app.userConfig.get('pmHistory') || '[]') || [];
+        var pmHistory = app.storage.get('pmHistory');
         if (!$.isArray(pmHistory)) {
             pmHistory = [];
         }
@@ -104,7 +105,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
 
 
     this.resetChatHistory = function ($modalWindow) {
-        app.userConfig.set('pmHistory', JSON.stringify([]));
+        app.storage.set('pmHistory', app.storage.getDefault('pmHistory'));
 
         if ($modalWindow != null) {
             $modalWindow.modal('hide');

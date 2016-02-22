@@ -52,7 +52,6 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
             var moduleSettings = modulesSettings[moduleName] || {};
 
             modules[moduleName] = new ModuleConstructor(this, moduleSettings);
-            modules[moduleName].settings = moduleSettings;
         }
     };
 
@@ -136,7 +135,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
 
     /**
-     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * Parses JSON. Returns defaultValue if it can't be parsed.
      * @param {String} jsonString JSON string
      * @param {*} defaultValue The default value to return if something wrong with jsonString
      * @returns {*} Something extracted from json string or default value if something wrong with jsonString.
@@ -156,7 +155,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
 
     /**
-     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * Converts anything to JSON. Returns defaultValue on error.
      * @param {*} object Something, that will be converted to JSON string
      * @param {*} defaultValue The default value to return if something wrong
      * @returns {String} JSON string
@@ -184,7 +183,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
         }
     }
 
-    this.userConfig = new window.CytubeEnhancedUserConfig(this);
+    this.storage = new window.CytubeEnhancedStorage('default', false, true);
     this.UI = new window.CytubeEnhancedUI(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
 };

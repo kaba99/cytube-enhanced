@@ -39,7 +39,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
         .on('click', function () {
             that.handleMarkdownHelperBtnClick($(this), that.$markdownTemplatesWrapper);
 
-            app.userConfig.toggle('bb-codes-opened');
+            app.storage.toggle('bb-codes-opened');
         });
 
     if ($('#chat-help-btn').length !== 0) {
@@ -53,7 +53,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
         .insertAfter(this.$markdownHelperBtn)
         .hide();
 
-    if (app.userConfig.get('bb-codes-opened')) {
+    if (app.storage.get('bb-codes-opened')) {
         this.handleMarkdownHelperBtnClick(this.$markdownHelperBtn, this.$markdownTemplatesWrapper);
     }
 

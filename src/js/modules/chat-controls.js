@@ -53,7 +53,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
         }
     };
     this.$clearChatBtn = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">')
-        .text(app.t('Clear chat'))
+        .text(app.t('Clear'))
         .insertAfter(this.$afkBtn)
         .on('click', function () {
             that.handleClearBtn();

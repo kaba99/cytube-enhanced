@@ -76,7 +76,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
                         num2 = self.COLCOUNT - num;
                     var next = $('#' + self.PREFIX + 'wrap').next();
 
-                    app.userConfig.set('videoResizeColumnNumber', num);
+                    app.storage.set('chatWidthInColumns', num);
 
                     next.attr('class', 'col-lg-'+num+' col-md-'+num);
                     next = next.next();
@@ -94,7 +94,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
         };
 
         self.loadPosition = function () {
-            var columnNumber = app.userConfig.get('videoResizeColumnNumber');
+            var columnNumber = app.storage.get('chatWidthInColumns');
             if (columnNumber) {
                 $('#' + q.PREFIX + 'arrow-' + columnNumber).trigger('click').load(function () {
                     $(this).trigger('click');
@@ -116,7 +116,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
 
 
     if (settings.turnedOn) {
-        var width = app.userConfig.get('chatCol') || 0;
+        app.storage.setDefault('chatWidthInColumns', 5);
 
         var q = new setWight();
         q.create();

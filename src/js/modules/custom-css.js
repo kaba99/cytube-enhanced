@@ -7,12 +7,12 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('custom-css', 'CSS', 300);
+    var tab = app.Settings.getTab('custom-css', 'CSS', 200);
     var namespace = 'user-code';
-    app.Settings.data.setDefault(namespace + '.css', '');
+    app.Settings.storage.setDefault(namespace + '.css', '');
 
-    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.data.get(namespace + '.css')).appendTo(tab.$content);
-    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.data.get(namespace + '.css'));
+    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.storage.get(namespace + '.css')).appendTo(tab.$content);
+    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.storage.get(namespace + '.css'));
     var aceEditor;
 
 
@@ -67,5 +67,5 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
 
         that.applyUserCss(settings.get(namespace + '.css'));
     });
-    this.applyUserCss(app.Settings.data.get(namespace + '.css'))
+    this.applyUserCss(app.Settings.storage.get(namespace + '.css'))
 });

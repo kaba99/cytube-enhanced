@@ -172,38 +172,38 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 IMBA.volume = 0.6;
                 IMBA.play();
 
-                var BGCHANGE = 0;
-                var inbix = setInterval(function() {
-                    $('#userlist').css('background', 'rgba(0, 10, 20, 0) none repeat scroll 0% 0%');
-                    $('#chatline').css('background', 'rgba(0, 10, 20, 0.15) !important');
-                    BGCHANGE++;
-
-                    if (BGCHANGE % 2 === 0) {
-                        $("body").css('background', '#663939 url("http://i.imgur.com/BWdf3Jv.png")');
-                        $('#messagebuffer').css('color', 'black');
-                        $('#messagebuffer').css('background-image', 'url("http://i.imgur.com/vWFTejN.png")');
-                        $('#userlist').css('color', 'black');
-                        $('body').css('color', 'black');
-                    } else {
-                        $("body").css('background', '#663939 url("http://i.imgur.com/MVfHhI5.png")');
-                        $('#messagebuffer').css('color', 'white');
-                        $('#messagebuffer').css('background', 'none');
-                        $('#userlist').css('color', 'white');
-                        $('body').css('color', 'white');
-                    }
-                }, 150);
-
-                setTimeout(function() {
-                    BGCHANGE = 0;
-                    clearInterval(inbix);
-                    $("body").css({'background-image':'', 'background-color':''});
-                    $('#messagebuffer').css('color', '#cccccc');
-                    $('body').css('font-color', '#EFEFEF');
-                    $('#messagebuffer').css('background', '');
-                    $('#userlist').css('background', 'rgba(0, 10, 20, 0.8) none repeat scroll 0% 0%');
-                    $('#chatline').css('background', 'rgba(0, 10, 20, 0.75) !important');
-                    $('#userlist').css('color', '#C2C2C2');
-                }, 27000);
+                //var BGCHANGE = 0;
+                //var inbix = setInterval(function() {
+                //    $('#userlist').css('background', 'rgba(0, 10, 20, 0) none repeat scroll 0% 0%');
+                //    $('#chatline').css('background', 'rgba(0, 10, 20, 0.15) !important');
+                //    BGCHANGE++;
+                //
+                //    if (BGCHANGE % 2 === 0) {
+                //        $("body").css('background', '#663939 url("http://i.imgur.com/BWdf3Jv.png")');
+                //        $('#messagebuffer').css('color', 'black');
+                //        $('#messagebuffer').css('background-image', 'url("http://i.imgur.com/vWFTejN.png")');
+                //        $('#userlist').css('color', 'black');
+                //        $('body').css('color', 'black');
+                //    } else {
+                //        $("body").css('background', '#663939 url("http://i.imgur.com/MVfHhI5.png")');
+                //        $('#messagebuffer').css('color', 'white');
+                //        $('#messagebuffer').css('background', 'none');
+                //        $('#userlist').css('color', 'white');
+                //        $('body').css('color', 'white');
+                //    }
+                //}, 150);
+                //
+                //setTimeout(function() {
+                //    BGCHANGE = 0;
+                //    clearInterval(inbix);
+                //    $("body").css({'background-image':'', 'background-color':''});
+                //    $('#messagebuffer').css('color', '#cccccc');
+                //    $('body').css('font-color', '#EFEFEF');
+                //    $('#messagebuffer').css('background', '');
+                //    $('#userlist').css('background', 'rgba(0, 10, 20, 0.8) none repeat scroll 0% 0%');
+                //    $('#chatline').css('background', 'rgba(0, 10, 20, 0.75) !important');
+                //    $('#userlist').css('color', '#C2C2C2');
+                //}, 27000);
 
                 return ' :dance: ';
             }

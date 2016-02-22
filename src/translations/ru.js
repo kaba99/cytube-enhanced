@@ -42,7 +42,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     'Extra commands': 'Дополнительные команды',
     'Commands list': 'Список команд',
     'AFK': 'АФК',
-    'Clear chat': 'Очистить чат',
+    'Clear': 'Очистить',
     'Are you sure, that you want to clear the chat?': 'Вы уверены, что хотите очистить чат?',
     favPics: {
         'Show your favorite images': 'Показать избранные картинки',

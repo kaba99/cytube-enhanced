@@ -7,10 +7,10 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('extra', 'Сторонние модули', 500);
-    $('<p>').text('Модули от сторонних поставщиков.').prependTo(tab.$content);
+    var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
+    $('<p>').text('Сторонние модули.').prependTo(tab.$content);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
-    var userSettings = app.Settings.data;
+    var userSettings = app.Settings.storage;
 
     var namespace = 'extras';
     userSettings.setDefault(namespace + '.enabled', settings.enabledModules);

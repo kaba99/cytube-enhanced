@@ -180,6 +180,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
 
 
     this.showVideoContributorsList = function () {
+        var $header = $('<h3 class="modal-title">').text(app.t('video[.]Contributors\' list'));
         var $bodyWrapper = $('<div>');
 
         var contributorsList = {};
@@ -203,9 +204,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
         }
         $contributorsListOl.appendTo($bodyWrapper);
 
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow(app.t('video[.]Contributors\' list'), $bodyWrapper);
-        });
+        app.UI.createModalWindow('video-contributors-list', $header, $bodyWrapper);
     };
     this.$videoContributorsBtn = $('<button id="video-contributors-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Contributors\' list') + '">')
         .append('<span class="glyphicon glyphicon-user">')

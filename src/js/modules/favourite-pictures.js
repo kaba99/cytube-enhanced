@@ -3,6 +3,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     var that = this;
 
+    app.storage.setDefault('favouritePictures', []);
 
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
@@ -85,7 +86,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         return that.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
-        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+        var favouritePictures = app.storage.get('favouritePictures');
 
         this.$favouritePicturesBodyPanel.empty();
 
@@ -108,7 +109,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.handleFavouritePicturesPanel = function ($toggleFavouritePicturesPanelBtn) {
-        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
+        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false;
 
         if ($('#smiles-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#smiles-panel').hide();
@@ -139,7 +140,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     this.addFavouritePicture = function (imageUrl) {
         if (imageUrl !== '') {
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+            var favouritePictures = app.storage.get('favouritePictures');
 
             if (favouritePictures.indexOf(imageUrl) === -1) {
                 if (imageUrl !== '') {
@@ -153,7 +154,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             }
             $('#picture-address').val('');
 
-            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+            app.storage.set('favouritePictures', favouritePictures)
 
             this.renderFavouritePictures();
         }
@@ -203,7 +204,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.exportPictures = function () {
         var $downloadLink = $('<a>')
             .attr({
-                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(window.localStorage.getItem('favouritePictures') || JSON.stringify([])),
+                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(app.toJSON(app.storage.get('favouritePictures'))),
                 download: 'cytube_enhanced_favourite_images.txt'
             })
             .hide()
@@ -222,7 +223,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         var favouritePicturesAddressesReader = new FileReader();
 
         favouritePicturesAddressesReader.addEventListener('load', function(e) {
-            window.localStorage.setItem('favouritePictures', e.target.result);
+            app.storage.set('favouritePictures', app.parseJSON(e.target.result));
 
             that.renderFavouritePictures();
         });
@@ -243,7 +244,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         update: function(event, ui) {
             var imageUrl = $(ui.item).attr('src');
             var nextImageUrl = $(ui.item).next().attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+            var favouritePictures = app.storage.get('favouritePictures');
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
@@ -261,7 +262,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
                 favouritePictures.push(imageUrl);
             }
 
-            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+            app.storage.set('favouritePictures', favouritePictures);
         }
     });
 
@@ -271,12 +272,12 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         hoverClass: "favourite-picture-drop-hover",
         drop: function (event, ui) {
             var imageUrl = ui.draggable.attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+            var favouritePictures = app.storage.get('favouritePictures');
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
                 favouritePictures.splice(imagePosition, 1);
-                window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+                app.storage.set('favouritePictures', favouritePictures);
             }
 
             ui.draggable.remove();

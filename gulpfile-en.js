@@ -12,9 +12,11 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var globby = require('globby');
 var through = require('through2');
+var sass = require('gulp-sass');
 
-var jsFilesGlob = ['./src/js/core/**/*.js', './src/js/main/main.js', './src/js/main/main-ru.js', './src/js/modules/**/*.js', './extras/**/config.js'];
-var cssFilesGlob = ['./src/css/cytube-enhanced.css', './src/css/videojs-progress.css'];
+
+var jsFilesGlob = ['./src/js/core/**/*.js', './src/js/main/main.js', './src/js/main/main-ru.js', './src/js/modules/**/*.js', './extras/**/config.js', './themes/**/config.js'];
+var cssFilesGlob = ['./src/css/main.scss'];
 
 
 gulp.task('default', ['build-js', 'build-css']);
@@ -31,15 +33,15 @@ gulp.task('build-js', function () {
     var bundledStream = through();
 
     bundledStream
-        // turns the output bundle stream into a stream containing
-        // the normal attributes gulp plugins expect.
+    // turns the output bundle stream into a stream containing
+    // the normal attributes gulp plugins expect.
         .pipe(source('cytube-enhanced.js'))
         .pipe(buffer())
         // Add gulp plugins to the pipeline here.
-        .pipe(gulp.dest('./build/en'))
+        .pipe(gulp.dest('./build/ru'))
         .pipe(rename('cytube-enhanced.min.js'))
         .pipe(uglify({mangle: false, preserveComments: ''}))
-        .pipe(gulp.dest('./build/en'));
+        .pipe(gulp.dest('./build/ru'));
 
     // "globby" replaces the normal "gulp.src" as Browserify
     // creates it's own readable stream.
@@ -65,18 +67,19 @@ gulp.task('build-js', function () {
 
 gulp.task('build-css', function () {
     return gulp.src(cssFilesGlob)
-        .pipe(concat('cytube-enhanced.css'))
+        .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer({
-            browsers: ['last 7 versions'],
+            browsers: ['last 5 versions', 'ie 8', 'ie 9'],
             cascade: false
         }))
-        .pipe(gulp.dest('./build/en'))
+        .pipe(concat('cytube-enhanced.css'))
+        .pipe(gulp.dest('./build/ru'))
         .pipe(rename('cytube-enhanced.min.css'))
         .pipe(minifyCss({
             compatibility: 'ie8',
             keepSpecialComments: 0
         }))
-        .pipe(gulp.dest('./build/en'));
+        .pipe(gulp.dest('./build/ru'));
 });
 
 

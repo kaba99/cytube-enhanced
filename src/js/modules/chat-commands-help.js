@@ -33,6 +33,8 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
 
 
     this.handleChatHelpBtn = function (commands) {
+        var $header = $('<h3 class="modal-title">').text(app.t('The list of chat commands'));
+
         var $bodyWrapper = $('<div>');
 
         for (var commandsPart in commands) {
@@ -50,9 +52,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
             }
         }
 
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow(app.t('The list of chat commands'), $bodyWrapper);
-        });
+        app.UI.createModalWindow('chat-commands-help', $header, $bodyWrapper);
     };
     this.$chatHelpBtn = $('<button id="chat-help-btn" class="btn btn-sm btn-default">')
         .text(app.t('Commands list'))

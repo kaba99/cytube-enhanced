@@ -3,7 +3,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     var that = this;
 
     var tab = app.Settings.getTab('general', 'Общее', 100);
-    var userSettings = app.Settings.data;
+    var userSettings = app.Settings.storage;
 
 
     var namespace = 'avatars';

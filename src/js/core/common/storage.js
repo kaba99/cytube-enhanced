@@ -1,7 +1,7 @@
-window.CytubeEnhancedStorage = function (storageName, isGlobal) {
+window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     var that = this;
-    var storagePrefix = 'ce';
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
+    autoSave = (typeof autoSave !== 'undefined') ? autoSave : false;
 
     var defaultData = {};
     var initialData = {};
@@ -14,7 +14,11 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
         data = {};
     }
     initialData = _.cloneDeep(data);
-    console.log(initialData);
+
+
+    this.getDefault = function (name) {
+        return initialData[name];
+    };
 
 
     this.setDefault = function (name, value) {
@@ -32,7 +36,29 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
 
 
     this.set = function (name, value) {
-        return data[name] = _.cloneDeep(value);
+        var result = data[name] = _.cloneDeep(value);
+
+        if (autoSave) {
+            that.save();
+        }
+
+        return result;
+    };
+
+
+    /**
+     * Toggles boolean option
+     * @param name Boolean option's name
+     * @returns {boolean}
+     */
+    this.toggle = function (name) {
+        var result = data[name] = !data[name];
+
+        if (autoSave) {
+            that.save();
+        }
+
+        return result;
     };
 
 

@@ -10,11 +10,13 @@ window.CytubeEnhancedUISettings = function (app) {
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
 
+    var $settingsModal;
+
     /**
      * Data, stored from tabs.
      * @type {CytubeEnhancedStorage}
      */
-    this.data = new CytubeEnhancedStorage('settings');
+    this.storage = new CytubeEnhancedStorage('settings', false);
     var pageReloadRequested = false;
 
 
@@ -42,7 +44,7 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.onSave = function (callback) {
         $(document).on(app.prefix + 'settings.save', function () {
-            callback(that.data);
+            callback(that.storage);
         });
     };
 
@@ -52,7 +54,7 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.save = function () {
         $(document).trigger(app.prefix + 'settings.save');
-        that.data.save();
+        that.storage.save();
 
         if (pageReloadRequested) {
             app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
@@ -66,7 +68,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * Resets settings
      */
     this.reset = function () {
-        that.data.reset();
+        that.storage.reset();
 
         app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
             window.location.reload();
@@ -153,7 +155,11 @@ window.CytubeEnhancedUISettings = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+        if (!$settingsModal) {
+            $settingsModal = app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+        } else {
+            $settingsModal.modal('show');
+        }
 
         var tabToOpen;
         for (var tab in that.tabs) {

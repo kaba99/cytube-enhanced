@@ -6,7 +6,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        selectorsToPreview: '.chat-picture', // 'selector1, selector2'. Every selector's node must have attribute src
+        selectorsToPreview: '.chat-picture, .motd-tab-content img', // 'selector1, selector2'. Every selector's node must have attribute src
         zoom: 0.15
     };
     settings = $.extend({}, defaultSettings, settings);
