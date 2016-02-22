@@ -59,7 +59,31 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
             $control.appendTo(that.$form);
         }
 
+        that.sortControls();
+
         return $control;
+    };
+
+
+    this.sortControls = function () {
+        var controlsArray = [];
+        for (var control in that.controls) {
+            controlsArray.push(that.controls[control]);
+        }
+
+        controlsArray = controlsArray.sort(function (a, b) {
+            if (a.sort > b.sort) {
+                return 1;
+            } else if (a.sort < b.sort) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (var controlIndex = 0, controlsLength = controlsArray.length; controlIndex < controlsLength; controlIndex++) {
+            controlsArray[controlIndex].$el.detach().appendTo(that.$form);
+        }
     };
 
 
@@ -69,4 +93,13 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
     this.getName = function () {
         return name;
     };
+
+
+    /**
+     * Removes tab's markup
+     */
+    this.remove = function () {
+        that.$button.empty();
+        that.$content.empty();
+    }
 };

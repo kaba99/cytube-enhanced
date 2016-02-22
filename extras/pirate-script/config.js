@@ -3,7 +3,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Скрипт пирата',
         name: 'pirate-script',
         description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: 'https://rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
+        url: 'https://cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
         languages: ['ru']
     });
 });

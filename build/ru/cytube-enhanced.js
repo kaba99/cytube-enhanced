@@ -4,7 +4,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Аниме-цитаты',
         name: 'anime-quotes',
         description: 'Нескучные аниме-цитаты.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
+        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
         languages: ['ru']
     });
 });
@@ -14,7 +14,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Цитаты пирата',
         name: 'pirate-quotes',
         description: 'Нескучные цитаты Пирата.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
+        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
         languages: ['ru']
     });
 });
@@ -24,7 +24,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Скрипт пирата',
         name: 'pirate-script',
         description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: 'https://rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
+        url: 'https://cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
         languages: ['ru']
     });
 });
@@ -34,7 +34,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Перевод интерфейса',
         name: 'translate',
         description: 'Русский перевод интерфейса.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
+        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
         languages: ['ru']
     });
 });
@@ -15642,7 +15642,9 @@ window.CytubeEnhancedUISettings = function (app) {
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
 
-    var $settingsModal;
+    this.themeTabName = 'theme-settings';
+    this.themeTabTitle = 'Настройка темы';
+
 
     /**
      * Data, stored from tabs.
@@ -15749,11 +15751,45 @@ window.CytubeEnhancedUISettings = function (app) {
 
 
     /**
+     * Configures theme
+     * @param callback callback in which user will configure his theme. (callback(app, tab, storage))
+     */
+    this.configureTheme = function (callback) {
+        var tab = that.getTab(that.themeTabName, that.themeTabTitle, 99999);
+        var storage = new CytubeEnhancedStorage('themes.' + app.Settings.storage.get('themes.selected'), true, true);
+
+        callback(app, tab, storage);
+    };
+
+
+    /**
      * Opens tab by its name
      * @param {String} name The name of the tab
      */
     this.openTab = function (name) {
-        that.tabs[name].show();
+        if (that.tabs[name]) {
+            that.tabs[name].show();
+
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+
+    /**
+     * Removes tab by its name
+     * @param {String} name The name of the tab
+     */
+    that.removeTab = function (name) {
+        if (that.tabs[name]) {
+            that.tabs[name].remove();
+            delete that.tabs[name];
+
+            return true;
+        } else {
+            return false;
+        }
     };
 
 
@@ -15787,11 +15823,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        if (!$settingsModal) {
-            $settingsModal = app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
-        } else {
-            $settingsModal.modal('show');
-        }
+        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter, true);
 
         var tabToOpen;
         for (var tab in that.tabs) {
@@ -15872,7 +15904,31 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
             $control.appendTo(that.$form);
         }
 
+        that.sortControls();
+
         return $control;
+    };
+
+
+    this.sortControls = function () {
+        var controlsArray = [];
+        for (var control in that.controls) {
+            controlsArray.push(that.controls[control]);
+        }
+
+        controlsArray = controlsArray.sort(function (a, b) {
+            if (a.sort > b.sort) {
+                return 1;
+            } else if (a.sort < b.sort) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (var controlIndex = 0, controlsLength = controlsArray.length; controlIndex < controlsLength; controlIndex++) {
+            controlsArray[controlIndex].$el.detach().appendTo(that.$form);
+        }
     };
 
 
@@ -15882,6 +15938,15 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
     this.getName = function () {
         return name;
     };
+
+
+    /**
+     * Removes tab's markup
+     */
+    this.remove = function () {
+        that.$button.empty();
+        that.$content.empty();
+    }
 };
 },{}],11:[function(require,module,exports){
 window.CytubeEnhancedUI = function (app) {
@@ -15894,11 +15959,23 @@ window.CytubeEnhancedUI = function (app) {
      * @param $headerContent Modal header (optional)
      * @param $bodyContent Modal body (optional)
      * @param $footerContent Modal footer (optional)
+     * @param [cache] Don't remove modal dom after close
      * @returns {jQuery} Modal window
      */
-    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
+    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
         $('.modal').modal('hide');
         id = app.prefix + 'modal-' + id;
+
+        var $cachedOuter = $('#' + id);
+        if (cache) {
+            if ($cachedOuter.length) {
+                $cachedOuter.modal('show');
+                return $cachedOuter;
+            }
+        } else {
+            $cachedOuter.remove();
+        }
+
 
         var $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
         var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
@@ -15918,9 +15995,11 @@ window.CytubeEnhancedUI = function (app) {
             $('<div class="modal-footer">').append($footerContent).appendTo($content);
         }
 
-        $outer.on('hidden.bs.modal', function () {
-            $(this).remove();
-        });
+        if (!cache) {
+            $outer.on('hidden.bs.modal', function () {
+                $(this).remove();
+            });
+        }
 
         $outer.modal({keyboard: true});
 
@@ -16014,7 +16093,6 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     var that = this;
 
     this.channelName = channelName;
-    this.language = language;
     this.translations = {};
     this.prefix = 'ce-';
 
@@ -16098,7 +16176,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param translationObject The translation object
      */
     this.addTranslation = function (language, translationObject) {
-        if (typeof that.translations[language] == 'undefined') {
+        if (typeof that.translations[language] === 'undefined') {
             that.translations[language] = translationObject;
         } else {
             $.extend(true, that.translations[language], translationObject);
@@ -16114,11 +16192,11 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.t = function (text) {
         var translatedText = text;
 
-        if (that.language !== 'en' && that.translations[that.language]) {
+        if (that.storage.get('language') !== 'en' && that.translations[that.storage.get('language')]) {
             if (text.indexOf('[.]') !== -1) {
                 var textWithNamespaces = text.split('[.]');
 
-                translatedText = that.translations[that.language][textWithNamespaces[0]];
+                translatedText = that.translations[that.storage.get('language')][textWithNamespaces[0]];
                 if (typeof translatedText == 'undefined') {
                     translatedText = text.split('[.]').pop();
                     return translatedText || text;
@@ -16133,7 +16211,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
                 translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
             } else {
-                translatedText = that.translations[that.language][text];
+                translatedText = that.translations[that.storage.get('language')][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
@@ -16193,9 +16271,12 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
         }
     }
 
+
     this.storage = new window.CytubeEnhancedStorage('default', false, true);
     this.UI = new window.CytubeEnhancedUI(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
+
+    this.storage.setDefault('language', language);
 };
 
 },{"lodash":7}],14:[function(require,module,exports){
@@ -17700,152 +17781,38 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
 });
 
 },{"jquery-mousewheel":5}],25:[function(require,module,exports){
-window.cytubeEnhanced.addModule('Layout', function (app, settings) {
+window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
-
     var that = this;
 
-    var tab = app.Settings.getTab('layout', 'Сетка', 200);
-    var userSettings = app.Settings.storage;
+    var tab = app.Settings.getTab('general', 'Общее', 100);
 
 
-    var namespace = 'layout';
-    this.scheme = {
-        'hide-header': {
-            title: app.t('layout[.]Hide header'),
-            default: 'no',
-            options: [
-                {value: 'yes', title: app.t('settings[.]Yes')},
-                {value: 'no', title: app.t('settings[.]No')}
-            ]
-        },
-        'player-position': {
-            title: app.t('layout[.]Player position'),
-            default: 'right',
-            options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')},
-                {value: 'center', title: app.t('layout[.]Center')}
-            ]
-        },
-        'playlist-position': {
-            title: app.t('layout[.]Playlist position'),
-            default: 'right',
-            options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')}
-            ]
-        },
-        'userlist-position': {
-            title: app.t('layout[.]Chat\'s userlist position'),
-            default: 'left',
-            options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')}
-            ]
-        }
-    };
+    var availableLanguages = ['en'];
+    for (var language in app.translations) {
+        availableLanguages.push(language);
+    }
 
-
-    /**
-     * Initializing
-     */
-    var schemeItem;
-    var option;
-    var sort = 100;
-    for (var itemName in this.scheme) {
-        schemeItem = this.scheme[itemName];
-
-        userSettings.setDefault(namespace + '.' + itemName, schemeItem.default);
-
-        if (userSettings.get(namespace + '.' + itemName)) {
-            for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
-            }
-        }
-
-        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, sort);
-        sort += 100;
+    var options = [];
+    for (var languageIndex in availableLanguages) {
+        options.push({
+            value: availableLanguages[languageIndex],
+            title: app.t(availableLanguages[languageIndex]),
+            selected: (availableLanguages[languageIndex] == app.storage.get('language'))
+        });
     }
 
 
-    this.applySettings = function (userSettings) {
-        if (userSettings.get(namespace + '.hide-header') === 'yes') {
-            $('#motdrow').hide();
-            $('#motdrow').data('hiddenByLayout', '1');
-        } else {
-            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
-                $('#motdrow').show();
-            }
-            $('#motdrow').data('hiddenByLayout', '0');
-        }
-
-        if (userSettings.get(namespace + '.player-position') === 'left') {
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (userSettings.get(namespace + '.player-position') === 'center') {
-            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-
-            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
-            $('#videowrap').addClass('col-md-10 col-md-offset-1');
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else { //right
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#chatwrap').detach().insertBefore($('#videowrap'));
-        }
-
-        if (userSettings.get(namespace + '.playlist-position') === 'left') {
-            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
-            $('#rightpane').detach().insertBefore($('#leftpane'));
-        } else { //right
-            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
-            $('#leftpane').detach().insertBefore($('#rightpane'));
-        }
-
-        if (userSettings.get(namespace + '.userlist-position') === 'right') {
-            $('#userlist').addClass('pull-right');
-        } else { //left
-            $('#userlist').removeClass('pull-right');
-        }
+    tab.addControl('select', 'horizontal', 'Язык интерфейса', 'language', options, null, 20000);
 
 
-        $('#refresh-video').click();
-    };
-
-
-    /**
-     * Saving and applying settings
-     */
     app.Settings.onSave(function (settings) {
-        for (var itemName in that.scheme) {
-            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
-        }
+        app.storage.set('language', $('#' + app.prefix + 'language').val());
 
-        that.applySettings(settings, namespace);
+        if (app.storage.isDirty('language')) {
+            app.Settings.requestPageReload();
+        }
     });
-    this.applySettings(userSettings, namespace);
 });
 },{}],26:[function(require,module,exports){
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
@@ -18482,8 +18449,6 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
 
     var namespace = 'themes';
     userSettings.setDefault(namespace + '.selected', settings.selected);
-    this.selected = userSettings.get(namespace + '.selected');
-    var themeWasChanged = false;
     this.themes = {};
 
 
@@ -18492,8 +18457,9 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         that.themes[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();
 
-        if (config.name === that.selected) {
+        if (config.name === userSettings.get(namespace + '.selected')) {
             that.setTheme(config.name);
+            that.applyTheme(config.name);
         }
     };
 
@@ -18502,7 +18468,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         $('.' + app.prefix + 'themes__item')
             .removeClass('active')
             .filter(function() {
-                return $(this).data('name') === that.selected;
+                return $(this).data('name') === userSettings.get(namespace + '.selected');
             })
             .addClass('active');
     });
@@ -18513,12 +18479,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
      * @param name Theme's name
      */
     this.setTheme = function (name) {
-        var config = that.themes[name];
-
-        if (name !== that.selected) {
-            themeWasChanged = true;
-        }
-        that.selected = name;
+        userSettings.set(namespace + '.selected', name);
 
         $('.' + app.prefix + 'themes__item')
             .removeClass('active')
@@ -18526,7 +18487,11 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
                 return $(this).data('name') === name;
             })
             .addClass('active');
+    };
 
+
+    this.applyTheme = function (name) {
+        var config = that.themes[name];
 
         $('#' + settings.themeId).remove();
         if (config.cssUrl != '') {
@@ -18536,7 +18501,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         }
 
         if (typeof config.jsUrl !== 'undefined' && config.jsUrl !== '') {
-            $.getScript(config.sUrl);
+            $.getScript(config.jsUrl);
         }
     };
 
@@ -18545,7 +18510,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         var $moduleInfo = $('<div class="' + app.prefix + 'themes__item">').data('name', config.name).on('click', function () {
             var name = $(this).data('name');
 
-            if (name !== that.selected) {
+            if (name !== userSettings.get(namespace + '.selected')) {
                 app.UI.createConfirmWindow('Изменить тему на выбранную?', function () {
                     that.setTheme(name);
                 });
@@ -18590,15 +18555,177 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
      * Saving and applying settings
      */
     app.Settings.onSave(function (settings) {
-        settings.set(namespace + '.selected', that.selected);
-
-        if (themeWasChanged) {
+        if (settings.isDirty(namespace + '.selected')) {
             app.Settings.requestPageReload();
         }
     });
 });
 
 },{}],32:[function(require,module,exports){
+window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
+    'use strict';
+    var that = this;
+
+    if (app.storage.get('language') !== 'ru') {
+        return;
+    }
+
+
+    if ($('#newpollbtn').length !== 0) {
+        $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
+    }
+
+    if ($('.navbar-brand').length !== 0) {
+        $('.navbar-brand').text(app.channelName);
+    }
+
+    if ($('#usercount').length !== 0) {
+        $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
+        window.socket.on('usercount', function () {
+            $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
+        });
+    }
+    window.calcUserBreakdown = (function (oldCalcUserBreakdown) {
+        return function () {
+            var chatInfo = oldCalcUserBreakdown();
+            var translatedChatInfo = {};
+
+            var chatInfoTranslateMap = {
+                AFK: app.t('standardUI[.]AFK'),
+                Anonymous: app.t('standardUI[.]Anonymous'),
+                'Channel Admins': app.t('standardUI[.]Channel Admins'),
+                Guests: app.t('standardUI[.]Guests'),
+                Moderators: app.t('standardUI[.]Moderators'),
+                'Regular Users': app.t('standardUI[.]Regular Users'),
+                'Site Admins': app.t('standardUI[.]Site Admins')
+            };
+
+            for (var chatInfoElement in chatInfo) {
+                if (chatInfo.hasOwnProperty(chatInfoElement)) {
+                    translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+                }
+            }
+
+            return translatedChatInfo;
+        };
+    })(window.calcUserBreakdown);
+
+    if ($('#welcome').length !== 0) {
+        $('#welcome').text(app.t('standardUI[.]Welcome, ') + window.CLIENT.name);
+    }
+    if ($('#logout').length !== 0) {
+        $('#logout').text(app.t('standardUI[.]Log out'));
+    }
+    if ($('#username').length !== 0) {
+        $('#username').attr({placeholder: app.t('standardUI[.]Login')});
+    }
+    if ($('#password').length !== 0) {
+        $('#password').attr({placeholder: app.t('standardUI[.]Password')});
+    }
+    if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
+        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text(app.t('standardUI[.]Remember me'));
+    }
+    if ($('#login').length !== 0) {
+        $('#login').text(app.t('standardUI[.]Site login'));
+    }
+
+    var menuTranslateMap = {
+        Home: app.t('standardUI[.]Home'),
+        Account: app.t('standardUI[.]Account'),
+        Logout: app.t('standardUI[.]Logout'),
+        Channels: app.t('standardUI[.]Channels'),
+        Profile: app.t('standardUI[.]Profile'),
+        'Change Password/Email': app.t('standardUI[.]Change Password/Email'),
+        Login: app.t('standardUI[.]Log in'),
+        Register: app.t('standardUI[.]Register'),
+        Options: app.t('standardUI[.]Options'),
+        'Channel Settings': app.t('standardUI[.]Channel Settings'),
+        Layout: app.t('standardUI[.]Layout'),
+        'Chat Only': app.t('standardUI[.]Chat Only'),
+        'Remove Video': app.t('standardUI[.]Remove Video')
+    };
+    $('.navbar').find('.navbar-nav').children().each(function () {
+        $(this).find('a').each(function () {
+            for (var elementToTranslate in menuTranslateMap) {
+                if (menuTranslateMap.hasOwnProperty(elementToTranslate)) {
+                    $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+                }
+            }
+        });
+    });
+
+    if ($('#mediaurl').length !== 0) {
+        $('#mediaurl').attr('placeholder', app.t('standardUI[.]Video url'));
+    }
+    if ($('#queue_next').length !== 0) {
+        $('#queue_next').text(app.t('standardUI[.]Next'));
+    }
+    if ($('#queue_end').length !== 0) {
+        $('#queue_end').text(app.t('standardUI[.]At end'));
+    }
+
+    $('.qbtn-play').each(function () {
+        $(this).html($(this).html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
+    });
+    $('.qbtn-next').each(function () {
+        $(this).html($(this).html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
+    });
+    $('.qbtn-tmp').each(function () {
+        $(this).html($(this).html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
+    });
+    $('.qbtn-delete').each(function () {
+        $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
+    });
+    window.addQueueButtons = (function (oldAddQueueButtons) {
+        return function (li) {
+            var result = oldAddQueueButtons(li);
+
+            if (li.find('.qbtn-play').length !== 0) {
+                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
+            }
+            if (li.find('.qbtn-next').length !== 0) {
+                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
+            }
+            if (li.find('.qbtn-tmp').length !== 0) {
+                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
+            }
+            if (li.find('.qbtn-delete').length !== 0) {
+                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
+            }
+
+            return result;
+        };
+    })(window.addQueueButtons);
+
+    this.handleTemp = function (data) {
+        var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
+
+        if(tmpBtn.length !== 0) {
+            if(data.temp) {
+                tmpBtn.html(tmpBtn.html().replace('Сделать временным', app.t('standardUI[.]Make Temporary')));
+            }
+            else {
+                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
+            }
+        }
+    };
+    window.socket.on('setTemp', function (data) {
+        that.handleTemp(data);
+    });
+
+    if ($('#guestname').length !== 0) {
+        $('#guestname').attr('placeholder', app.t('standardUI[.]Name'));
+    }
+    if ($('#guestlogin')) {
+        $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
+    }
+
+    if ($('#chatbtn').length !== 0) {
+        $('#chatbtn').text('Отправить');
+    }
+});
+
+},{}],33:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -18818,7 +18945,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -18944,7 +19071,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -19005,24 +19132,199 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
+window.cytubeEnhancedDefaultTranslates = window.cytubeEnhancedDefaultTranslates || {};
+window.cytubeEnhancedDefaultTranslates['ru'] = {
+    qCommands: {
+        'of course': 'определенно да',
+        'yes': 'да',
+        'maybe': 'возможно',
+        'impossible': 'ни шанса',
+        'no way': 'определенно нет',
+        'don\'t think so': 'вероятность мала',
+        'no': 'нет',
+        'cirno is busy': 'сырно устала и отвечать не будет',
+        'I regret to inform you': 'отказываюсь отвечать'
+    },
+    chatCommands: {
+        '%username% action (e.g: <i>/me is dancing</i>)': '%username% что-то сделал. Например: <i>/me танцует</i>',
+        'spoiler': 'спойлер',
+        'sets the "AFK" status': 'устанавливает статус "Отошёл"',
+        'random option from the list of options (!pick option1, option2, option3)': 'выбор случайной опции из указанного списка слов, разделенных запятыми (Например: <i>!pick слово1, слово2, слово3</i>)',
+        'asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)': 'задать вопрос с вариантами ответа да/нет/... (Например: <i>!ask Сегодня пойдет дождь?</i>)',
+        'show the current time': 'показать текущее время',
+        'current time': 'текущее время',
+        'throw a dice': 'кинуть кость',
+        'random number between 0 and 999': 'случайное число от 0 до 999',
+        'show the random quote': 'показать случайную цитату',
+        'there aren\'t any quotes.': 'цитаты отсутствуют.',
+        'vote for the video skip': 'проголосовать за пропуск текущего видео',
+        'you have been voted for the video skip': 'отдан голос за пропуск текущего видео',
+        'play the next video': 'проиграть следующее видео',
+        'the next video is playing': 'начато проигрывание следующего видео',
+        'bump the last video': 'поднять последнее видео',
+        'the last video was bumped: ': 'поднято последнее видео: ',
+        'adds the video to the end of the playlist (e.g. <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)': 'добавляет видео в конец плейлиста (Например: <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)',
+        'error: the wrong link': 'ошибка: неверная ссылка',
+        'the video was added': 'видео было добавлено',
+        'show the current video\'s name': 'показать название текущего видео',
+        'now: ': 'сейчас играет: ',
+        'show the random emote': 'показать случайный смайлик',
+        'the secret command': 'секретная команда'
+    },
+    'The list of chat commands': 'Список команд чата',
+    'Standard commands': 'Стандартные команды',
+    'Extra commands': 'Дополнительные команды',
+    'Commands list': 'Список команд',
+    'AFK': 'АФК',
+    'Clear': 'Очистить',
+    'Are you sure, that you want to clear the chat?': 'Вы уверены, что хотите очистить чат?',
+    favPics: {
+        'Show your favorite images': 'Показать избранные картинки',
+        'Export pictures': 'Экспорт картинок',
+        'Import pictures': 'Импорт картинок',
+        'Picture url': 'Адрес картинки в сети',
+        'Add': 'Добавить',
+        'Remove': 'Удалить',
+        'The image already exists': 'Такая картинка уже была добавлена',
+        'Drop the picture here to remove it': 'Перетащите сюда картинку, чтобы её удалить',
+        'Exit': 'Выход',
+        '<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>': '<p>Избранные картинки нужны для сохранения понравившихся картинок, как закладки браузера.</p><p>Особенности:<ul><li><strong>Хранятся не картинки, а ссылки на них</strong>, другими словами если картинка по ссылке удалится, то она удалится и у вас.</li><li>Ссылки на картинки хранятся в браузере. Для того, чтобы их перемещать между браузерами имеется кнопка экспорта (вытащить) и импорт (вставка экспортированного файла).</li><li>Картинки общие для каналов сайта, но <strong>разные для http:// и https://</strong></li></ul></p>'
+    },
+    videoInfo: {
+        'Now:': 'Сейчас:',
+        'Added by': 'Добавлено',
+        'Nothing is playing now': 'Сейчас ничего не воспроизводится'
+    },
+    tabs: {
+        'Title': 'Заголовок',
+        'Content': 'Содержимое',
+        'Show tabs settings (cytube enhanced)': 'Показать настройки вкладок (cytube enhanced)',
+        'Tabs settings': 'Настройка вкладок',
+        'Channel description': 'Описание канала',
+        'Add tab': 'Добавить вкладку',
+        'Remove the last tab': 'Удалить последнюю вкладку',
+        'Convert to the editor\'s code': 'Преобразовать в код редактора',
+        'The code in the editor will be replaced with the new code, continue?': 'Код в редакторе будет удалён и заменен новым, продолжить?',
+        'Tabs settings will be replaced with the code from the editor, continue?': 'Настройки вкладок будут заменены кодом из редактора, продолжить?',
+        'Wrong content for the dropdown': 'Неправильное содержимое для выпадающего списка: ',
+        'Convert from the editor\'s code': 'Преобразовать из кода редактора',
+        'By default tab behaves like simple tab.': 'По умолчанию вкладка ведёт себя как обычная вкладка.',
+        'Use !dropdown! prefix to create dropdown list. Example: !dropdown!My dropdown. Value must look like "[n]Link title 1[/n][a]URL 1[/a], [n]Link title 2[/n][a]URL 2[/a], [n]Link title 3[/n][a]URL 3[/a]"': 'Чтобы создать выпадающий список, используйте префикс !dropdown! перед названием, например "!dropdown!Мой выпадающий список". Значение должно выглядеть так "[n]Заголовок 1[/n][a]Адрес ссылки 1[/a], [n]Заголовок 2[/n][a]Адрес ссылки 2[/a], [n]Заголовок 3[/n][a]Адрес ссылки 3[/a]"',
+        'Use !link! prefix to create link. Example: !link!My link. Value must contain URL.': 'Чтобы создать ссылку, используйте префикс !link! перед названием, например "!link!Моя ссылка". Значение должно содержать адрес ссылки.'
+    },
+    emotes: {
+        'Show emotes': 'Показать смайлики'
+    },
+    settings: {
+        'Extended settings': 'Расширенные настройки',
+        'Save': 'Сохранить',
+        'Cancel': 'Отмена',
+        'Some settings need to refresh the page to get to work. Do it now?': 'Для нормальной работы некоторых настроек требуется перезагрузить страницу. Сделать это сейчас?',
+        'Yes': 'Да',
+        'No': 'Нет'
+    },
+    general: {
+        'Smiles and pictures together': 'Смайлики и картинки вместе',
+        'Show emotes and favorite images': 'Показать смайлики и избранные изображения'
+    },
+    chatAvatars: {
+        'Chat avatars': 'Аватарки в чате',
+        'Disabled': 'Выключены',
+        'Small': 'Маленькие',
+        'Big': 'Большие'
+    },
+    standardUI: {   //app.t('standardUI[.]')
+        'Create a poll': 'Создать опрос',
+        'Add video': 'Добавить видео',
+        'Add video from url': 'Добавить видео по ссылке',
+        'connected users': 'пользователей',
+        'connected user': 'пользователь',
+        'AFK': 'АФК',
+        'Anonymous': 'Анонимных',
+        'Channel Admins': 'Администраторов канала',
+        'Guests': 'Гостей',
+        'Moderators': 'Модераторов',
+        'Regular Users': 'Обычных пользователей',
+        'Site Admins': 'Администраторов сайта',
+        'Welcome, ': 'Добро пожаловать, ',
+        'Log out': 'Выйти',
+        'Login': 'Логин',
+        'Password': 'Пароль',
+        'Remember me': 'Запомнить',
+        'Log in': 'Вход',
+        'Home': 'На главную',
+        'Account': 'Аккаунт',
+        'Logout': 'Выход',
+        'Channels': 'Каналы',
+        'Profile': 'Профиль',
+        'Change Password/Email': 'Изменить пароль/почту',
+        'Register': 'Регистрация',
+        'Options': 'Настройки',
+        'Channel Settings': 'Настройки канала',
+        'Layout': 'Оформление',
+        'Chat Only': 'Только чат',
+        'Remove Video': 'Удалить видео',
+        'Video url': 'Адрес видео',
+        'Next': 'Следующим',
+        'At end': 'В конец',
+        'Play': 'Проиграть',
+        'Queue Next': 'Поставить следующим',
+        'Make Temporary': 'Сделать временным',
+        'Make Permanent': 'Сделать постоянным',
+        'Delete': 'Удалить',
+        'Name': 'Имя',
+        'Guest login': 'Гостевой вход'
+    },
+    video: {
+        'Refresh video': 'Обновить видео',
+        'Hide video': 'Скрыть видео',
+        'best': 'наивысшее',
+        'Quality': 'Качество',
+        'Use Youtube JS Player': 'Использовать Youtube JS Player',
+        'Expand playlist': 'Развернуть плейлист',
+        'Unexpand playlist': 'Свернуть плейлист',
+        'Scroll the playlist to the current video': 'Прокрутить плейлист к текущему видео',
+        'Contributors\' list': 'Список пользователей, добавивших видео',
+        'Video\'s count': 'Всего видео'
+    },
+    markdown: {
+        'Markdown helper': 'Помощник разметки',
+        'Bold text': 'Жирный текст',
+        'Cursive text': 'Наклонный текст',
+        'Spoiler': 'Спойлер',
+        'Monospace': 'Моноширинный текст',
+        'Strike': 'Перечёркнутый текст'
+    },
+    pmHistory: {
+        'History': 'История',
+        'Chat history': 'История чата',
+        'Reset history': 'Сбросить историю',
+        'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
+        'Exit': 'Выход'
+    },
+    'Help': 'Помощь',
+    'Close': 'Закрыть',
+    'ru': 'Русский',
+    'en': 'Английский'
+};
+},{}],37:[function(require,module,exports){
 cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Стандартная тема',
         name: 'default',
-        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.css',
-        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.js',
-        pictureUrl: 'http://www.1366x768.ru/anime/128/anime-wallpaper-1366x768.jpg'
+        cssUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.css',
+        jsUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.js'
     });
 });
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Новогодняя тема',
         name: 'new-year',
-        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.css',
-        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.js',
+        cssUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.css',
+        jsUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.js',
         pictureUrl: 'http://www.1366x768.ru/anime/128/anime-wallpaper-1366x768.jpg'
     });
 });
-},{}]},{},[8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,1,2,3,4,35,36]);
+},{}]},{},[36,8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,1,2,3,4,37,38]);

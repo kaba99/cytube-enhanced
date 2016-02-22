@@ -4,7 +4,6 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     var that = this;
 
     this.channelName = channelName;
-    this.language = language;
     this.translations = {};
     this.prefix = 'ce-';
 
@@ -88,7 +87,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param translationObject The translation object
      */
     this.addTranslation = function (language, translationObject) {
-        if (typeof that.translations[language] == 'undefined') {
+        if (typeof that.translations[language] === 'undefined') {
             that.translations[language] = translationObject;
         } else {
             $.extend(true, that.translations[language], translationObject);
@@ -104,11 +103,11 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.t = function (text) {
         var translatedText = text;
 
-        if (that.language !== 'en' && that.translations[that.language]) {
+        if (that.storage.get('language') !== 'en' && that.translations[that.storage.get('language')]) {
             if (text.indexOf('[.]') !== -1) {
                 var textWithNamespaces = text.split('[.]');
 
-                translatedText = that.translations[that.language][textWithNamespaces[0]];
+                translatedText = that.translations[that.storage.get('language')][textWithNamespaces[0]];
                 if (typeof translatedText == 'undefined') {
                     translatedText = text.split('[.]').pop();
                     return translatedText || text;
@@ -123,7 +122,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
                 translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
             } else {
-                translatedText = that.translations[that.language][text];
+                translatedText = that.translations[that.storage.get('language')][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
@@ -183,7 +182,10 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
         }
     }
 
+
     this.storage = new window.CytubeEnhancedStorage('default', false, true);
     this.UI = new window.CytubeEnhancedUI(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
+
+    this.storage.setDefault('language', language);
 };

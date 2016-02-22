@@ -93,15 +93,6 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'Smiles and pictures together': 'Смайлики и картинки вместе',
         'Show emotes and favorite images': 'Показать смайлики и избранные изображения'
     },
-    layout: {
-        'Hide header': 'Скрывать шапку',
-        'Player position': 'Положение плеера',
-        'Playlist position': 'Положение плейлиста',
-        'Chat\'s userlist position': 'Позиция списка пользователей чата',
-        'Left': 'Слева',
-        'Right': 'Справа',
-        'Center': 'По центру'
-    },
     chatAvatars: {
         'Chat avatars': 'Аватарки в чате',
         'Disabled': 'Выключены',
@@ -178,5 +169,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'Exit': 'Выход'
     },
     'Help': 'Помощь',
-    'Close': 'Закрыть'
+    'Close': 'Закрыть',
+    'ru': 'Русский',
+    'en': 'Английский'
 };

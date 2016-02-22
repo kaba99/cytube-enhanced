@@ -10,7 +10,9 @@ window.CytubeEnhancedUISettings = function (app) {
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
 
-    var $settingsModal;
+    this.themeTabName = 'theme-settings';
+    this.themeTabTitle = 'Настройка темы';
+
 
     /**
      * Data, stored from tabs.
@@ -117,11 +119,45 @@ window.CytubeEnhancedUISettings = function (app) {
 
 
     /**
+     * Configures theme
+     * @param callback callback in which user will configure his theme. (callback(app, tab, storage))
+     */
+    this.configureTheme = function (callback) {
+        var tab = that.getTab(that.themeTabName, that.themeTabTitle, 99999);
+        var storage = new CytubeEnhancedStorage('themes.' + app.Settings.storage.get('themes.selected'), true, true);
+
+        callback(app, tab, storage);
+    };
+
+
+    /**
      * Opens tab by its name
      * @param {String} name The name of the tab
      */
     this.openTab = function (name) {
-        that.tabs[name].show();
+        if (that.tabs[name]) {
+            that.tabs[name].show();
+
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+
+    /**
+     * Removes tab by its name
+     * @param {String} name The name of the tab
+     */
+    that.removeTab = function (name) {
+        if (that.tabs[name]) {
+            that.tabs[name].remove();
+            delete that.tabs[name];
+
+            return true;
+        } else {
+            return false;
+        }
     };
 
 
@@ -155,11 +191,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        if (!$settingsModal) {
-            $settingsModal = app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
-        } else {
-            $settingsModal.modal('show');
-        }
+        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter, true);
 
         var tabToOpen;
         for (var tab in that.tabs) {

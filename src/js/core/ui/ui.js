@@ -8,11 +8,23 @@ window.CytubeEnhancedUI = function (app) {
      * @param $headerContent Modal header (optional)
      * @param $bodyContent Modal body (optional)
      * @param $footerContent Modal footer (optional)
+     * @param [cache] Don't remove modal dom after close
      * @returns {jQuery} Modal window
      */
-    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
+    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
         $('.modal').modal('hide');
         id = app.prefix + 'modal-' + id;
+
+        var $cachedOuter = $('#' + id);
+        if (cache) {
+            if ($cachedOuter.length) {
+                $cachedOuter.modal('show');
+                return $cachedOuter;
+            }
+        } else {
+            $cachedOuter.remove();
+        }
+
 
         var $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
         var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
@@ -32,9 +44,11 @@ window.CytubeEnhancedUI = function (app) {
             $('<div class="modal-footer">').append($footerContent).appendTo($content);
         }
 
-        $outer.on('hidden.bs.modal', function () {
-            $(this).remove();
-        });
+        if (!cache) {
+            $outer.on('hidden.bs.modal', function () {
+                $(this).remove();
+            });
+        }
 
         $outer.modal({keyboard: true});
 

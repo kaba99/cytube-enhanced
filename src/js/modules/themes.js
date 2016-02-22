@@ -14,8 +14,6 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
 
     var namespace = 'themes';
     userSettings.setDefault(namespace + '.selected', settings.selected);
-    this.selected = userSettings.get(namespace + '.selected');
-    var themeWasChanged = false;
     this.themes = {};
 
 
@@ -24,8 +22,9 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         that.themes[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();
 
-        if (config.name === that.selected) {
+        if (config.name === userSettings.get(namespace + '.selected')) {
             that.setTheme(config.name);
+            that.applyTheme(config.name);
         }
     };
 
@@ -34,7 +33,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         $('.' + app.prefix + 'themes__item')
             .removeClass('active')
             .filter(function() {
-                return $(this).data('name') === that.selected;
+                return $(this).data('name') === userSettings.get(namespace + '.selected');
             })
             .addClass('active');
     });
@@ -45,12 +44,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
      * @param name Theme's name
      */
     this.setTheme = function (name) {
-        var config = that.themes[name];
-
-        if (name !== that.selected) {
-            themeWasChanged = true;
-        }
-        that.selected = name;
+        userSettings.set(namespace + '.selected', name);
 
         $('.' + app.prefix + 'themes__item')
             .removeClass('active')
@@ -58,7 +52,11 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
                 return $(this).data('name') === name;
             })
             .addClass('active');
+    };
 
+
+    this.applyTheme = function (name) {
+        var config = that.themes[name];
 
         $('#' + settings.themeId).remove();
         if (config.cssUrl != '') {
@@ -68,7 +66,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         }
 
         if (typeof config.jsUrl !== 'undefined' && config.jsUrl !== '') {
-            $.getScript(config.sUrl);
+            $.getScript(config.jsUrl);
         }
     };
 
@@ -77,7 +75,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         var $moduleInfo = $('<div class="' + app.prefix + 'themes__item">').data('name', config.name).on('click', function () {
             var name = $(this).data('name');
 
-            if (name !== that.selected) {
+            if (name !== userSettings.get(namespace + '.selected')) {
                 app.UI.createConfirmWindow('Изменить тему на выбранную?', function () {
                     that.setTheme(name);
                 });
@@ -122,9 +120,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
      * Saving and applying settings
      */
     app.Settings.onSave(function (settings) {
-        settings.set(namespace + '.selected', that.selected);
-
-        if (themeWasChanged) {
+        if (settings.isDirty(namespace + '.selected')) {
             app.Settings.requestPageReload();
         }
     });

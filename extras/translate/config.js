@@ -3,7 +3,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Перевод интерфейса',
         name: 'translate',
         description: 'Русский перевод интерфейса.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
+        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
         languages: ['ru']
     });
 });
