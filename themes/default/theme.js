@@ -10,7 +10,9 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
             'Chat\'s userlist position': 'Позиция списка пользователей чата',
             'Left': 'Слева',
             'Right': 'Справа',
-            'Center': 'По центру'
+            'Center': 'По центру',
+            'Yes': 'Да',
+            'No': 'Нет'
         }
     });
 
@@ -20,33 +22,33 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
             title: app.t('theme[.]Hide header'),
             default: 'no',
             options: [
-                {value: 'yes', title: app.t('settings[.]Yes')},
-                {value: 'no', title: app.t('settings[.]No')}
+                {value: 'yes', title: app.t('theme[.]Yes')},
+                {value: 'no', title: app.t('theme[.]No')}
             ]
         },
         'player-position': {
             title: app.t('theme[.]Player position'),
             default: 'right',
             options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')},
-                {value: 'center', title: app.t('layout[.]Center')}
+                {value: 'left', title: app.t('theme[.]Left')},
+                {value: 'right', title: app.t('theme[.]Right')},
+                {value: 'center', title: app.t('theme[.]Center')}
             ]
         },
         'playlist-position': {
             title: app.t('theme[.]Playlist position'),
             default: 'right',
             options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')}
+                {value: 'left', title: app.t('theme[.]Left')},
+                {value: 'right', title: app.t('theme[.]Right')}
             ]
         },
         'userlist-position': {
             title: app.t('theme[.]Chat\'s userlist position'),
             default: 'left',
             options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')}
+                {value: 'left', title: app.t('theme[.]Left')},
+                {value: 'right', title: app.t('theme[.]Right')}
             ]
         }
     };
@@ -61,11 +63,11 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
     for (var itemName in scheme) {
         schemeItem = scheme[itemName];
 
-        storage.setDefault(namespace + '.' + itemName, schemeItem.default);
+        storage.setDefault(itemName, schemeItem.default);
 
-        if (storage.get(namespace + '.' + itemName)) {
+        if (storage.get(itemName)) {
             for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (storage.get(namespace + '.' + itemName) == schemeItem.options[option].value)
+                schemeItem.options[option].selected = (storage.get(itemName) == schemeItem.options[option].value)
             }
         }
 
@@ -75,7 +77,7 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
 
 
     var applySettings = function (storage) {
-        if (storage.get(namespace + '.hide-header') === 'yes') {
+        if (storage.get('hide-header') === 'yes') {
             $('#motdrow').hide();
             $('#motdrow').data('hiddenByLayout', '1');
         } else {
@@ -85,7 +87,7 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
             $('#motdrow').data('hiddenByLayout', '0');
         }
 
-        if (storage.get(namespace + '.player-position') === 'left') {
+        if (storage.get('player-position') === 'left') {
             if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
                 $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
                 $('#chatwrap').addClass('col-lg-5 col-md-5');
@@ -96,7 +98,7 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
             }
 
             $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (storage.get(namespace + '.player-position') === 'center') {
+        } else if (storage.get('player-position') === 'center') {
             $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
                 return (css.match(/(\s)*col-(\S)+/g) || []).join('');
             });
@@ -121,7 +123,7 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
             $('#chatwrap').detach().insertBefore($('#videowrap'));
         }
 
-        if (storage.get(namespace + '.playlist-position') === 'left') {
+        if (storage.get('playlist-position') === 'left') {
             $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
             $('#rightpane').detach().insertBefore($('#leftpane'));
         } else { //right
@@ -129,7 +131,7 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
             $('#leftpane').detach().insertBefore($('#rightpane'));
         }
 
-        if (storage.get(namespace + '.userlist-position') === 'right') {
+        if (storage.get('userlist-position') === 'right') {
             $('#userlist').addClass('pull-right');
         } else { //left
             $('#userlist').removeClass('pull-right');
@@ -143,12 +145,12 @@ cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
     /**
      * Saving and applying settings
      */
-    app.Settings.onSave(function (settings) {
+    app.Settings.onSave(function () {
         for (var itemName in scheme) {
-            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
+            storage.set(itemName, $('#' + app.prefix + itemName).val());
         }
 
-        applySettings(settings, namespace);
+        applySettings(storage);
     });
-    applySettings(storage, namespace);
+    applySettings(storage);
 });
