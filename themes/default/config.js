@@ -3,6 +3,7 @@ cytubeEnhanced.getModule('themes').done(function (extraModules) {
         title: 'Стандартная тема',
         name: 'default',
         cssUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.css',
-        jsUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.js'
+        jsUrl: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.js',
+        pictureUrl: 'http://i.imgur.com/GFqNMYC.png'
     });
 });

@@ -200,7 +200,9 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background-size: cover; }
+    background-size: cover;
+    background-position: top right;
+    background-repeat: no-repeat; }
 
 .ce-themes__item.active {
   border: 1px solid #78cc78;
