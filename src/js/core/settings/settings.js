@@ -19,7 +19,7 @@ window.CytubeEnhancedUISettings = function (app) {
         });
 
     var $cytubeOptions = $('#useroptions .modal-header .nav-tabs');
-    if ($cytubeOptions.length !== 0) {
+    if ($cytubeOptions.length !== 0 && false) {
         this.$tabsContainerOpenButton.appendTo($cytubeOptions).wrap('<li>');
     } else {
         this.$tabsContainerOpenButton.appendTo(that.$navbar).wrap('<li>');

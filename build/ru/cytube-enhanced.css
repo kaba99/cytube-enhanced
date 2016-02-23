@@ -1,26 +1,3 @@
-#modal-picture {
-  left: 50%;
-  top: 50%;
-  z-index: 100000000;
-  box-sizing: border-box; }
-
-#modal-picture-overlay {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 99999999; }
-
-#modal-picture-options-wrapper {
-  position: relative; }
-
-#modal-picture-options {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  left: 0;
-  top: 0;
-  margin-left: -40px; }
-
 .cirno {
   color: #37B1E6; }
 
@@ -49,6 +26,53 @@
 
 .spoiler:hover .channel-emote, .spoiler:hover .chat-picture, .spoiler:hover a {
   visibility: visible; }
+
+.motd-bottom-btn {
+  margin-top: 10px; }
+
+#motd-tabs-content {
+  margin-top: 10px; }
+
+#motd-channel-description {
+  margin-bottom: 35px; }
+  #motd-channel-description h1 {
+    margin: 0 0 15px 0; }
+
+#currenttitle {
+  border: none;
+  margin: 10px 0 30px 0;
+  text-align: center;
+  font-size: 30px; }
+
+#mediainfo {
+  padding: 2px 5px;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px; }
+
+#modal-picture {
+  left: 50%;
+  top: 50%;
+  z-index: 100000000;
+  box-sizing: border-box; }
+
+#modal-picture-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 99999999; }
+
+#modal-picture-options-wrapper {
+  position: relative; }
+
+#modal-picture-options {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  left: 0;
+  top: 0;
+  margin-left: -40px; }
 
 .markdown-helper-templates-wrapper {
   padding-left: 5px;
