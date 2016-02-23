@@ -29,16 +29,6 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
     });
 });
 },{}],4:[function(require,module,exports){
-cytubeEnhanced.getModule('extras').done(function (extraModules) {
-    extraModules.add({
-        title: 'Перевод интерфейса',
-        name: 'translate',
-        description: 'Русский перевод интерфейса.',
-        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
-        languages: ['ru']
-    });
-});
-},{}],5:[function(require,module,exports){
 /*!
  * jQuery Mousewheel 3.1.13
  *
@@ -261,7 +251,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
 
 }));
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*!
  * jQuery.selection - jQuery Plugin
  *
@@ -617,7 +607,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
     });
 })(jQuery, window, window.document);
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -15519,7 +15509,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     var that = this;
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
@@ -15629,7 +15619,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
         }
     };
 };
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 window.CytubeEnhancedUISettings = function (app) {
     'use strict';
     var that = this;
@@ -15842,7 +15832,7 @@ window.CytubeEnhancedUISettings = function (app) {
         pageReloadRequested = true;
     };
 };
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 window.CytubeEnhancedUITab = function (app, name, title, sort) {
     'use strict';
     var that = this;
@@ -15948,7 +15938,7 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
         that.$content.empty();
     }
 };
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.CytubeEnhancedUI = function (app) {
     var that = this;
 
@@ -16078,15 +16068,49 @@ window.CytubeEnhancedUI = function (app) {
 
         return $button;
     };
+
+
+    /**
+     * Controls loading spinner
+     * @param {jQuery} $node Node to append loader
+     * @param {String} [mode] Forces mode (on|off)
+     * @returns {jQuery} Spinner
+     */
+    this.toggleLoader = function ($node, mode) {
+        $node.each(function () {
+            if (typeof mode === 'undefined') {
+                mode = $node.hasClass('loading-spinner__loading') ? 'off' : 'on';
+            }
+
+            $(this).removeClass('loading-spinner__loading');
+            $('.loading-spinner__overlay').remove();
+            $(this).css('height', 'auto');
+            $(this).css('width', 'auto');
+
+            if (mode === 'on') {
+                console.log($(this).outerHeight());
+                $(this).addClass('loading-spinner__loading');
+                $(this).css('height', $(this).outerHeight());
+                $(this).css('width', $(this).outerWidth());
+
+                $('<div class="loading-spinner__overlay">')
+                    .append($('<div class="loading-spinner__wrapper">').append('<div class="loading-spinner">'))
+                    .appendTo($(this));
+            }
+        });
+    };
+    $.fn.toggleLoader = function (mode) {
+        that.toggleLoader($(this), mode);
+    };
 };
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     $('title').text(),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
 );
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 require('lodash');
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
@@ -16279,7 +16303,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.storage.setDefault('language', language);
 };
 
-},{"lodash":7}],14:[function(require,module,exports){
+},{"lodash":6}],13:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
 
@@ -16593,7 +16617,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     });
 });
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
@@ -16714,7 +16738,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     });
 });
 
-},{"jquery.selection":6}],16:[function(require,module,exports){
+},{"jquery.selection":5}],15:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     'use strict';
     var that = this;
@@ -16815,7 +16839,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
         });
     }
 });
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
     'use strict';
 
@@ -16880,7 +16904,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
         });
 });
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -16960,7 +16984,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -17110,7 +17134,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('#queue').sortable("option", "axis", "y");
 });
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     'use strict';
     var that = this;
@@ -17132,9 +17156,25 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     tab.onShow(function () {
         if (typeof aceEditor === 'undefined') {
             if (typeof window.ace === 'undefined') {
-                $.getScript(settings.aceUrl, function () {
-                    that.initializeAceEditor();
-                })
+                if (!app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    app.Settings.aceIsLoading = true;
+
+                    $.ajax({
+                        url: settings.aceUrl,
+                        dataType: "script",
+                        timeout: 20000 //20 sec
+                    }).done(function () {
+                        that.initializeAceEditor();
+                    }).always(function () {
+                        app.Settings.aceIsLoading = false;
+                        app.Settings.aceLoadingFailed = true;
+                        tab.$content.toggleLoader('off');
+                    });
+                }
+
+                if (app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    tab.$content.toggleLoader('on');
+                }
             } else {
                 that.initializeAceEditor();
             }
@@ -17183,7 +17223,7 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     this.applyUserCss(app.Settings.storage.get(namespace + '.css'))
 });
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     'use strict';
     var that = this;
@@ -17205,9 +17245,25 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     tab.onShow(function () {
         if (typeof aceEditor === 'undefined') {
             if (typeof window.ace === 'undefined') {
-                $.getScript(settings.aceUrl, function () {
-                    that.initializeAceEditor();
-                })
+                if (!app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    app.Settings.aceIsLoading = true;
+
+                    $.ajax({
+                        url: settings.aceUrl,
+                        dataType: "script",
+                        timeout: 20000 //20 sec
+                    }).done(function () {
+                        that.initializeAceEditor();
+                    }).always(function () {
+                        app.Settings.aceIsLoading = false;
+                        app.Settings.aceLoadingFailed = true;
+                        tab.$content.toggleLoader('off');
+                    });
+                }
+
+                if (app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    tab.$content.toggleLoader('on');
+                }
             } else {
                 that.initializeAceEditor();
             }
@@ -17215,7 +17271,7 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     });
 
 
-    this.applyUserCss = function (js) {
+    this.applyUserJs = function (js) {
         $('#' + app.prefix + 'user-js').remove();
         $('body').append('<script id="' + app.prefix + 'user-js" type="text/javascript">' + js + '</script>');
     };
@@ -17251,12 +17307,12 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
             settings.set(namespace + '.js', $editor.val());
         }
 
-        that.applyUserCss(settings.get(namespace + '.js'));
+        that.applyUserJs(settings.get(namespace + '.js'));
     });
-    this.applyUserCss(app.Settings.storage.get(namespace + '.js'))
+    this.applyUserJs(app.Settings.storage.get(namespace + '.js'))
 });
 
-},{}],22:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
     var that = this;
@@ -17376,7 +17432,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     });
 });
 
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -17664,7 +17720,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -17780,7 +17836,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":5}],25:[function(require,module,exports){
+},{"jquery-mousewheel":4}],24:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -17814,7 +17870,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
         }
     });
 });
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
 
@@ -18102,7 +18158,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         that.$htmlToTabs.addClass('btn-success');
     });
 });
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /**
  * Saves messages from chat which were sent by other users to you
  */
@@ -18217,7 +18273,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         }
     };
 });
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -18254,7 +18310,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -18342,7 +18398,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
             });
     }
 });
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
 
@@ -18432,7 +18488,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     this.renderSmiles();
 });
 
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 window.cytubeEnhanced.addModule('themes', function (app, settings) {
     'use strict';
     var that = this;
@@ -18561,7 +18617,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     });
 });
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     'use strict';
     var that = this;
@@ -18725,7 +18781,7 @@ window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -18945,7 +19001,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -19071,7 +19127,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -19132,7 +19188,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 window.cytubeEnhancedDefaultTranslates = window.cytubeEnhancedDefaultTranslates || {};
 window.cytubeEnhancedDefaultTranslates['ru'] = {
     qCommands: {
@@ -19308,7 +19364,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     'ru': 'Русский',
     'en': 'Английский'
 };
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Стандартная тема',
@@ -19318,7 +19374,7 @@ cytubeEnhanced.getModule('themes').done(function (extraModules) {
         pictureUrl: 'http://i.imgur.com/GFqNMYC.png'
     });
 });
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Новогодняя тема',
@@ -19328,4 +19384,4 @@ cytubeEnhanced.getModule('themes').done(function (extraModules) {
         pictureUrl: 'http://i.imgur.com/N9JOTno.png'
     });
 });
-},{}]},{},[36,8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,1,2,3,4,37,38]);
+},{}]},{},[35,7,8,9,10,12,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,1,2,3,36,37]);

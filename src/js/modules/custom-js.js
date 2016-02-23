@@ -19,9 +19,25 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     tab.onShow(function () {
         if (typeof aceEditor === 'undefined') {
             if (typeof window.ace === 'undefined') {
-                $.getScript(settings.aceUrl, function () {
-                    that.initializeAceEditor();
-                })
+                if (!app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    app.Settings.aceIsLoading = true;
+
+                    $.ajax({
+                        url: settings.aceUrl,
+                        dataType: "script",
+                        timeout: 20000 //20 sec
+                    }).done(function () {
+                        that.initializeAceEditor();
+                    }).always(function () {
+                        app.Settings.aceIsLoading = false;
+                        app.Settings.aceLoadingFailed = true;
+                        tab.$content.toggleLoader('off');
+                    });
+                }
+
+                if (app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    tab.$content.toggleLoader('on');
+                }
             } else {
                 that.initializeAceEditor();
             }
@@ -29,7 +45,7 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     });
 
 
-    this.applyUserCss = function (js) {
+    this.applyUserJs = function (js) {
         $('#' + app.prefix + 'user-js').remove();
         $('body').append('<script id="' + app.prefix + 'user-js" type="text/javascript">' + js + '</script>');
     };
@@ -65,7 +81,7 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
             settings.set(namespace + '.js', $editor.val());
         }
 
-        that.applyUserCss(settings.get(namespace + '.js'));
+        that.applyUserJs(settings.get(namespace + '.js'));
     });
-    this.applyUserCss(app.Settings.storage.get(namespace + '.js'))
+    this.applyUserJs(app.Settings.storage.get(namespace + '.js'))
 });

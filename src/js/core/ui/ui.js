@@ -127,4 +127,38 @@ window.CytubeEnhancedUI = function (app) {
 
         return $button;
     };
+
+
+    /**
+     * Controls loading spinner
+     * @param {jQuery} $node Node to append loader
+     * @param {String} [mode] Forces mode (on|off)
+     * @returns {jQuery} Spinner
+     */
+    this.toggleLoader = function ($node, mode) {
+        $node.each(function () {
+            if (typeof mode === 'undefined') {
+                mode = $node.hasClass('loading-spinner__loading') ? 'off' : 'on';
+            }
+
+            $(this).removeClass('loading-spinner__loading');
+            $('.loading-spinner__overlay').remove();
+            $(this).css('height', 'auto');
+            $(this).css('width', 'auto');
+
+            if (mode === 'on') {
+                console.log($(this).outerHeight());
+                $(this).addClass('loading-spinner__loading');
+                $(this).css('height', $(this).outerHeight());
+                $(this).css('width', $(this).outerWidth());
+
+                $('<div class="loading-spinner__overlay">')
+                    .append($('<div class="loading-spinner__wrapper">').append('<div class="loading-spinner">'))
+                    .appendTo($(this));
+            }
+        });
+    };
+    $.fn.toggleLoader = function (mode) {
+        that.toggleLoader($(this), mode);
+    };
 };

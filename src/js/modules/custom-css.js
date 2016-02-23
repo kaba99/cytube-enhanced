@@ -19,9 +19,25 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     tab.onShow(function () {
         if (typeof aceEditor === 'undefined') {
             if (typeof window.ace === 'undefined') {
-                $.getScript(settings.aceUrl, function () {
-                    that.initializeAceEditor();
-                })
+                if (!app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    app.Settings.aceIsLoading = true;
+
+                    $.ajax({
+                        url: settings.aceUrl,
+                        dataType: "script",
+                        timeout: 20000 //20 sec
+                    }).done(function () {
+                        that.initializeAceEditor();
+                    }).always(function () {
+                        app.Settings.aceIsLoading = false;
+                        app.Settings.aceLoadingFailed = true;
+                        tab.$content.toggleLoader('off');
+                    });
+                }
+
+                if (app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    tab.$content.toggleLoader('on');
+                }
             } else {
                 that.initializeAceEditor();
             }
