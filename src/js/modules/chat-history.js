@@ -1,9 +1,5 @@
-/**
- * Saves messages from chat which were sent by other users to you
- */
-window.cytubeEnhanced.addModule('pmHistory', function (app) {
+window.cytubeEnhanced.addModule('chatHistory', function (app) {
     'use strict';
-
     var that = this;
 
     app.storage.setDefault('pmHistory', []);
@@ -69,6 +65,8 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         }
 
 
+        var $header = $('<h3 class="modal-title">').text(app.t('pmHistory[.]Chat history'));
+
         var $wrapper = $('<div class="pm-history-content">');
         for (var position = 0, historyLength = pmHistory.length; position < historyLength; position++) {
             $wrapper.append(that.formatHistoryMessage(pmHistory[position]));
@@ -90,9 +88,7 @@ window.cytubeEnhanced.addModule('pmHistory', function (app) {
         $footer.append($exitChatHistoryBtn);
 
 
-        app.getModule('utils').done(function (utilsModule) {
-            $modalWindow = utilsModule.createModalWindow(app.t('pmHistory[.]Chat history'), $wrapper, $footer);
-        });
+        app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
     };
 
     this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
