@@ -178,6 +178,8 @@
       color: #ccc; }
     .ce-extras__item__button {
       margin-top: 4px; }
+  .ce-extras__info-message {
+    margin: 10px 0; }
 
 .ce-themes__item {
   position: relative;
@@ -208,6 +210,9 @@
 .ce-themes__item.active {
   border: 1px solid #78cc78;
   cursor: auto; }
+
+.ce-themes__info-message {
+  margin: 10px 0; }
 
 .vjs-tip {
   display: none;

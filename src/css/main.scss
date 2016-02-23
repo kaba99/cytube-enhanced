@@ -219,6 +219,10 @@
             margin-top: 4px;
         }
     }
+
+    &__info-message {
+        margin: 10px 0;
+    }
 }
 
 
@@ -257,6 +261,10 @@
     &__item.active {
         border: 1px solid #78cc78;
         cursor: auto;
+    }
+
+    &__info-message {
+        margin: 10px 0;
     }
 }
 

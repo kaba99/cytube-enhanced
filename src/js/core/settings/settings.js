@@ -4,11 +4,26 @@ window.CytubeEnhancedUISettings = function (app) {
 
     this.$navbar = $('#nav-collapsible').find('.navbar-nav');
     this.tabs = {};
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
     this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
+
+    this.$tabsContainerOpenButton = $('<a href="#" id="' + app.prefix + 'ui"></a>')
+        .text(app.t('settings[.]Extended settings'))
+        .on('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            that.openSettings();
+        });
+
+    var $cytubeOptions = $('#useroptions .modal-header .nav-tabs');
+    if ($cytubeOptions.length !== 0) {
+        this.$tabsContainerOpenButton.appendTo($cytubeOptions).wrap('<li>');
+    } else {
+        this.$tabsContainerOpenButton.appendTo(that.$navbar).wrap('<li>');
+    }
 
     this.themeTabName = 'theme-settings';
     this.themeTabTitle = 'Настройка темы';
@@ -20,14 +35,6 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.storage = new CytubeEnhancedStorage('settings', false);
     var pageReloadRequested = false;
-
-    that.$tabsContainerOpenButton
-        .text(app.t('settings[.]Extended settings'))
-        .on('click', function () {
-            that.openSettings();
-        })
-        .appendTo(that.$navbar)
-        .wrap('<li>');
 
     $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
     that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);

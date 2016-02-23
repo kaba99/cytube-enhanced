@@ -24,8 +24,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Скрипт пирата',
         name: 'pirate-script',
         description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: 'https://cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
-        languages: ['ru']
+        url: 'https://cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js'
     });
 });
 },{}],4:[function(require,module,exports){
@@ -15626,11 +15625,26 @@ window.CytubeEnhancedUISettings = function (app) {
 
     this.$navbar = $('#nav-collapsible').find('.navbar-nav');
     this.tabs = {};
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
     this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
+
+    this.$tabsContainerOpenButton = $('<a href="#" id="' + app.prefix + 'ui"></a>')
+        .text(app.t('settings[.]Extended settings'))
+        .on('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            that.openSettings();
+        });
+
+    var $cytubeOptions = $('#useroptions .modal-header .nav-tabs');
+    if ($cytubeOptions.length !== 0) {
+        this.$tabsContainerOpenButton.appendTo($cytubeOptions).wrap('<li>');
+    } else {
+        this.$tabsContainerOpenButton.appendTo(that.$navbar).wrap('<li>');
+    }
 
     this.themeTabName = 'theme-settings';
     this.themeTabTitle = 'Настройка темы';
@@ -15642,14 +15656,6 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.storage = new CytubeEnhancedStorage('settings', false);
     var pageReloadRequested = false;
-
-    that.$tabsContainerOpenButton
-        .text(app.t('settings[.]Extended settings'))
-        .on('click', function () {
-            that.openSettings();
-        })
-        .appendTo(that.$navbar)
-        .wrap('<li>');
 
     $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
     that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
@@ -16296,10 +16302,11 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
 
     this.storage = new window.CytubeEnhancedStorage('default', true, true);
-    this.UI = new window.CytubeEnhancedUI(this);
-    this.Settings = new window.CytubeEnhancedUISettings(this);
-
     this.storage.setDefault('language', language);
+
+    this.UI = new window.CytubeEnhancedUI(this);
+
+    this.Settings = new window.CytubeEnhancedUISettings(this);
 };
 
 },{"lodash":6}],13:[function(require,module,exports){
@@ -17319,14 +17326,15 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        enabledModules: ['translate', 'anime-quotes', 'pirate-quotes']
+        enabledModules: ['anime-quotes', 'pirate-quotes']
     };
     settings = $.extend({}, defaultSettings, settings);
 
     var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
-    $('<p>').text('Сторонние модули.').prependTo(tab.$content);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
     var userSettings = app.Settings.storage;
+
+    var $modulesInfoMessage = $('<div class="' + app.prefix + 'extras__info-message">').text('Сторонние модули отсутствуют.').prependTo(tab.$content);
 
     var namespace = 'extras';
     userSettings.setDefault(namespace + '.enabled', settings.enabledModules);
@@ -17335,6 +17343,8 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
     this.add = function (config) {
+        $modulesInfoMessage.text('Сторонние модули от других пользователей.');
+
         that.extraModules[config.name] = config;
         that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();
@@ -18505,12 +18515,16 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
     var userSettings = app.Settings.storage;
 
+    var $themesInfoMessage = $('<div class="' + app.prefix + 'themes__info-message">').text('Темы отсутствуют.').prependTo(tab.$content);
+
     var namespace = 'themes';
     userSettings.setDefault(namespace + '.selected', settings.selected);
     this.themes = {};
 
 
     this.add = function (config) {
+        $themesInfoMessage.remove();
+
         that.themes[config.name] = config;
         that.themes[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();

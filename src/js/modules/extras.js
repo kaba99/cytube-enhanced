@@ -3,14 +3,15 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        enabledModules: ['translate', 'anime-quotes', 'pirate-quotes']
+        enabledModules: ['anime-quotes', 'pirate-quotes']
     };
     settings = $.extend({}, defaultSettings, settings);
 
     var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
-    $('<p>').text('Сторонние модули.').prependTo(tab.$content);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
     var userSettings = app.Settings.storage;
+
+    var $modulesInfoMessage = $('<div class="' + app.prefix + 'extras__info-message">').text('Сторонние модули отсутствуют.').prependTo(tab.$content);
 
     var namespace = 'extras';
     userSettings.setDefault(namespace + '.enabled', settings.enabledModules);
@@ -19,6 +20,8 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
     this.add = function (config) {
+        $modulesInfoMessage.text('Сторонние модули от других пользователей.');
+
         that.extraModules[config.name] = config;
         that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();

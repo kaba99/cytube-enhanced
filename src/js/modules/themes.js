@@ -12,12 +12,16 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
     var userSettings = app.Settings.storage;
 
+    var $themesInfoMessage = $('<div class="' + app.prefix + 'themes__info-message">').text('Темы отсутствуют.').prependTo(tab.$content);
+
     var namespace = 'themes';
     userSettings.setDefault(namespace + '.selected', settings.selected);
     this.themes = {};
 
 
     this.add = function (config) {
+        $themesInfoMessage.remove();
+
         that.themes[config.name] = config;
         that.themes[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();
