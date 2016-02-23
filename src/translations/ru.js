@@ -171,5 +171,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     'Help': 'Помощь',
     'Close': 'Закрыть',
     'ru': 'Русский',
-    'en': 'Английский'
+    'en': 'Английский',
+    'Confirm': 'Подтвердить',
+    'Cancel': 'Отмена'
 };

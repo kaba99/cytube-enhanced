@@ -57,9 +57,29 @@ window.CytubeEnhancedUI = function (app) {
 
 
     this.createConfirmWindow = function (message, callback) {
-        if (window.confirm(message)) {
+        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
+        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
+        var $content = $('<div class="modal-content">').appendTo($modal);
+
+        $('<div class="modal-header">').html($('<h3 class="modal-title">').text(message)).appendTo($content);
+
+        var $footer = $('<div class="modal-footer">').appendTo($content);
+        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
             callback();
-        }
+        });
+        $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
+
+
+        $outer.on('show.bs.modal', function () {
+            that.centerModals($(this));
+        });
+
+        $outer.on('hidden.bs.modal', function () {
+            $(this).remove();
+        });
+
+
+        $outer.modal({keyboard: true});
     };
 
 
@@ -161,4 +181,23 @@ window.CytubeEnhancedUI = function (app) {
     $.fn.toggleLoader = function (mode) {
         that.toggleLoader($(this), mode);
     };
+
+
+    this.centerModals = function ($outer) {
+        if (typeof $outer === 'undefined') {
+            $outer = $('.modal-centered');
+        }
+
+        $outer.each(function () {
+            var $modal = $outer.find('.modal-dialog');
+
+            $modal.css({
+                display: 'block',
+                marginTop: (Math.max(0, ($(window).height() - $modal.find('.modal-dialog').height()) / 2))
+            });
+        });
+    };
+    $(window).resize(function () {
+        that.centerModals();
+    });
 };

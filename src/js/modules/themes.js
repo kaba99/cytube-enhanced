@@ -8,6 +8,14 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
+
+    $('#us-theme').closest('.form-group').hide();
+    $("#us-theme").val('/css/themes/slate.css');
+    if (window.createCookie) {
+        window.createCookie('cytube-theme', '/css/themes/slate.css', 1000);
+    }
+
+
     var tab = app.Settings.getTab('themes', 'Темы', 500);
     var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
     var userSettings = app.Settings.storage;
