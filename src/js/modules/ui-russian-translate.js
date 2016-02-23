@@ -37,7 +37,7 @@ window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
             };
 
             for (var chatInfoElement in chatInfo) {
-                if (chatInfo.hasOwnProperty(chatInfoElement)) {
+                if (chatInfo.hasOwnProperty(chatInfoElement) && typeof chatInfoTranslateMap[chatInfoElement] !== 'undefined') {
                     translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
                 }
             }
