@@ -183,7 +183,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     }
 
 
-    this.storage = new window.CytubeEnhancedStorage('default', false, true);
+    this.storage = new window.CytubeEnhancedStorage('default', true, true);
     this.UI = new window.CytubeEnhancedUI(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
 

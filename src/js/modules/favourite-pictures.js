@@ -3,7 +3,8 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     var that = this;
 
-    app.storage.setDefault('favouritePictures', []);
+    var favouritePicturesFromV1 = app.parseJSON(window.localStorage.getItem('favouritePictures'), []);
+    app.storage.setDefault('favouritePictures', _.isArray(favouritePicturesFromV1) ? favouritePicturesFromV1 : []);
 
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");

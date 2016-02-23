@@ -9,7 +9,9 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
 
     var tab = app.Settings.getTab('custom-css', 'CSS', 200);
     var namespace = 'user-code';
-    app.Settings.storage.setDefault(namespace + '.css', '');
+
+    var userSettingsFromV1 = app.parseJSON(window.getOrDefault(window.CHANNEL.name + "_config-layout", undefined), {});
+    app.Settings.storage.setDefault(namespace + '.css', (_.isPlainObject(userSettingsFromV1) && _.isString(userSettingsFromV1['user-css'])) ? userSettingsFromV1['user-css'] : '');
 
     var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.storage.get(namespace + '.css')).appendTo(tab.$content);
     var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.storage.get(namespace + '.css'));

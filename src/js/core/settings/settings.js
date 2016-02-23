@@ -21,7 +21,6 @@ window.CytubeEnhancedUISettings = function (app) {
     this.storage = new CytubeEnhancedStorage('settings', false);
     var pageReloadRequested = false;
 
-
     that.$tabsContainerOpenButton
         .text(app.t('settings[.]Extended settings'))
         .on('click', function () {

@@ -15643,7 +15643,6 @@ window.CytubeEnhancedUISettings = function (app) {
     this.storage = new CytubeEnhancedStorage('settings', false);
     var pageReloadRequested = false;
 
-
     that.$tabsContainerOpenButton
         .text(app.t('settings[.]Extended settings'))
         .on('click', function () {
@@ -16296,7 +16295,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     }
 
 
-    this.storage = new window.CytubeEnhancedStorage('default', false, true);
+    this.storage = new window.CytubeEnhancedStorage('default', true, true);
     this.UI = new window.CytubeEnhancedUI(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
 
@@ -17146,7 +17145,9 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
 
     var tab = app.Settings.getTab('custom-css', 'CSS', 200);
     var namespace = 'user-code';
-    app.Settings.storage.setDefault(namespace + '.css', '');
+
+    var userSettingsFromV1 = app.parseJSON(window.getOrDefault(window.CHANNEL.name + "_config-layout", undefined), {});
+    app.Settings.storage.setDefault(namespace + '.css', (_.isPlainObject(userSettingsFromV1) && _.isString(userSettingsFromV1['user-css'])) ? userSettingsFromV1['user-css'] : '');
 
     var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.storage.get(namespace + '.css')).appendTo(tab.$content);
     var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.storage.get(namespace + '.css'));
@@ -17438,7 +17439,8 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     var that = this;
 
-    app.storage.setDefault('favouritePictures', []);
+    var favouritePicturesFromV1 = app.parseJSON(window.localStorage.getItem('favouritePictures'), []);
+    app.storage.setDefault('favouritePictures', _.isArray(favouritePicturesFromV1) ? favouritePicturesFromV1 : []);
 
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
