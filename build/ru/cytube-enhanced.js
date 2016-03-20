@@ -17043,6 +17043,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
 window.cytubeEnhanced.addModule('chatHistory', function (app) {
     'use strict';
     var that = this;
+    var $modalWindow;
 
     app.storage.setDefault('pmHistory', []);
 
@@ -17100,7 +17101,6 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
     };
 
     this.showChatHistory = function () {
-        var $modalWindow;
         var pmHistory = app.storage.get('pmHistory');
         if (!$.isArray(pmHistory)) {
             pmHistory = [];
@@ -17132,7 +17132,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
         $footer.append($exitChatHistoryBtn);
 
 
-        app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
+        $modalWindow = app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
     };
 
     this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
