@@ -70,7 +70,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
                         .addClass(avatarCssClasses)
                         .prependTo(div.find('.username').parent());
 
-                    if (app.userConfig.get('avatarsMode') == 'big') {
+                    if (userSettings.get(namespace + '.avatars-mode') == 'big') {
                         div.find('.username').css('display', 'none');
                         $avatar.attr('title', data.username);
                     }
