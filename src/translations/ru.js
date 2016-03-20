@@ -164,6 +164,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     pmHistory: {
         'History': 'История',
         'Chat history': 'История чата',
+        'Your chat messages history.': 'История сообщений, адресованных вам в чате.',
         'Reset history': 'Сбросить историю',
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'

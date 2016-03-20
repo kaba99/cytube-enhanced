@@ -65,7 +65,9 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
         }
 
 
-        var $header = $('<h3 class="modal-title">').text(app.t('pmHistory[.]Chat history'));
+        var $header = $('<div class="modal-header__inner">');
+        $header.append($('<h3 class="modal-title">').text(app.t('pmHistory[.]Chat history')));
+        $header.append($('<div class="modat-header__description">').text(app.t('pmHistory[.]Your chat messages history.')));
 
         var $wrapper = $('<div class="pm-history-content">');
         for (var position = 0, historyLength = pmHistory.length; position < historyLength; position++) {
@@ -75,7 +77,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
 
         var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger">' + app.t('pmHistory[.]Reset history') + '</button>')
             .on('click', function () {
-                if (window.confirm('pmHistory[.]Are you sure, that you want to clear messages history?')) {
+                if (window.confirm(app.t('pmHistory[.]Are you sure, that you want to clear messages history?'))) {
                     that.resetChatHistory($modalWindow);
                 }
             });

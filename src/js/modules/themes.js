@@ -76,10 +76,6 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         } else { //resets to default theme
             that.setTheme(userSettings.getDefault(namespace + '.selected'))
         }
-
-        if (typeof config.jsUrl !== 'undefined' && config.jsUrl !== '') {
-            $.getScript(config.jsUrl);
-        }
     };
 
 
