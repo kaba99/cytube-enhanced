@@ -4,7 +4,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Аниме-цитаты',
         name: 'anime-quotes',
         description: 'Нескучные аниме-цитаты.',
-        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
         languages: ['ru']
     });
 });
@@ -14,7 +14,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Выключение встроенного антивайпа',
         name: 'antiwipe-disable',
         description: 'Выключение встроенного антивайпа.',
-        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/76c1f24dce3218d3596ffc3b64c54f1d7f9c17ba/extras/antiwipe-disable/antiwipe-disable.js?ac=1458482231124',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/4777f3494a5acf0a4e1e962633cba359160b7f92/extras/antiwipe-disable/antiwipe-disable.js',
         languages: ['ru']
     });
 });
@@ -24,7 +24,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Цитаты пирата',
         name: 'pirate-quotes',
         description: 'Нескучные цитаты Пирата.',
-        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
         languages: ['ru']
     });
 });
@@ -34,7 +34,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Скрипт пирата',
         name: 'pirate-script',
         description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: 'https://cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js'
+        url: '//cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js'
     });
 });
 },{}],5:[function(require,module,exports){

@@ -3,7 +3,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Цитаты пирата',
         name: 'pirate-quotes',
         description: 'Нескучные цитаты Пирата.',
-        url: 'https://cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
         languages: ['ru']
     });
 });

@@ -3,7 +3,7 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Выключение встроенного антивайпа',
         name: 'antiwipe-disable',
         description: 'Выключение встроенного антивайпа.',
-        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/76c1f24dce3218d3596ffc3b64c54f1d7f9c17ba/extras/antiwipe-disable/antiwipe-disable.js?ac=1458482231124',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/4777f3494a5acf0a4e1e962633cba359160b7f92/extras/antiwipe-disable/antiwipe-disable.js',
         languages: ['ru']
     });
 });
