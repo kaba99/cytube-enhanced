@@ -145,8 +145,4 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
     $('#queue').sortable("option", "axis", "y");
-
-    setInterval(function () {
-        window.IGNORED = [];
-    }, 10000);
 });

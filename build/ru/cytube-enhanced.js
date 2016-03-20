@@ -17300,10 +17300,6 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
     $('#queue').sortable("option", "axis", "y");
-
-    setInterval(function () {
-        window.IGNORED = [];
-    }, 10000);
 });
 
 },{}],21:[function(require,module,exports){
@@ -18629,6 +18625,10 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
             $('<link rel="stylesheet" id="' + settings.themeId + '">').attr('href', config.cssUrl).appendTo($('head'));
         } else { //resets to default theme
             that.setTheme(userSettings.getDefault(namespace + '.selected'))
+        }
+
+        if (typeof config.jsUrl !== 'undefined' && config.jsUrl !== '') {
+            $.getScript(config.jsUrl);
         }
     };
 
