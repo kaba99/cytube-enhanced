@@ -116,7 +116,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
 
 
     $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
-    $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
+    $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced" target="_blank">GitHub</a>)</p>');
 
     setTimeout(function () {
         window.handleWindowResize(); //chat height fix
