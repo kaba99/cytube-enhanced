@@ -1,10 +1,4 @@
 //common
-.cirno {
-    color: #37B1E6;
-}
-.quote {
-    color: #6F8F23;
-}
 .btn-link {
     text-decoration: none;
     &:hover {
@@ -22,12 +16,6 @@
 .chat-picture {
     max-height: 100px;
     max-width: 200px;
-}
-.spoiler .channel-emote, .spoiler .chat-picture, .spoiler a {
-    visibility: hidden;
-}
-.spoiler:hover .channel-emote, .spoiler:hover .chat-picture, .spoiler:hover a {
-    visibility: visible;
 }
 .motd-bottom-btn {
     margin-top: 10px;
@@ -55,6 +43,33 @@
     border-top-right-radius: 5px;
 }
 
+
+
+
+//filters
+.cirno {
+    color: #37B1E6;
+}
+
+.quote {
+    color: #6F8F23;
+}
+
+
+.spoiler {
+    color: #000;
+    background-color: #000;
+}
+.spoiler * {
+    visibility: hidden !important;
+}
+.spoiler:hover * {
+    visibility: visible !important;
+}
+
+code {
+    color: #2CB337;
+}
 
 
 
