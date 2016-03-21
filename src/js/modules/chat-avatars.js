@@ -4,6 +4,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
 
     var tab = app.Settings.getTab('general', 'Общее', 100);
     var userSettings = app.Settings.storage;
+    var appSettings = app.storage;
 
 
     var namespace = 'avatars';
@@ -18,6 +19,38 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
             ]
         }
     };
+    appSettings.setDefault(namespace + '.cache', []);
+
+
+
+    this.cacheAvatar = function (username, avatar) {
+        var cachedAvatars = appSettings.get(namespace + '.cache');
+
+        if (cachedAvatars.length >= 50) {
+            cachedAvatars = cachedAvatars.slice(0, 49);
+        }
+
+        cachedAvatars.unshift({
+            username: username,
+            avatar: avatar
+        });
+
+        appSettings.set(namespace + '.cache', cachedAvatars);
+    };
+
+    this.getAvatarFromCache = function (username) {
+        var cachedAvatar = _.findLast(appSettings.get(namespace + '.cache'), function (o) { return o.username == username });
+        cachedAvatar = cachedAvatar ? cachedAvatar.avatar : null;
+
+        return cachedAvatar;
+    };
+
+    this.getAvatarFromUserlist = function (username) {
+        var avatar = (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) ? window.findUserlistItem(username).data('profile').image : null;
+
+        return avatar;
+    };
+
 
 
     /**
@@ -59,14 +92,21 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     /**
      * Applying settings
      */
-    if (userSettings.get(namespace + '.avatars-mode')) {
+    if (userSettings.get(namespace  + '.avatars-mode')) {
         window.formatChatMessage = (function (oldFormatChatMessage) {
             return function (data, last) {
                 var div = oldFormatChatMessage(data, last);
                 var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
 
-                if ((window.findUserlistItem(data.username) != null) && (window.findUserlistItem(data.username).data('profile').image != "")) {
-                    var $avatar = $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
+                var cachedAvatar = that.getAvatarFromCache(data.username);
+                var newAvatar = that.getAvatarFromUserlist(data.username);
+
+                if (cachedAvatar || newAvatar) {
+                    if (!cachedAvatar) {
+                        that.cacheAvatar(data.username, newAvatar);
+                    }
+
+                    var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
                         .addClass(avatarCssClasses)
                         .prependTo(div.find('.username').parent());
 
@@ -85,8 +125,15 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
             var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
             var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
 
-            if (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) {
-                var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
+            var cachedAvatar = that.getAvatarFromCache(username);
+            var newAvatar = that.getAvatarFromUserlist(username);
+
+            if (cachedAvatar || newAvatar) {
+                if (!cachedAvatar) {
+                    that.cacheAvatar(username, newAvatar);
+                }
+
+                var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
                     .addClass(avatarCssClasses)
                     .prependTo($messageBlock);
 
@@ -94,6 +141,34 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
                     $(this).css('display', 'none');
                     $avatar.attr('title', username);
                 }
+            }
+        });
+
+
+        window.socket.on('addUser', function (data) {
+            if (data.profile && data.profile.image && data.name) {
+                $('.username:contains("' + data.name + ':")').each(function () {
+                    var $messageBlock = $(this).parent();
+                    var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
+
+                    var cachedAvatar = that.getAvatarFromCache(data.name);
+                    var newAvatar = that.getAvatarFromUserlist(data.name);
+
+                    if (cachedAvatar || newAvatar) {
+                        if (!cachedAvatar) {
+                            that.cacheAvatar(data.name, newAvatar);
+                        }
+
+                        var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
+                            .addClass(avatarCssClasses)
+                            .prependTo($messageBlock);
+
+                        if (userSettings.get(namespace + '.avatars-mode') == 'big') {
+                            $(this).css('display', 'none');
+                            $avatar.attr('title', data.name);
+                        }
+                    }
+                });
             }
         });
     }

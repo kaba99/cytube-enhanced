@@ -13,7 +13,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
             }
 
             if (pmHistory.length >= 50) {
-                pmHistory.slice(0, 49);
+                pmHistory = pmHistory.slice(0, 49);
             }
 
             pmHistory.unshift({
