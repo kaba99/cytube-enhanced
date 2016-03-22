@@ -16943,24 +16943,26 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     }
 });
 },{}],17:[function(require,module,exports){
-window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
+window.cytubeEnhanced.addModule('chatCommandsHelp', function (app, settings) {
     'use strict';
-
     var that = this;
+
+    var defaultSettings = {
+        commands: {
+            '/me': app.t('chatCommands[.]%username% action (e.g: <i>/me is dancing</i>)'),
+            '/sp': app.t('chatCommands[.]spoiler'),
+            '/afk': app.t('chatCommands[.]sets the "AFK" status')
+        }
+    };
+    settings = $.extend({}, defaultSettings, settings);
 
 
     if ($('#chat-controls').length === 0) {
         $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
     }
 
-
     this.commands = {};
-
-    this.commands[app.t('Standard commands')] = {
-        '/me': app.t('chatCommands[.]%username% action (e.g: <i>/me is dancing</i>)'),
-        '/sp': app.t('chatCommands[.]spoiler'),
-        '/afk': app.t('chatCommands[.]sets the "AFK" status')
-    };
+    this.commands[app.t('Standard commands')] = settings.commands;
 
     if (app.isModulePermitted('additionalChatCommands')) {
         app.getModule('additionalChatCommands').done(function (commandsModule) {
