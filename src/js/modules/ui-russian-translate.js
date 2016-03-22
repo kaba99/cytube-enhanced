@@ -11,10 +11,6 @@ window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
         $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
     }
 
-    if ($('.navbar-brand').length !== 0) {
-        $('.navbar-brand').text(app.channelName);
-    }
-
     if ($('#usercount').length !== 0) {
         $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
         window.socket.on('usercount', function () {

@@ -167,7 +167,6 @@ window.CytubeEnhancedUI = function (app) {
             $(this).css('width', 'auto');
 
             if (mode === 'on') {
-                console.log($(this).outerHeight());
                 $(this).addClass('loading-spinner__loading');
                 $(this).css('height', $(this).outerHeight());
                 $(this).css('width', $(this).outerWidth());

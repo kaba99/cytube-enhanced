@@ -1,9 +1,8 @@
 require('lodash');
-window.CytubeEnhanced = function(channelName, language, modulesSettings) {
+window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
     'use strict';
     var that = this;
 
-    this.channelName = channelName;
     this.translations = {};
     this.prefix = 'ce-';
 
@@ -49,22 +48,14 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.addModule = function (moduleName, ModuleConstructor) {
         if (this.isModulePermitted(moduleName)) {
             var moduleSettings = modulesSettings[moduleName] || {};
+            var module = new ModuleConstructor(this, moduleSettings);
 
-            modules[moduleName] = new ModuleConstructor(this, moduleSettings);
+            if (modulesExtends[moduleName]) {
+                modulesExtends[moduleName](module);
+            }
+
+            modules[moduleName] = module;
         }
-    };
-
-
-    /**
-     * Configures the module
-     *
-     * Previous options don't reset.
-     *
-     * @param {string} moduleName  The name of the module
-     * @param moduleOptions The module's options
-     */
-    this.configureModule = function (moduleName, moduleOptions) {
-        $.extend(true, modulesSettings[moduleName], moduleOptions);
     };
 
 

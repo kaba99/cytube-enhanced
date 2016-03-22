@@ -1,6 +1,5 @@
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -8,9 +7,18 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    function isCommandPermitted(commandName) {
-        return settings.permittedCommands.indexOf('*') !== -1 || settings.permittedCommands.indexOf(commandName) !== -1 || false;
-    }
+
+    this.isCommandPermitted = function (commandName) {
+        if (that.commandsList[commandName]) {
+            if (that.commandsList[commandName].canBeOmitted) {
+                return settings.permittedCommands.indexOf('*') !== -1 || settings.permittedCommands.indexOf(commandName) !== -1;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    };
 
 
     this.askAnswers = ["100%", app.t('qCommands[.]of course'), app.t('qCommands[.]yes'), app.t('qCommands[.]maybe'), app.t('qCommands[.]impossible'), app.t('qCommands[.]no way'), app.t('qCommands[.]don\'t think so'), app.t('qCommands[.]no'), "50/50", app.t('qCommands[.]cirno is busy'), app.t('qCommands[.]I regret to inform you')];
@@ -28,18 +36,26 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
      * @type {object}
      */
     this.commandsList = {
-        '!pick ': {
+        '!pick': {
             description: app.t('chatCommands[.]random option from the list of options (!pick option1, option2, option3)'),
             value: function (msg) {
-                var variants = msg.replace('!pick ', '').split(',');
-                return variants[Math.floor(Math.random() * variants.length)].trim();
-            }
+                var formattedMsg = _.trim(msg.replace('!pick', ''));
+
+                if (formattedMsg == '') {
+                    return app.t('chatCommands[.]Use !pick variant1, variant2')
+                } else {
+                    var variants = formattedMsg.split(',');
+                    return _.trim(variants[Math.floor(Math.random() * variants.length)]);
+                }
+            },
+            canBeOmitted: true
         },
-        '!ask ': {
+        '!ask': {
             description: app.t('chatCommands[.]asking a question with yes/no/... type answer (e.g. <i>!ask Will i be rich?</i>)'),
             value: function () {
                 return that.askAnswers[Math.floor(Math.random() * that.askAnswers.length)];
-            }
+            },
+            canBeOmitted: true
         },
         '!time': {
             description: app.t('chatCommands[.]show the current time'),
@@ -55,13 +71,15 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 }
 
                 return app.t('chatCommands[.]current time') + ': ' + h + ':' + m;
-            }
+            },
+            canBeOmitted: true
         },
         '!dice': {
             description: app.t('chatCommands[.]throw a dice'),
             value: function () {
                 return Math.floor(Math.random() * 5) + 1;
-            }
+            },
+            canBeOmitted: true
         },
         '!roll': {
             description: app.t('chatCommands[.]random number between 0 and 999'),
@@ -75,7 +93,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 }
 
                 return randomNumber;
-            }
+            },
+            canBeOmitted: true
         },
         '!q': {
             description: app.t('chatCommands[.]show the random quote'),
@@ -87,7 +106,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 }
 
                 return msg;
-            }
+            },
+            canBeOmitted: true
         },
         '!skip': {
             description: app.t('chatCommands[.]vote for the video skip'),
@@ -99,7 +119,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             },
             isAvailable: function () {
                 return window.hasPermission('voteskip');
-            }
+            },
+            canBeOmitted: true
         },
         '!next': {
             description: app.t('chatCommands[.]play the next video'),
@@ -111,7 +132,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             },
             isAvailable: function () {
                 return window.hasPermission('playlistjump');
-            }
+            },
+            canBeOmitted: true
         },
         '!bump': {
             description: app.t('chatCommands[.]bump the last video'),
@@ -128,7 +150,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             },
             isAvailable: function () {
                 return window.hasPermission('playlistmove');
-            }
+            },
+            canBeOmitted: true
         },
         '!add': {
             description: app.t('chatCommands[.]adds the video to the end of the playlist (e.g. <i>!add https://www.youtube.com/watch?v=hh4gpgAZkc8</i>)'),
@@ -147,13 +170,15 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             },
             isAvailable: function () {
                 return window.hasPermission('playlistadd');
-            }
+            },
+            canBeOmitted: true
         },
         '!now': {
             description: app.t('chatCommands[.]show the current video\'s name'),
             value: function () {
                 return app.t('chatCommands[.]now: ') + $(".queue_active a").html();
-            }
+            },
+            canBeOmitted: true
         },
         '!sm': {
             description: app.t('chatCommands[.]show the random emote'),
@@ -163,7 +188,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 });
 
                 return smilesArray[Math.floor(Math.random() * smilesArray.length)] + ' ';
-            }
+            },
+            canBeOmitted: true
         },
         '!yoba': {
             description: app.t('chatCommands[.]the secret command'),
@@ -206,21 +232,23 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 //}, 27000);
 
                 return ' :dance: ';
-            }
+            },
+            canBeOmitted: true
         }
     };
 
 
-   this.IS_COMMAND = false;
+    this.IS_COMMAND = false;
     this.prepareMessage = function (msg) {
         that.IS_COMMAND = false;
 
-        for (var command in this.commandsList) {
+        for (var command in that.commandsList) {
+            console.log(command);
             if (this.commandsList.hasOwnProperty(command) && msg.indexOf(command) === 0) {
-                if (isCommandPermitted(command) && (this.commandsList[command].isAvailable ? this.commandsList[command].isAvailable() : true)) {
+                if (that.isCommandPermitted(command) && (that.commandsList[command].isAvailable ? that.commandsList[command].isAvailable() : true)) {
                     that.IS_COMMAND = true;
 
-                    msg = this.commandsList[command].value(msg);
+                    msg = that.commandsList[command].value(msg);
                 }
 
                 break;

@@ -35,7 +35,8 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'show the current video\'s name': 'показать название текущего видео',
         'now: ': 'сейчас играет: ',
         'show the random emote': 'показать случайный смайлик',
-        'the secret command': 'секретная команда'
+        'the secret command': 'секретная команда',
+        'Use !pick variant1, variant2': 'Используй !pick вариант1, вариант2'
     },
     'The list of chat commands': 'Список команд чата',
     'Standard commands': 'Стандартные команды',

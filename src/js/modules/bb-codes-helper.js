@@ -2,7 +2,6 @@ require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {

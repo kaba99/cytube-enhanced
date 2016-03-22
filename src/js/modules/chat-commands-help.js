@@ -24,7 +24,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app, settings) {
             var additionalCommands = {};
 
             for (var command in commandsModule.commandsList) {
-                if (commandsModule.commandsList.hasOwnProperty(command) && (commandsModule.commandsList[command].isAvailable ? commandsModule.commandsList[command].isAvailable() : true)) {
+                if (commandsModule.commandsList.hasOwnProperty(command) && commandsModule.isCommandPermitted(command) && (commandsModule.commandsList[command].isAvailable ? commandsModule.commandsList[command].isAvailable() : true)) {
                     additionalCommands[command] = commandsModule.commandsList[command].description || '';
                 }
             }
