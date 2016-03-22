@@ -1,4 +1,4 @@
-window.cytubeEnhanced.addModule('chatAvatars', function (app) {
+window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
 
@@ -6,6 +6,12 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     var userSettings = app.Settings.storage;
     var appSettings = app.storage;
 
+    var defaultSettings = {
+        avatarClass: 'chat-avatar',
+        smallAvatarClass: 'chat-avatar_small',
+        bigAvatarClass: 'chat-avatar_big'
+    };
+    settings = $.extend({}, defaultSettings, settings);
 
     var namespace = 'avatars';
     this.scheme = {
@@ -46,10 +52,34 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     };
 
     this.getAvatarFromUserlist = function (username) {
-        var avatar = (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) ? window.findUserlistItem(username).data('profile').image : null;
-
-        return avatar;
+        return (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) ? window.findUserlistItem(username).data('profile').image : null;
     };
+
+    this.applyAvatar = function ($usernameBlock, username, newAvatar) {
+        username = username || $usernameBlock.text().replace(/^\s+|[:]?\s+$/g, '');
+        newAvatar = newAvatar || that.getAvatarFromUserlist(username);
+        var cachedAvatar = that.getAvatarFromCache(username);
+        var $messageBlock = $usernameBlock.parent();
+
+        if (cachedAvatar || newAvatar) {
+            if (!cachedAvatar) {
+                that.cacheAvatar(username, newAvatar);
+            }
+
+            if ($messageBlock.find('.' + settings.avatarClass).length == 0) {
+                var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
+                    .addClass(settings.avatarClass + ' ' + ((userSettings.get(namespace + '.avatars-mode') == 'big') ? settings.bigAvatarClass : settings.smallAvatarClass))
+                    .prependTo($messageBlock);
+
+                if (userSettings.get(namespace + '.avatars-mode') == 'big') {
+                    $(this).css('display', 'none');
+                    $avatar.attr('title', username);
+                }
+            }
+        }
+    };
+
+
 
 
 
@@ -95,79 +125,23 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     if (userSettings.get(namespace  + '.avatars-mode')) {
         window.formatChatMessage = (function (oldFormatChatMessage) {
             return function (data, last) {
-                var div = oldFormatChatMessage(data, last);
-                var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
+                var $div = oldFormatChatMessage(data, last);
 
-                var cachedAvatar = that.getAvatarFromCache(data.username);
-                var newAvatar = that.getAvatarFromUserlist(data.username);
+                that.applyAvatar($div.find('.username'), data.username);
 
-                if (cachedAvatar || newAvatar) {
-                    if (!cachedAvatar) {
-                        that.cacheAvatar(data.username, newAvatar);
-                    }
-
-                    var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
-                        .addClass(avatarCssClasses)
-                        .prependTo(div.find('.username').parent());
-
-                    if (userSettings.get(namespace + '.avatars-mode') == 'big') {
-                        div.find('.username').css('display', 'none');
-                        $avatar.attr('title', data.username);
-                    }
-                }
-
-                return div;
+                return $div;
             };
         })(window.formatChatMessage);
 
         $('.username').each(function () {
-            var $messageBlock = $(this).parent();
-            var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
-            var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
-
-            var cachedAvatar = that.getAvatarFromCache(username);
-            var newAvatar = that.getAvatarFromUserlist(username);
-
-            if (cachedAvatar || newAvatar) {
-                if (!cachedAvatar) {
-                    that.cacheAvatar(username, newAvatar);
-                }
-
-                var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
-                    .addClass(avatarCssClasses)
-                    .prependTo($messageBlock);
-
-                if (userSettings.get(namespace + '.avatars-mode') == 'big') {
-                    $(this).css('display', 'none');
-                    $avatar.attr('title', username);
-                }
-            }
+            that.applyAvatar($(this));
         });
 
 
         window.socket.on('addUser', function (data) {
             if (data.profile && data.profile.image && data.name) {
                 $('.username:contains("' + data.name + ':")').each(function () {
-                    var $messageBlock = $(this).parent();
-                    var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
-
-                    var cachedAvatar = that.getAvatarFromCache(data.name);
-                    var newAvatar = that.getAvatarFromUserlist(data.name);
-
-                    if (cachedAvatar || newAvatar) {
-                        if (!cachedAvatar) {
-                            that.cacheAvatar(data.name, newAvatar);
-                        }
-
-                        var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
-                            .addClass(avatarCssClasses)
-                            .prependTo($messageBlock);
-
-                        if (userSettings.get(namespace + '.avatars-mode') == 'big') {
-                            $(this).css('display', 'none');
-                            $avatar.attr('title', data.name);
-                        }
-                    }
+                    that.applyAvatar($(this), data.name, data.profile.image);
                 });
             }
         });

@@ -15,7 +15,7 @@ var through = require('through2');
 var sass = require('gulp-sass');
 
 
-var jsFilesGlob = ['./src/js/core/**/*.js', './src/js/main/main.js', './src/js/main/main-ru.js', './src/js/modules/**/*.js', './extras/**/config.js', './themes/**/config.js'];
+var jsFilesGlob = ['./src/js/core/**/*.js', './src/js/main/main.js', './src/js/main/main-en.js', './src/js/modules/**/*.js', './extras/**/config.js', './themes/**/config.js'];
 var cssFilesGlob = ['./src/css/main.scss'];
 
 
@@ -38,10 +38,10 @@ gulp.task('build-js', function () {
         .pipe(source('cytube-enhanced.js'))
         .pipe(buffer())
         // Add gulp plugins to the pipeline here.
-        .pipe(gulp.dest('./build/ru'))
+        .pipe(gulp.dest('./build/en'))
         .pipe(rename('cytube-enhanced.min.js'))
         .pipe(uglify({mangle: false, preserveComments: ''}))
-        .pipe(gulp.dest('./build/ru'));
+        .pipe(gulp.dest('./build/en'));
 
     // "globby" replaces the normal "gulp.src" as Browserify
     // creates it's own readable stream.
@@ -73,13 +73,13 @@ gulp.task('build-css', function () {
             cascade: false
         }))
         .pipe(concat('cytube-enhanced.css'))
-        .pipe(gulp.dest('./build/ru'))
+        .pipe(gulp.dest('./build/en'))
         .pipe(rename('cytube-enhanced.min.css'))
         .pipe(minifyCss({
             compatibility: 'ie8',
             keepSpecialComments: 0
         }))
-        .pipe(gulp.dest('./build/ru'));
+        .pipe(gulp.dest('./build/en'));
 });
 
 

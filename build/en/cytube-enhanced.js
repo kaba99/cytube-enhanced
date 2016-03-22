@@ -4,38 +4,37 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
         title: 'Аниме-цитаты',
         name: 'anime-quotes',
         description: 'Нескучные аниме-цитаты.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/anime-quotes/anime-quotes.js',
         languages: ['ru']
     });
 });
 },{}],2:[function(require,module,exports){
 cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
-        title: 'Цитаты пирата',
-        name: 'pirate-quotes',
-        description: 'Нескучные цитаты Пирата.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
+        title: 'Выключение встроенного антивайпа',
+        name: 'antiwipe-disable',
+        description: 'Выключение встроенного антивайпа.',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/4777f3494a5acf0a4e1e962633cba359160b7f92/extras/antiwipe-disable/antiwipe-disable.js',
         languages: ['ru']
     });
 });
 },{}],3:[function(require,module,exports){
 cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
-        title: 'Скрипт пирата',
-        name: 'pirate-script',
-        description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: 'https://rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js',
+        title: 'Цитаты пирата',
+        name: 'pirate-quotes',
+        description: 'Нескучные цитаты Пирата.',
+        url: '//cdn.rawgit.com/kaba99/cytube-enhanced/master/extras/pirate-quotes/pirate-quotes.js',
         languages: ['ru']
     });
 });
 },{}],4:[function(require,module,exports){
 cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
-        title: 'Перевод интерфейса',
-        name: 'translate',
-        description: 'Русский перевод интерфейса.',
-        url: 'https://rawgit.com/kaba99/cytube-enhanced/master/extras/translate/translate.js',
-        languages: ['ru']
+        title: 'Скрипт пирата',
+        name: 'pirate-script',
+        description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
+        url: '//cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js'
     });
 });
 },{}],5:[function(require,module,exports){
@@ -15520,10 +15519,10 @@ cytubeEnhanced.getModule('extras').done(function (extraModules) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],8:[function(require,module,exports){
-window.CytubeEnhancedStorage = function (storageName, isGlobal) {
+window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     var that = this;
-    var storagePrefix = 'ce';
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
+    autoSave = (typeof autoSave !== 'undefined') ? autoSave : false;
 
     var defaultData = {};
     var initialData = {};
@@ -15536,7 +15535,11 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
         data = {};
     }
     initialData = _.cloneDeep(data);
-    console.log(initialData);
+
+
+    this.getDefault = function (name) {
+        return initialData[name];
+    };
 
 
     this.setDefault = function (name, value) {
@@ -15554,7 +15557,29 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal) {
 
 
     this.set = function (name, value) {
-        return data[name] = _.cloneDeep(value);
+        var result = data[name] = _.cloneDeep(value);
+
+        if (autoSave) {
+            that.save();
+        }
+
+        return result;
+    };
+
+
+    /**
+     * Toggles boolean option
+     * @param name Boolean option's name
+     * @returns {boolean}
+     */
+    this.toggle = function (name) {
+        var result = data[name] = !data[name];
+
+        if (autoSave) {
+            that.save();
+        }
+
+        return result;
     };
 
 
@@ -15610,27 +15635,37 @@ window.CytubeEnhancedUISettings = function (app) {
 
     this.$navbar = $('#nav-collapsible').find('.navbar-nav');
     this.tabs = {};
-    this.$tabsContainerOpenButton = $('<a href="javascript:void(0)" id="' + app.prefix + 'ui"></a>');
     this.$tabsContainerHeader = $('<div class="' + app.prefix + 'ui__header"></div>');
     this.$tabsContainerBody = $('<div class="' + app.prefix + 'ui__body tab-content"></div>');
     this.$tabsContainerTabs = $('<ul class="nav nav-tabs">');
     this.$tabsContainerFooter = $('<div class="' + app.prefix + 'ui__footer"></div>');
 
+    this.$tabsContainerOpenButton = $('<a href="#" id="' + app.prefix + 'ui"></a>')
+        .text(app.t('settings[.]Extended settings'))
+        .on('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            that.openSettings();
+        });
+
+    var $cytubeOptions = $('#useroptions .modal-header .nav-tabs');
+    if ($cytubeOptions.length !== 0 && false) {
+        this.$tabsContainerOpenButton.appendTo($cytubeOptions).wrap('<li>');
+    } else {
+        this.$tabsContainerOpenButton.appendTo(that.$navbar).wrap('<li>');
+    }
+
+    this.themeTabName = 'theme-settings';
+    this.themeTabTitle = 'Настройка темы';
+
+
     /**
      * Data, stored from tabs.
      * @type {CytubeEnhancedStorage}
      */
-    this.data = new CytubeEnhancedStorage('settings');
+    this.storage = new CytubeEnhancedStorage('settings', false);
     var pageReloadRequested = false;
-
-
-    that.$tabsContainerOpenButton
-        .text(app.t('settings[.]Extended settings'))
-        .on('click', function () {
-            that.openSettings();
-        })
-        .appendTo(that.$navbar)
-        .wrap('<li>');
 
     $('<h4>' + app.t('settings[.]Extended settings') + '</h4>').appendTo(that.$tabsContainerHeader);
     that.$tabsContainerTabs.appendTo(that.$tabsContainerHeader);
@@ -15648,7 +15683,7 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.onSave = function (callback) {
         $(document).on(app.prefix + 'settings.save', function () {
-            callback(that.data);
+            callback(that.storage);
         });
     };
 
@@ -15658,7 +15693,7 @@ window.CytubeEnhancedUISettings = function (app) {
      */
     this.save = function () {
         $(document).trigger(app.prefix + 'settings.save');
-        that.data.save();
+        that.storage.save();
 
         if (pageReloadRequested) {
             app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
@@ -15672,7 +15707,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * Resets settings
      */
     this.reset = function () {
-        that.data.reset();
+        that.storage.reset();
 
         app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
             window.location.reload();
@@ -15721,11 +15756,45 @@ window.CytubeEnhancedUISettings = function (app) {
 
 
     /**
+     * Configures theme
+     * @param callback callback in which user will configure his theme. (callback(app, tab, storage))
+     */
+    this.configureTheme = function (callback) {
+        var tab = that.getTab(that.themeTabName, that.themeTabTitle, 99999);
+        var storage = new CytubeEnhancedStorage('themes.' + app.Settings.storage.get('themes.selected'), true, true);
+
+        callback(app, tab, storage);
+    };
+
+
+    /**
      * Opens tab by its name
      * @param {String} name The name of the tab
      */
     this.openTab = function (name) {
-        that.tabs[name].show();
+        if (that.tabs[name]) {
+            that.tabs[name].show();
+
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+
+    /**
+     * Removes tab by its name
+     * @param {String} name The name of the tab
+     */
+    that.removeTab = function (name) {
+        if (that.tabs[name]) {
+            that.tabs[name].remove();
+            delete that.tabs[name];
+
+            return true;
+        } else {
+            return false;
+        }
     };
 
 
@@ -15759,7 +15828,7 @@ window.CytubeEnhancedUISettings = function (app) {
      * @returns {jQuery} Modal window
      */
     this.openSettings = function () {
-        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter);
+        app.UI.createModalWindow('settings', that.$tabsContainerHeader, that.$tabsContainerBody, that.$tabsContainerFooter, true);
 
         var tabToOpen;
         for (var tab in that.tabs) {
@@ -15840,7 +15909,31 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
             $control.appendTo(that.$form);
         }
 
+        that.sortControls();
+
         return $control;
+    };
+
+
+    this.sortControls = function () {
+        var controlsArray = [];
+        for (var control in that.controls) {
+            controlsArray.push(that.controls[control]);
+        }
+
+        controlsArray = controlsArray.sort(function (a, b) {
+            if (a.sort > b.sort) {
+                return 1;
+            } else if (a.sort < b.sort) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (var controlIndex = 0, controlsLength = controlsArray.length; controlIndex < controlsLength; controlIndex++) {
+            controlsArray[controlIndex].$el.detach().appendTo(that.$form);
+        }
     };
 
 
@@ -15850,6 +15943,15 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
     this.getName = function () {
         return name;
     };
+
+
+    /**
+     * Removes tab's markup
+     */
+    this.remove = function () {
+        that.$button.empty();
+        that.$content.empty();
+    }
 };
 },{}],11:[function(require,module,exports){
 window.CytubeEnhancedUI = function (app) {
@@ -15862,50 +15964,78 @@ window.CytubeEnhancedUI = function (app) {
      * @param $headerContent Modal header (optional)
      * @param $bodyContent Modal body (optional)
      * @param $footerContent Modal footer (optional)
+     * @param [cache] Don't remove modal dom after close
      * @returns {jQuery} Modal window
      */
-    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent) {
+    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
         $('.modal').modal('hide');
         id = app.prefix + 'modal-' + id;
-        var $outer;
 
-        if ($('#' + id).length == 0) {
-            $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
-            var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-            var $content = $('<div class="modal-content">').appendTo($modal);
-
-            if ($headerContent != null) {
-                var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
-
-                $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+        var $cachedOuter = $('#' + id);
+        if (cache) {
+            if ($cachedOuter.length) {
+                $cachedOuter.modal('show');
+                return $cachedOuter;
             }
-
-            if ($bodyContent != null) {
-                $('<div class="modal-body">').append($bodyContent).appendTo($content);
-            }
-
-            if ($footerContent != null) {
-                $('<div class="modal-footer">').append($footerContent).appendTo($content);
-            }
-
-            //$outer.on('hidden.bs.modal', function () {
-            //    $(this).remove();
-            //});
-
-            $outer.modal({keyboard: true});
         } else {
-            $outer = $('#' + id);
-            $outer.modal('show');
+            $cachedOuter.remove();
         }
+
+
+        var $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
+        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+        var $content = $('<div class="modal-content">').appendTo($modal);
+
+        if ($headerContent) {
+            var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+
+            $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+        }
+
+        if ($bodyContent) {
+            $('<div class="modal-body">').append($bodyContent).appendTo($content);
+        }
+
+        if ($footerContent) {
+            $('<div class="modal-footer">').append($footerContent).appendTo($content);
+        }
+
+        if (!cache) {
+            $outer.on('hidden.bs.modal', function () {
+                $(this).remove();
+            });
+        }
+
+        $outer.modal({keyboard: true});
 
         return $outer;
     };
 
 
     this.createConfirmWindow = function (message, callback) {
-        if (window.confirm(message)) {
+        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
+        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
+        var $content = $('<div class="modal-content">').appendTo($modal);
+
+        $('<div class="modal-header">').html($('<h3 class="modal-title">').text(message)).appendTo($content);
+
+        var $footer = $('<div class="modal-footer">').appendTo($content);
+        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
             callback();
-        }
+        });
+        $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
+
+
+        $outer.on('show.bs.modal', function () {
+            that.centerModals($(this));
+        });
+
+        $outer.on('hidden.bs.modal', function () {
+            $(this).remove();
+        });
+
+
+        $outer.modal({keyboard: true});
     };
 
 
@@ -15973,73 +16103,73 @@ window.CytubeEnhancedUI = function (app) {
 
         return $button;
     };
-};
-},{}],12:[function(require,module,exports){
-window.CytubeEnhancedUserConfig = function (app) {
-    var that = this;
+
 
     /**
-     * UserConfig options
-     * @type {object}
+     * Controls loading spinner
+     * @param {jQuery} $node Node to append loader
+     * @param {String} [mode] Forces mode (on|off)
+     * @returns {jQuery} Spinner
      */
-    this.options = {};
+    this.toggleLoader = function ($node, mode) {
+        $node.each(function () {
+            if (typeof mode === 'undefined') {
+                mode = $node.hasClass('loading-spinner__loading') ? 'off' : 'on';
+            }
 
-    this.prefix = 'ce-';
+            $(this).removeClass('loading-spinner__loading');
+            $('.loading-spinner__overlay').remove();
+            $(this).css('height', 'auto');
+            $(this).css('width', 'auto');
 
-    /**
-     * Sets the user's option and saves it in the user's cookies
-     * @param name The name ot the option
-     * @param value The value of the option
-     */
-    this.set = function (name, value) {
-        this.options[name] = value;
-        window.setOpt(that.prefix + window.CHANNEL.name + "_config-" + name, value);
+            if (mode === 'on') {
+                console.log($(this).outerHeight());
+                $(this).addClass('loading-spinner__loading');
+                $(this).css('height', $(this).outerHeight());
+                $(this).css('width', $(this).outerWidth());
+
+                $('<div class="loading-spinner__overlay">')
+                    .append($('<div class="loading-spinner__wrapper">').append('<div class="loading-spinner">'))
+                    .appendTo($(this));
+            }
+        });
+    };
+    $.fn.toggleLoader = function (mode) {
+        that.toggleLoader($(this), mode);
     };
 
-    /**
-     * Gets the value of the user's option
-     *
-     * User's values are setted up from user's cookies at the beginning of the script by the method loadDefaults()
-     *
-     * @param name Option's name
-     * @returns {*}
-     */
-    this.get = function (name) {
-        if (!this.options.hasOwnProperty(name)) {
-            this.options[name] = window.getOrDefault(that.prefix + window.CHANNEL.name + "_config-" + name, undefined);
+
+    this.centerModals = function ($outer) {
+        if (typeof $outer === 'undefined') {
+            $outer = $('.modal-centered');
         }
 
-        return this.options[name];
+        $outer.each(function () {
+            var $modal = $outer.find('.modal-dialog');
+
+            $modal.css({
+                display: 'block',
+                marginTop: (Math.max(0, ($(window).height() - $modal.find('.modal-dialog').height()) / 2))
+            });
+        });
     };
-
-    /**
-     * Toggles user's boolean option
-     * @param name Boolean option's name
-     * @returns {boolean}
-     */
-    this.toggle = function (name) {
-        var result = !this.get(name);
-
-        this.set(name, result);
-
-        return result;
-    };
+    $(window).resize(function () {
+        that.centerModals();
+    });
 };
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     $('title').text(),
-    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
+    (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {})
 );
-
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 require('lodash');
 window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     'use strict';
     var that = this;
 
     this.channelName = channelName;
-    this.language = language;
     this.translations = {};
     this.prefix = 'ce-';
 
@@ -16087,7 +16217,6 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
             var moduleSettings = modulesSettings[moduleName] || {};
 
             modules[moduleName] = new ModuleConstructor(this, moduleSettings);
-            modules[moduleName].settings = moduleSettings;
         }
     };
 
@@ -16124,7 +16253,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
      * @param translationObject The translation object
      */
     this.addTranslation = function (language, translationObject) {
-        if (typeof that.translations[language] == 'undefined') {
+        if (typeof that.translations[language] === 'undefined') {
             that.translations[language] = translationObject;
         } else {
             $.extend(true, that.translations[language], translationObject);
@@ -16140,11 +16269,11 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
     this.t = function (text) {
         var translatedText = text;
 
-        if (that.language !== 'en' && that.translations[that.language]) {
+        if (that.storage.get('language') !== 'en' && that.translations[that.storage.get('language')]) {
             if (text.indexOf('[.]') !== -1) {
                 var textWithNamespaces = text.split('[.]');
 
-                translatedText = that.translations[that.language][textWithNamespaces[0]];
+                translatedText = that.translations[that.storage.get('language')][textWithNamespaces[0]];
                 if (typeof translatedText == 'undefined') {
                     translatedText = text.split('[.]').pop();
                     return translatedText || text;
@@ -16159,7 +16288,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
                 translatedText = translatedText || textWithNamespaces[textWithNamespaces.length - 1];
             } else {
-                translatedText = that.translations[that.language][text];
+                translatedText = that.translations[that.storage.get('language')][text];
             }
         } else if (text.indexOf('[.]') !== -1) { //English text by default
             translatedText = text.split('[.]').pop();
@@ -16171,7 +16300,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
 
     /**
-     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * Parses JSON. Returns defaultValue if it can't be parsed.
      * @param {String} jsonString JSON string
      * @param {*} defaultValue The default value to return if something wrong with jsonString
      * @returns {*} Something extracted from json string or default value if something wrong with jsonString.
@@ -16191,7 +16320,7 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
 
 
     /**
-     * Parsers JSON. Returns defaultValue if it can't be parsed.
+     * Converts anything to JSON. Returns defaultValue on error.
      * @param {*} object Something, that will be converted to JSON string
      * @param {*} defaultValue The default value to return if something wrong
      * @returns {String} JSON string
@@ -16219,12 +16348,16 @@ window.CytubeEnhanced = function(channelName, language, modulesSettings) {
         }
     }
 
-    this.userConfig = new window.CytubeEnhancedUserConfig(this);
+
+    this.storage = new window.CytubeEnhancedStorage('default', true, true);
+    this.storage.setDefault('language', language);
+
     this.UI = new window.CytubeEnhancedUI(this);
+
     this.Settings = new window.CytubeEnhancedUISettings(this);
 };
 
-},{"lodash":7}],15:[function(require,module,exports){
+},{"lodash":7}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
 
@@ -16399,38 +16532,38 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 IMBA.volume = 0.6;
                 IMBA.play();
 
-                var BGCHANGE = 0;
-                var inbix = setInterval(function() {
-                    $('#userlist').css('background', 'rgba(0, 10, 20, 0) none repeat scroll 0% 0%');
-                    $('#chatline').css('background', 'rgba(0, 10, 20, 0.15) !important');
-                    BGCHANGE++;
-
-                    if (BGCHANGE % 2 === 0) {
-                        $("body").css('background', '#663939 url("http://i.imgur.com/BWdf3Jv.png")');
-                        $('#messagebuffer').css('color', 'black');
-                        $('#messagebuffer').css('background-image', 'url("http://i.imgur.com/vWFTejN.png")');
-                        $('#userlist').css('color', 'black');
-                        $('body').css('color', 'black');
-                    } else {
-                        $("body").css('background', '#663939 url("http://i.imgur.com/MVfHhI5.png")');
-                        $('#messagebuffer').css('color', 'white');
-                        $('#messagebuffer').css('background', 'none');
-                        $('#userlist').css('color', 'white');
-                        $('body').css('color', 'white');
-                    }
-                }, 150);
-
-                setTimeout(function() {
-                    BGCHANGE = 0;
-                    clearInterval(inbix);
-                    $("body").css({'background-image':'', 'background-color':''});
-                    $('#messagebuffer').css('color', '#cccccc');
-                    $('body').css('font-color', '#EFEFEF');
-                    $('#messagebuffer').css('background', '');
-                    $('#userlist').css('background', 'rgba(0, 10, 20, 0.8) none repeat scroll 0% 0%');
-                    $('#chatline').css('background', 'rgba(0, 10, 20, 0.75) !important');
-                    $('#userlist').css('color', '#C2C2C2');
-                }, 27000);
+                //var BGCHANGE = 0;
+                //var inbix = setInterval(function() {
+                //    $('#userlist').css('background', 'rgba(0, 10, 20, 0) none repeat scroll 0% 0%');
+                //    $('#chatline').css('background', 'rgba(0, 10, 20, 0.15) !important');
+                //    BGCHANGE++;
+                //
+                //    if (BGCHANGE % 2 === 0) {
+                //        $("body").css('background', '#663939 url("http://i.imgur.com/BWdf3Jv.png")');
+                //        $('#messagebuffer').css('color', 'black');
+                //        $('#messagebuffer').css('background-image', 'url("http://i.imgur.com/vWFTejN.png")');
+                //        $('#userlist').css('color', 'black');
+                //        $('body').css('color', 'black');
+                //    } else {
+                //        $("body").css('background', '#663939 url("http://i.imgur.com/MVfHhI5.png")');
+                //        $('#messagebuffer').css('color', 'white');
+                //        $('#messagebuffer').css('background', 'none');
+                //        $('#userlist').css('color', 'white');
+                //        $('body').css('color', 'white');
+                //    }
+                //}, 150);
+                //
+                //setTimeout(function() {
+                //    BGCHANGE = 0;
+                //    clearInterval(inbix);
+                //    $("body").css({'background-image':'', 'background-color':''});
+                //    $('#messagebuffer').css('color', '#cccccc');
+                //    $('body').css('font-color', '#EFEFEF');
+                //    $('#messagebuffer').css('background', '');
+                //    $('#userlist').css('background', 'rgba(0, 10, 20, 0.8) none repeat scroll 0% 0%');
+                //    $('#chatline').css('background', 'rgba(0, 10, 20, 0.75) !important');
+                //    $('#userlist').css('color', '#C2C2C2');
+                //}, 27000);
 
                 return ' :dance: ';
             }
@@ -16538,7 +16671,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     });
 });
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
@@ -16580,7 +16713,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
         .on('click', function () {
             that.handleMarkdownHelperBtnClick($(this), that.$markdownTemplatesWrapper);
 
-            app.userConfig.toggle('bb-codes-opened');
+            app.storage.toggle('bb-codes-opened');
         });
 
     if ($('#chat-help-btn').length !== 0) {
@@ -16594,7 +16727,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
         .insertAfter(this.$markdownHelperBtn)
         .hide();
 
-    if (app.userConfig.get('bb-codes-opened')) {
+    if (app.storage.get('bb-codes-opened')) {
         this.handleMarkdownHelperBtnClick(this.$markdownHelperBtn, this.$markdownTemplatesWrapper);
     }
 
@@ -16659,14 +16792,21 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     });
 });
 
-},{"jquery.selection":6}],17:[function(require,module,exports){
-window.cytubeEnhanced.addModule('chatAvatars', function (app) {
+},{"jquery.selection":6}],16:[function(require,module,exports){
+window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
 
     var tab = app.Settings.getTab('general', 'Общее', 100);
-    var userSettings = app.Settings.data;
+    var userSettings = app.Settings.storage;
+    var appSettings = app.storage;
 
+    var defaultSettings = {
+        avatarClass: 'chat-avatar',
+        smallAvatarClass: 'chat-avatar_small',
+        bigAvatarClass: 'chat-avatar_big'
+    };
+    settings = $.extend({}, defaultSettings, settings);
 
     var namespace = 'avatars';
     this.scheme = {
@@ -16680,6 +16820,62 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
             ]
         }
     };
+    appSettings.setDefault(namespace + '.cache', []);
+
+
+
+    this.cacheAvatar = function (username, avatar) {
+        var cachedAvatars = appSettings.get(namespace + '.cache');
+
+        if (cachedAvatars.length >= 50) {
+            cachedAvatars = cachedAvatars.slice(0, 49);
+        }
+
+        cachedAvatars.unshift({
+            username: username,
+            avatar: avatar
+        });
+
+        appSettings.set(namespace + '.cache', cachedAvatars);
+    };
+
+    this.getAvatarFromCache = function (username) {
+        var cachedAvatar = _.findLast(appSettings.get(namespace + '.cache'), function (o) { return o.username == username });
+        cachedAvatar = cachedAvatar ? cachedAvatar.avatar : null;
+
+        return cachedAvatar;
+    };
+
+    this.getAvatarFromUserlist = function (username) {
+        return (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) ? window.findUserlistItem(username).data('profile').image : null;
+    };
+
+    this.applyAvatar = function ($usernameBlock, username, newAvatar) {
+        username = username || $usernameBlock.text().replace(/^\s+|[:]?\s+$/g, '');
+        newAvatar = newAvatar || that.getAvatarFromUserlist(username);
+        var cachedAvatar = that.getAvatarFromCache(username);
+        var $messageBlock = $usernameBlock.parent();
+
+        if (cachedAvatar || newAvatar) {
+            if (!cachedAvatar) {
+                that.cacheAvatar(username, newAvatar);
+            }
+
+            if ($messageBlock.find('.' + settings.avatarClass).length == 0) {
+                var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
+                    .addClass(settings.avatarClass + ' ' + ((userSettings.get(namespace + '.avatars-mode') == 'big') ? settings.bigAvatarClass : settings.smallAvatarClass))
+                    .prependTo($messageBlock);
+
+                if (userSettings.get(namespace + '.avatars-mode') == 'big') {
+                    $(this).css('display', 'none');
+                    $avatar.attr('title', username);
+                }
+            }
+        }
+    };
+
+
+
 
 
     /**
@@ -16721,46 +16917,32 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app) {
     /**
      * Applying settings
      */
-    if (userSettings.get(namespace + '.avatars-mode')) {
+    if (userSettings.get(namespace  + '.avatars-mode')) {
         window.formatChatMessage = (function (oldFormatChatMessage) {
             return function (data, last) {
-                var div = oldFormatChatMessage(data, last);
-                var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
+                var $div = oldFormatChatMessage(data, last);
 
-                if ((window.findUserlistItem(data.username) != null) && (window.findUserlistItem(data.username).data('profile').image != "")) {
-                    var $avatar = $("<img>").attr("src", window.findUserlistItem(data.username).data('profile').image)
-                        .addClass(avatarCssClasses)
-                        .prependTo(div.find('.username').parent());
+                that.applyAvatar($div.find('.username'), data.username);
 
-                    if (app.userConfig.get('avatarsMode') == 'big') {
-                        div.find('.username').css('display', 'none');
-                        $avatar.attr('title', data.username);
-                    }
-                }
-
-                return div;
+                return $div;
             };
         })(window.formatChatMessage);
 
         $('.username').each(function () {
-            var $messageBlock = $(this).parent();
-            var username = $(this).text().replace(/^\s+|[:]?\s+$/g, '');
-            var avatarCssClasses = (userSettings.get(namespace + '.avatars-mode') == 'big') ? 'chat-avatar chat-avatar_big' : 'chat-avatar chat-avatar_small';
+            that.applyAvatar($(this));
+        });
 
-            if (window.findUserlistItem(username) && window.findUserlistItem(username).data('profile').image) {
-                var $avatar = $("<img>").attr("src", window.findUserlistItem(username).data('profile').image)
-                    .addClass(avatarCssClasses)
-                    .prependTo($messageBlock);
 
-                if (userSettings.get(namespace + '.avatars-mode') == 'big') {
-                    $(this).css('display', 'none');
-                    $avatar.attr('title', username);
-                }
+        window.socket.on('addUser', function (data) {
+            if (data.profile && data.profile.image && data.name) {
+                $('.username:contains("' + data.name + ':")').each(function () {
+                    that.applyAvatar($(this), data.name, data.profile.image);
+                });
             }
         });
     }
 });
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
     'use strict';
 
@@ -16796,6 +16978,8 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
 
 
     this.handleChatHelpBtn = function (commands) {
+        var $header = $('<h3 class="modal-title">').text(app.t('The list of chat commands'));
+
         var $bodyWrapper = $('<div>');
 
         for (var commandsPart in commands) {
@@ -16813,9 +16997,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
             }
         }
 
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow(app.t('The list of chat commands'), $bodyWrapper);
-        });
+        app.UI.createModalWindow('chat-commands-help', $header, $bodyWrapper);
     };
     this.$chatHelpBtn = $('<button id="chat-help-btn" class="btn btn-sm btn-default">')
         .text(app.t('Commands list'))
@@ -16825,7 +17007,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app) {
         });
 });
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -16881,7 +17063,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
         }
     };
     this.$clearChatBtn = $('<span id="clear-chat-btn" class="label label-default pull-right pointer">')
-        .text(app.t('Clear chat'))
+        .text(app.t('Clear'))
         .insertAfter(this.$afkBtn)
         .on('click', function () {
             that.handleClearBtn();
@@ -16905,7 +17087,270 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
+},{}],19:[function(require,module,exports){
+window.cytubeEnhanced.addModule('chatHistory', function (app) {
+    'use strict';
+    var that = this;
+    var $modalWindow;
+
+    app.storage.setDefault('pmHistory', []);
+
+    window.socket.on('chatMsg', function (data) {
+        if (window.CLIENT.name && data.msg.toLowerCase().indexOf(window.CLIENT.name.toLowerCase()) != -1) {
+            var pmHistory = app.storage.get('pmHistory');
+            if (!$.isArray(pmHistory)) {
+                pmHistory = [];
+            }
+
+            if (pmHistory.length >= 50) {
+                pmHistory = pmHistory.slice(0, 49);
+            }
+
+            pmHistory.unshift({
+                username: data.username.replace(/[^\w-]/g, '\\$'),
+                msg: data.msg,
+                time: data.time
+            });
+
+            app.storage.set('pmHistory', pmHistory);
+        }
+    });
+
+
+
+    this.formatHistoryMessage = function (data) {
+        var $messageWrapper = $('<div class="pm-history-message">');
+
+
+        var time = (new Date(data.time));
+
+        var day = time.getDate();
+        day = day < 10 ? ('0' + day) : day;
+        var month = time.getMonth();
+        month = month < 10 ? ('0' + month) : month;
+        var year = time.getFullYear();
+        var hours = time.getHours();
+        hours = hours < 10 ? ('0' + hours) : hours;
+        var minutes = time.getMinutes();
+        minutes = minutes < 10 ? ('0' + minutes) : minutes;
+        var seconds = time.getSeconds();
+        seconds = seconds < 10 ? ('0' + seconds) : seconds;
+
+        var timeString = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+
+
+
+        $messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
+        $messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
+        $messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
+
+
+        return $messageWrapper;
+    };
+
+    this.showChatHistory = function () {
+        var pmHistory = app.storage.get('pmHistory');
+        if (!$.isArray(pmHistory)) {
+            pmHistory = [];
+        }
+
+
+        var $header = $('<div class="modal-header__inner">');
+        $header.append($('<h3 class="modal-title">').text(app.t('pmHistory[.]Chat history')));
+        $header.append($('<div class="modat-header__description">').text(app.t('pmHistory[.]Your chat messages history.')));
+
+        var $wrapper = $('<div class="pm-history-content">');
+        for (var position = 0, historyLength = pmHistory.length; position < historyLength; position++) {
+            $wrapper.append(that.formatHistoryMessage(pmHistory[position]));
+        }
+
+
+        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger">' + app.t('pmHistory[.]Reset history') + '</button>')
+            .on('click', function () {
+                if (window.confirm(app.t('pmHistory[.]Are you sure, that you want to clear messages history?'))) {
+                    that.resetChatHistory($modalWindow);
+                }
+            });
+        var $exitChatHistoryBtn = $('<button type="button" id="pm-history-exit-btn" class="btn btn-info">' + app.t('pmHistory[.]Exit') + '</button>')
+            .on('click', function () {
+                $modalWindow.modal('hide');
+            });
+        var $footer = $('<div class="pm-history-footer">');
+        $footer.append($resetChatHistoryBtn);
+        $footer.append($exitChatHistoryBtn);
+
+
+        $modalWindow = app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
+    };
+
+    this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
+        .text(app.t('pmHistory[.]History'))
+        .appendTo('#chatheader')
+        .on('click', function () {
+            that.showChatHistory();
+        });
+
+
+
+    this.resetChatHistory = function ($modalWindow) {
+        app.storage.set('pmHistory', app.storage.getDefault('pmHistory'));
+
+        if ($modalWindow != null) {
+            $modalWindow.modal('hide');
+        }
+    };
+});
 },{}],20:[function(require,module,exports){
+window.cytubeEnhanced.addModule('utils', function (app, settings) {
+    'use strict';
+
+    var that = this;
+
+    var defaultSettings = {
+        insertUsernameOnClick: true
+    };
+    settings = $.extend({}, defaultSettings, settings);
+
+
+    window.chatTabComplete = function () {
+        var i;
+        var words = $("#chatline").val().split(" ");
+        var current = words[words.length - 1].toLowerCase();
+        if (!current.match(/^[\wа-яА-ЯёЁ-]{1,20}$/)) {
+            return;
+        }
+
+        var __slice = Array.prototype.slice;
+        var usersWithCap = __slice.call($("#userlist .userlist_item")).map(function (elem) {
+            return elem.children[1].innerHTML;
+        });
+        var users = __slice.call(usersWithCap).map(function (user) {
+            return user.toLowerCase();
+        }).filter(function (name) {
+            return name.indexOf(current) === 0;
+        });
+
+        // users now contains a list of names that start with current word
+
+        if (users.length === 0) {
+            return;
+        }
+
+        // trim possible names to the shortest possible completion
+        var min = Math.min.apply(Math, users.map(function (name) {
+            return name.length;
+        }));
+        users = users.map(function (name) {
+            return name.substring(0, min);
+        });
+
+        // continually trim off letters until all prefixes are the same
+        var changed = true;
+        var iter = 21;
+        while (changed) {
+            changed = false;
+            var first = users[0];
+            for (i = 1; i < users.length; i++) {
+                if (users[i] !== first) {
+                    changed = true;
+                    break;
+                }
+            }
+
+            if (changed) {
+                users = users.map(function (name) {
+                    return name.substring(0, name.length - 1);
+                });
+            }
+
+            // In the event something above doesn't generate a break condition, limit
+            // the maximum number of repetitions
+            if (--iter < 0) {
+                break;
+            }
+        }
+
+        current = users[0].substring(0, min);
+        for (i = 0; i < usersWithCap.length; i++) {
+            if (usersWithCap[i].toLowerCase() === current) {
+                current = usersWithCap[i];
+                break;
+            }
+        }
+
+        if (users.length === 1) {
+            if (words.length === 1) {
+                current += ":";
+            }
+            current += " ";
+        }
+        words[words.length - 1] = current;
+        $("#chatline").val(words.join(" "));
+    };
+
+
+    /**
+     * Adds the text to chat input
+     * @param message The text to add.
+     * @param position The position of the adding. It can be 'begin' or 'end'.
+     */
+    this.addMessageToChatInput = function (message, position) {
+        position = position || 'end';
+
+        if (position === 'begin') {
+            message = message + $("#chatline").val();
+        } else {
+            message = $("#chatline").val() + message;
+        }
+
+        $('#chatline').val(message).focus();
+    };
+
+
+    if (settings.insertUsernameOnClick) {
+        $('#messagebuffer').on('click', '.username', function() {
+            that.addMessageToChatInput($(this).text(), 'begin');
+        });
+        $('#messagebuffer').on('click', '.chat-avatar', function() {
+            that.addMessageToChatInput($(this).parent().find('.username').text(), 'begin');
+        });
+    }
+
+
+
+    $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
+    $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced" target="_blank">GitHub</a>)</p>');
+
+    setTimeout(function () {
+        window.handleWindowResize(); //chat height fix
+    }, 3000);
+    setTimeout(function () {
+        window.handleWindowResize(); //chat height fix
+    }, 10000);
+
+
+
+    window.addUserDropdown = (function (oldAddUserDropdown) {
+        return function (entry) {
+            var functionResponse = oldAddUserDropdown(entry);
+
+            entry.find('.user-dropdown>strong').click(function () {
+                $(chatline).val($(this).text() + ": " + $(chatline).val());
+            });
+
+            return functionResponse;
+        };
+    })(window.addUserDropdown);
+
+    $('.user-dropdown>strong').click(function () {
+        $('#chatline').val($(this).text() + ": " + $(chatline).val()).focus();
+    });
+
+
+    $('#queue').sortable("option", "axis", "y");
+});
+
+},{}],21:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     'use strict';
     var that = this;
@@ -16915,21 +17360,39 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('custom-css', 'CSS', 300);
+    var tab = app.Settings.getTab('custom-css', 'CSS', 200);
     var namespace = 'user-code';
-    app.Settings.data.setDefault(namespace + '.css', '');
 
-    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.data.get(namespace + '.css')).appendTo(tab.$content);
-    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.data.get(namespace + '.css'));
+    var userSettingsFromV1 = app.parseJSON(window.getOrDefault(window.CHANNEL.name + "_config-layout", undefined), {});
+    app.Settings.storage.setDefault(namespace + '.css', (_.isPlainObject(userSettingsFromV1) && _.isString(userSettingsFromV1['user-css'])) ? userSettingsFromV1['user-css'] : '');
+
+    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.storage.get(namespace + '.css')).appendTo(tab.$content);
+    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'css-editor"></div>').text(app.Settings.storage.get(namespace + '.css'));
     var aceEditor;
 
 
     tab.onShow(function () {
         if (typeof aceEditor === 'undefined') {
             if (typeof window.ace === 'undefined') {
-                $.getScript(settings.aceUrl, function () {
-                    that.initializeAceEditor();
-                })
+                if (!app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    app.Settings.aceIsLoading = true;
+
+                    $.ajax({
+                        url: settings.aceUrl,
+                        dataType: "script",
+                        timeout: 20000 //20 sec
+                    }).done(function () {
+                        that.initializeAceEditor();
+                    }).always(function () {
+                        app.Settings.aceIsLoading = false;
+                        app.Settings.aceLoadingFailed = true;
+                        tab.$content.toggleLoader('off');
+                    });
+                }
+
+                if (app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    tab.$content.toggleLoader('on');
+                }
             } else {
                 that.initializeAceEditor();
             }
@@ -16975,10 +17438,10 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
 
         that.applyUserCss(settings.get(namespace + '.css'));
     });
-    this.applyUserCss(app.Settings.data.get(namespace + '.css'))
+    this.applyUserCss(app.Settings.storage.get(namespace + '.css'))
 });
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     'use strict';
     var that = this;
@@ -16988,21 +17451,37 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('custom-js', 'JS', 400);
+    var tab = app.Settings.getTab('custom-js', 'JS', 300);
     var namespace = 'user-code';
-    app.Settings.data.setDefault(namespace + '.js', '');
+    app.Settings.storage.setDefault(namespace + '.js', '');
 
-    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.data.get(namespace + '.js')).appendTo(tab.$content);
-    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'js-editor"></div>').text(app.Settings.data.get(namespace + '.js'));
+    var $editor = $('<textarea class="' + app.prefix + 'custom-editor-textarea"></textarea>').val(app.Settings.storage.get(namespace + '.js')).appendTo(tab.$content);
+    var $aceEditor = $('<div class="' + app.prefix + 'custom-editor-ace" id="' + app.prefix + 'js-editor"></div>').text(app.Settings.storage.get(namespace + '.js'));
     var aceEditor;
 
 
     tab.onShow(function () {
         if (typeof aceEditor === 'undefined') {
             if (typeof window.ace === 'undefined') {
-                $.getScript(settings.aceUrl, function () {
-                    that.initializeAceEditor();
-                })
+                if (!app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    app.Settings.aceIsLoading = true;
+
+                    $.ajax({
+                        url: settings.aceUrl,
+                        dataType: "script",
+                        timeout: 20000 //20 sec
+                    }).done(function () {
+                        that.initializeAceEditor();
+                    }).always(function () {
+                        app.Settings.aceIsLoading = false;
+                        app.Settings.aceLoadingFailed = true;
+                        tab.$content.toggleLoader('off');
+                    });
+                }
+
+                if (app.Settings.aceIsLoading && !app.Settings.aceLoadingFailed) {
+                    tab.$content.toggleLoader('on');
+                }
             } else {
                 that.initializeAceEditor();
             }
@@ -17010,7 +17489,7 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     });
 
 
-    this.applyUserCss = function (js) {
+    this.applyUserJs = function (js) {
         $('#' + app.prefix + 'user-js').remove();
         $('body').append('<script id="' + app.prefix + 'user-js" type="text/javascript">' + js + '</script>');
     };
@@ -17046,25 +17525,26 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
             settings.set(namespace + '.js', $editor.val());
         }
 
-        that.applyUserCss(settings.get(namespace + '.js'));
+        that.applyUserJs(settings.get(namespace + '.js'));
     });
-    this.applyUserCss(app.Settings.data.get(namespace + '.js'))
+    this.applyUserJs(app.Settings.storage.get(namespace + '.js'))
 });
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
     var that = this;
 
     var defaultSettings = {
-        enabledModules: ['translate', 'anime-quotes', 'pirate-quotes']
+        enabledModules: ['anime-quotes', 'pirate-quotes']
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('extra', 'Сторонние модули', 500);
-    $('<p>').text('Модули от сторонних поставщиков.').prependTo(tab.$content);
+    var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
-    var userSettings = app.Settings.data;
+    var userSettings = app.Settings.storage;
+
+    var $modulesInfoMessage = $('<div class="' + app.prefix + 'extras__info-message">').text('Сторонние модули отсутствуют.').prependTo(tab.$content);
 
     var namespace = 'extras';
     userSettings.setDefault(namespace + '.enabled', settings.enabledModules);
@@ -17073,6 +17553,8 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
     this.add = function (config) {
+        $modulesInfoMessage.text('Сторонние модули от других пользователей.');
+
         that.extraModules[config.name] = config;
         that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
         that.sort();
@@ -17171,12 +17653,14 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     });
 });
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
     var that = this;
 
+    var favouritePicturesFromV1 = app.parseJSON(window.localStorage.getItem('favouritePictures'), []);
+    app.storage.setDefault('favouritePictures', _.isArray(favouritePicturesFromV1) ? favouritePicturesFromV1 : []);
 
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
@@ -17259,7 +17743,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         return that.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
-        var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+        var favouritePictures = app.storage.get('favouritePictures');
 
         this.$favouritePicturesBodyPanel.empty();
 
@@ -17282,7 +17766,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.handleFavouritePicturesPanel = function ($toggleFavouritePicturesPanelBtn) {
-        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
+        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false;
 
         if ($('#smiles-panel').length !== 0 && !smilesAndPicturesTogether) {
             $('#smiles-panel').hide();
@@ -17313,7 +17797,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
     this.addFavouritePicture = function (imageUrl) {
         if (imageUrl !== '') {
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+            var favouritePictures = app.storage.get('favouritePictures');
 
             if (favouritePictures.indexOf(imageUrl) === -1) {
                 if (imageUrl !== '') {
@@ -17327,7 +17811,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             }
             $('#picture-address').val('');
 
-            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+            app.storage.set('favouritePictures', favouritePictures)
 
             this.renderFavouritePictures();
         }
@@ -17377,7 +17861,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.exportPictures = function () {
         var $downloadLink = $('<a>')
             .attr({
-                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(window.localStorage.getItem('favouritePictures') || JSON.stringify([])),
+                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(app.toJSON(app.storage.get('favouritePictures'))),
                 download: 'cytube_enhanced_favourite_images.txt'
             })
             .hide()
@@ -17396,7 +17880,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         var favouritePicturesAddressesReader = new FileReader();
 
         favouritePicturesAddressesReader.addEventListener('load', function(e) {
-            window.localStorage.setItem('favouritePictures', e.target.result);
+            app.storage.set('favouritePictures', app.parseJSON(e.target.result));
 
             that.renderFavouritePictures();
         });
@@ -17417,7 +17901,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         update: function(event, ui) {
             var imageUrl = $(ui.item).attr('src');
             var nextImageUrl = $(ui.item).next().attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+            var favouritePictures = app.storage.get('favouritePictures');
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
@@ -17435,7 +17919,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
                 favouritePictures.push(imageUrl);
             }
 
-            window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+            app.storage.set('favouritePictures', favouritePictures);
         }
     });
 
@@ -17445,12 +17929,12 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         hoverClass: "favourite-picture-drop-hover",
         drop: function (event, ui) {
             var imageUrl = ui.draggable.attr('src');
-            var favouritePictures = JSON.parse(window.localStorage.getItem('favouritePictures') || '[]') || [];
+            var favouritePictures = app.storage.get('favouritePictures');
 
             var imagePosition;
             if ((imagePosition = favouritePictures.indexOf(imageUrl)) !== -1) {
                 favouritePictures.splice(imagePosition, 1);
-                window.localStorage.setItem('favouritePictures', JSON.stringify(favouritePictures));
+                app.storage.set('favouritePictures', favouritePictures);
             }
 
             ui.draggable.remove();
@@ -17458,7 +17942,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -17467,7 +17951,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        selectorsToPreview: '.chat-picture', // 'selector1, selector2'. Every selector's node must have attribute src
+        selectorsToPreview: '.chat-picture, .motd-tab-content img', // 'selector1, selector2'. Every selector's node must have attribute src
         zoom: 0.15
     };
     settings = $.extend({}, defaultSettings, settings);
@@ -17574,156 +18058,41 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":5}],25:[function(require,module,exports){
-window.cytubeEnhanced.addModule('Layout', function (app, settings) {
+},{"jquery-mousewheel":5}],26:[function(require,module,exports){
+window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
-
     var that = this;
 
-    var tab = app.Settings.getTab('layout', 'Сетка', 200);
-    var userSettings = app.Settings.data;
+    var tab = app.Settings.getTab('general', 'Общее', 100);
 
 
-    var namespace = 'layout';
-    this.scheme = {
-        'hide-header': {
-            title: app.t('layout[.]Hide header'),
-            default: 'no',
-            options: [
-                {value: 'yes', title: app.t('settings[.]Yes')},
-                {value: 'no', title: app.t('settings[.]No')}
-            ]
-        },
-        'player-position': {
-            title: app.t('layout[.]Player position'),
-            default: 'right',
-            options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')},
-                {value: 'center', title: app.t('layout[.]Center')}
-            ]
-        },
-        'playlist-position': {
-            title: app.t('layout[.]Playlist position'),
-            default: 'right',
-            options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')}
-            ]
-        },
-        'userlist-position': {
-            title: app.t('layout[.]Chat\'s userlist position'),
-            default: 'left',
-            options: [
-                {value: 'left', title: app.t('layout[.]Left')},
-                {value: 'right', title: app.t('layout[.]Right')}
-            ]
-        }
-    };
+    var availableLanguages = ['en'];
+    for (var language in app.translations) {
+        availableLanguages.push(language);
+    }
 
-
-    /**
-     * Initializing
-     */
-    var schemeItem;
-    var option;
-    var sort = 100;
-    for (var itemName in this.scheme) {
-        schemeItem = this.scheme[itemName];
-
-        userSettings.setDefault(namespace + '.' + itemName, schemeItem.default);
-
-        if (userSettings.get(namespace + '.' + itemName)) {
-            for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
-            }
-        }
-
-        tab.addControl('select', 'horizontal', schemeItem.title, itemName, schemeItem.options, null, sort);
-        sort += 100;
+    var options = [];
+    for (var languageIndex in availableLanguages) {
+        options.push({
+            value: availableLanguages[languageIndex],
+            title: app.t(availableLanguages[languageIndex]),
+            selected: (availableLanguages[languageIndex] == app.storage.get('language'))
+        });
     }
 
 
-    this.applySettings = function (userSettings) {
-        if (userSettings.get(namespace + '.hide-header') === 'yes') {
-            $('#motdrow').hide();
-            $('#motdrow').data('hiddenByLayout', '1');
-        } else {
-            if ($('#motdrow').data('hiddenByMinimize') !== '1') {
-                $('#motdrow').show();
-            }
-            $('#motdrow').data('hiddenByLayout', '0');
-        }
-
-        if (userSettings.get(namespace + '.player-position') === 'left') {
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else if (userSettings.get(namespace + '.player-position') === 'center') {
-            $('#chatwrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-            $('#videowrap').removeClass(function (index, css) { //remove all col-* classes
-                return (css.match(/(\s)*col-(\S)+/g) || []).join('');
-            });
-
-            $('#chatwrap').addClass('col-md-10 col-md-offset-1');
-            $('#videowrap').addClass('col-md-10 col-md-offset-1');
-
-            $('#videowrap').detach().insertBefore($('#chatwrap'));
-        } else { //right
-            if ($('#chatwrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#chatwrap').removeClass('col-md-10 col-md-offset-1');
-                $('#chatwrap').addClass('col-lg-5 col-md-5');
-            }
-            if ($('#videowrap').hasClass('col-md-10 col-md-offset-1')) {
-                $('#videowrap').removeClass('col-md-10 col-md-offset-1');
-                $('#videowrap').addClass('col-lg-7 col-md-7');
-            }
-
-            $('#chatwrap').detach().insertBefore($('#videowrap'));
-        }
-
-        if (userSettings.get(namespace + '.playlist-position') === 'left') {
-            $('#rightcontrols').detach().insertBefore($('#leftcontrols'));
-            $('#rightpane').detach().insertBefore($('#leftpane'));
-        } else { //right
-            $('#leftcontrols').detach().insertBefore($('#rightcontrols'));
-            $('#leftpane').detach().insertBefore($('#rightpane'));
-        }
-
-        if (userSettings.get(namespace + '.userlist-position') === 'right') {
-            $('#userlist').addClass('pull-right');
-        } else { //left
-            $('#userlist').removeClass('pull-right');
-        }
+    tab.addControl('select', 'horizontal', 'Язык интерфейса', 'language', options, null, 20000);
 
 
-        $('#refresh-video').click();
-    };
-
-
-    /**
-     * Saving and applying settings
-     */
     app.Settings.onSave(function (settings) {
-        for (var itemName in that.scheme) {
-            settings.set(namespace + '.' + itemName, $('#' + app.prefix + itemName).val());
-        }
+        app.storage.set('language', $('#' + app.prefix + 'language').val());
 
-        that.applySettings(settings, namespace);
+        if (app.storage.isDirty('language')) {
+            app.Settings.requestPageReload();
+        }
     });
-    this.applySettings(userSettings, namespace);
 });
-},{}],26:[function(require,module,exports){
-//You can fill motd editor with the example of tabs: <div id="motd-channel-description"><h1 class="text-center channel-description">Добро пожаловать на аниме канал имиджборда <a href="https://2ch.hk" style="color:#FF6600" target="_blank">Два.ч</a>. Снова.</h1></div><div id="motd-tabs-wrapper"><div id="motd-tabs"><button class="btn btn-default motd-tab-btn" data-tab-index="0">Расписание</button><button class="btn btn-default motd-tab-btn" data-tab-index="1">FAQ и правила</button><button class="btn btn-default motd-tab-btn" data-tab-index="2">Список реквестов</button><button class="btn btn-default motd-tab-btn" data-tab-index="3">Реквестировать аниме</button><div class="btn-group"><button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Наши ссылки <span class="caret"></span></button><ul class="dropdown-menu"><li><a href="http://myanimelist.net/animelist/animachtv" target="_blank">MAL</a></li><li><a href="https://2ch.hk/tvch/" target="_blank">Наша доска</a></li><li><a href="https://twitter.com/2ch_tv" target="_blank">Твиттер</a></li><li><a href="http://vk.com/tv2ch" target="_blank">ВК</a></li></ul></div></div><div id="motd-tabs-content"><div class="motd-tab-content" data-tab-index="0" style="display: none;"><div class="text-center"><img src="http://i.imgur.com/R9buKtU.png" style="width: 90%; max-width: 950px;" /></div></div><div class="motd-tab-content" data-tab-index="1" style="display: none;"><strong>Канал загружается, но видео отображает сообщение об ошибке</strong><br />Некоторые расширения могут вызывать проблемы со встроенными плеерами. Отключите расширения и попробуйте снова. Так же попробуйте почистить кэш/куки и нажать <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/reload_zpsf14999c3.png" />.<br /><br /><strong>Страница загружается, но не происходит подключение</strong><br />Это проблема соединения вашего браузера с сервером. Некоторые провайдеры, фаерволы или антивирусы могут блокировать или фильтровать порты.<br /><br /><strong>Меня забанили. Я осознал свою ошибку и хочу разбана. Что я должен сделать?</strong><br />Реквестировать разбан можно у администраторов/модераторов канала, указав забаненный ник.<br /><br /><strong>Как отправлять смайлики</strong><br />Смайлики имеют вид `:abu:`. Под чатом есть кнопка для отправления смайлов.<br /><br /><strong>Как пользоваться личными сообщениями?</strong><br />Выбираем пользователя в списке, жмем второй кнопкой мыши и выбираем "Private Message".<br /><br />Как добавить свое видео в плейлист?<br />Добавить видео - Вставляем ссылку на видео (список поддерживаемых источников ниже) - At End. Ждем очереди.<br /><br /><strong>Как проголосовать за пропуск видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/ss2014-03-10at114058_zps7de4fa28.png" />. Если набирается определенное количество голосов (обычно 20-25% от общего числа находящихся на канале), то видео пропускается.<br /><br /><strong>Почему я не могу проголосовать за пропуск?</strong><br />Во время трансляций и передач по расписанию администрация отключает голосование за пропуск.<br /><br /><strong>Как посмотреть, кто добавил видео в плейлист?</strong><br />Наводим курсор на название видео в плейлисте.<br /><br /><strong>Как пользоваться поиском видео?</strong><br />Кнопка <img src="https://i840.photobucket.com/albums/zz324/cpu_fan/search_zps335dfef6.png" /> . Вводим название видео. По нажатию на кнопку "Library" можно найти видео в библиотеке канала. Найти видео на YouTube можно нажав на одноименную кнопку.<br /><br /><strong>Список поддерживаемых URL:</strong><br />* YouTube - <code>http://youtube.com/watch?v=(videoid)</code> или <code>http://youtube.com/playlist?list(playlistid)</code><br />* Vimeo - <code>http://vimeo.com/(videoid)</code><br />* Soundcloud - <code>http://soundcloud.com/(songname)</code><br />* Dailymotion - <code>http://dailymotion.com/video/(videoid)</code><br />* TwitchTV - <code>http://twitch.tv/(stream)</code><br />* JustinTV - <code>http://justin.tv/(stream)</code><br />* Livestream - <code>http://livestream.com/(stream)</code><br />* UStream - <code>http://ustream.tv/(channel)</code><br />* RTMP Livestreams - <code>rtmp://(stream server)</code><br />* JWPlayer - <code>jw:(stream url)</code><br /><br /><strong>Ранговая система:</strong><br />* Администратор сайта - Красный, розовый, фиолетовый<br />* Администратор канала - Голубой<br />* Модератор канала - Зеленый<br />* Пользователь - Белый<br />* Гость - Серый<br /><br /><strong>Правила:</strong><br />Не злоупотреблять смайлами<br />Не вайпать чат и плейлист<br />Не спамить ссылками<br />Не спойлерить<br />Обсуждение политики - /po<br /></div><div class="motd-tab-content" data-tab-index="2" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/forms/viewform?authuser=0&amp;bc=transparent&amp;embedded=true&amp;f=Georgia%252C%2BTimes%2BNew%2BRoman%252C%2Bserif&amp;hl=ru&amp;htc=%2523666666&amp;id=1lEES2KS-S54PXlgAv0O6OK0RweZ6yReYOdV_vmuZzts&amp;lc=%25230080bb&amp;pli=1&amp;tc=%2523333333&amp;ttl=0" width="100%" height="600" title="Форма "Таблица Google"" allowtransparency="true" frameborder="0" marginheight="0" marginwidth="0" id="982139229"]У вас не поддерживается iframe[/iframe]</div></div><div class="motd-tab-content" data-tab-index="3" style="display: none;"><div class="text-center">[iframe src="https://docs.google.com/spreadsheets/d/1ZokcogxujqHsR-SoBPnTDTkwDvmFYHajuPLRv7-WjU4/htmlembed?authuser=0" width="780" height="800" title="Реквесты на аниме" frameborder="0" id="505801161"]У вас не поддерживается iframe[/iframe]</div></div></div></div>
+},{}],27:[function(require,module,exports){
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
 
@@ -18011,121 +18380,6 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         that.$htmlToTabs.addClass('btn-success');
     });
 });
-
-},{}],27:[function(require,module,exports){
-/**
- * Saves messages from chat which were sent by other users to you
- */
-window.cytubeEnhanced.addModule('pmHistory', function (app) {
-    'use strict';
-
-    var that = this;
-
-
-    window.socket.on('chatMsg', function (data) {
-        if (window.CLIENT.name && data.msg.toLowerCase().indexOf(window.CLIENT.name.toLowerCase()) != -1) {
-            var pmHistory = JSON.parse(app.userConfig.get('pmHistory') || '[]') || [];
-            if (!$.isArray(pmHistory)) {
-                pmHistory = [];
-            }
-
-            if (pmHistory.length >= 50) {
-                pmHistory.slice(0, 49);
-            }
-
-            pmHistory.unshift({
-                username: data.username.replace(/[^\w-]/g, '\\$'),
-                msg: data.msg,
-                time: data.time
-            });
-
-            app.userConfig.set('pmHistory', JSON.stringify(pmHistory));
-        }
-    });
-
-
-
-    this.formatHistoryMessage = function (data) {
-        var $messageWrapper = $('<div class="pm-history-message">');
-
-
-        var time = (new Date(data.time));
-
-        var day = time.getDate();
-        day = day < 10 ? ('0' + day) : day;
-        var month = time.getMonth();
-        month = month < 10 ? ('0' + month) : month;
-        var year = time.getFullYear();
-        var hours = time.getHours();
-        hours = hours < 10 ? ('0' + hours) : hours;
-        var minutes = time.getMinutes();
-        minutes = minutes < 10 ? ('0' + minutes) : minutes;
-        var seconds = time.getSeconds();
-        seconds = seconds < 10 ? ('0' + seconds) : seconds;
-
-        var timeString = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
-
-
-
-        $messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
-        $messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
-        $messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
-
-
-        return $messageWrapper;
-    };
-
-    this.showChatHistory = function () {
-        var $modalWindow;
-        var pmHistory = JSON.parse(app.userConfig.get('pmHistory') || '[]') || [];
-        if (!$.isArray(pmHistory)) {
-            pmHistory = [];
-        }
-
-
-        var $wrapper = $('<div class="pm-history-content">');
-        for (var position = 0, historyLength = pmHistory.length; position < historyLength; position++) {
-            $wrapper.append(that.formatHistoryMessage(pmHistory[position]));
-        }
-
-
-        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger">' + app.t('pmHistory[.]Reset history') + '</button>')
-            .on('click', function () {
-                if (window.confirm('pmHistory[.]Are you sure, that you want to clear messages history?')) {
-                    that.resetChatHistory($modalWindow);
-                }
-            });
-        var $exitChatHistoryBtn = $('<button type="button" id="pm-history-exit-btn" class="btn btn-info">' + app.t('pmHistory[.]Exit') + '</button>')
-            .on('click', function () {
-                $modalWindow.modal('hide');
-            });
-        var $footer = $('<div class="pm-history-footer">');
-        $footer.append($resetChatHistoryBtn);
-        $footer.append($exitChatHistoryBtn);
-
-
-        app.getModule('utils').done(function (utilsModule) {
-            $modalWindow = utilsModule.createModalWindow(app.t('pmHistory[.]Chat history'), $wrapper, $footer);
-        });
-    };
-
-    this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
-        .text(app.t('pmHistory[.]History'))
-        .appendTo('#chatheader')
-        .on('click', function () {
-            that.showChatHistory();
-        });
-
-
-
-    this.resetChatHistory = function ($modalWindow) {
-        app.userConfig.set('pmHistory', JSON.stringify([]));
-
-        if ($modalWindow != null) {
-            $modalWindow.modal('hide');
-        }
-    };
-});
 },{}],28:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
@@ -18169,7 +18423,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     var that = this;
 
     var tab = app.Settings.getTab('general', 'Общее', 100);
-    var userSettings = app.Settings.data;
+    var userSettings = app.Settings.storage;
 
 
     if (!app.isModulePermitted('smiles') || !app.isModulePermitted('favouritePictures')) {
@@ -18342,193 +18596,311 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
 });
 
 },{}],31:[function(require,module,exports){
-window.cytubeEnhanced.addModule('utils', function (app, settings) {
+window.cytubeEnhanced.addModule('themes', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
-        unfixedTopNavbar: true,
-        insertUsernameOnClick: true,
-        showScriptInfo: true
+        selected: 'default',
+        themeId: 'theme-css'
     };
     settings = $.extend({}, defaultSettings, settings);
 
 
+    $('#us-theme').closest('.form-group').hide();
+    $("#us-theme").val('/css/themes/slate.css');
+    if (window.createCookie) {
+        window.createCookie('cytube-theme', '/css/themes/slate.css', 1000);
+    }
 
-    //$('#messagebuffer, #queue').nanoScroller({
-    //    alwaysVisible: true,
-    //    preventPageScrolling: true
-    //});
-    //
-    //this.handleChatScrollBar = function() {
-    //    $('#messagebuffer')[0].nanoscroller.reset();
-    //};
-    //window.socket.on("chatMsg", that.handleChatScrollBar);
-    //window.socket.on("clearchat", that.handleChatScrollBar);
-    //
-    //this.handlePlaylistScrollBar = function() {
-    //    $('#queue')[0].nanoscroller.reset();
-    //};
-    //window.socket.on("playlist", that.handlePlaylistScrollBar);
-    //window.socket.on("queue", that.handlePlaylistScrollBar);
-    //window.socket.on("setPlaylistMeta", that.handlePlaylistScrollBar);
-    //
-    //$(window).resize(function () {
-    //    $('#messagebuffer, #queue')[0].nanoscroller.reset();
-    //});
 
-    window.chatTabComplete = function () {
-        var i;
-        var words = $("#chatline").val().split(" ");
-        var current = words[words.length - 1].toLowerCase();
-        if (!current.match(/^[\wа-яА-ЯёЁ-]{1,20}$/)) {
-            return;
+    var tab = app.Settings.getTab('themes', 'Темы', 500);
+    var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
+    var userSettings = app.Settings.storage;
+
+    var $themesInfoMessage = $('<div class="' + app.prefix + 'themes__info-message">').text('Темы отсутствуют.').prependTo(tab.$content);
+
+    var namespace = 'themes';
+    userSettings.setDefault(namespace + '.selected', settings.selected);
+    this.themes = {};
+
+
+    this.add = function (config) {
+        $themesInfoMessage.remove();
+
+        that.themes[config.name] = config;
+        that.themes[config.name].$el = that.addMarkup(config).appendTo($tabContent);
+        that.sort();
+
+        if (config.name === userSettings.get(namespace + '.selected')) {
+            that.setTheme(config.name);
+            that.applyTheme(config.name);
+        }
+    };
+
+
+    tab.onShow(function () {
+        $('.' + app.prefix + 'themes__item')
+            .removeClass('active')
+            .filter(function() {
+                return $(this).data('name') === userSettings.get(namespace + '.selected');
+            })
+            .addClass('active');
+    });
+
+
+    /**
+     * Sets theme
+     * @param name Theme's name
+     */
+    this.setTheme = function (name) {
+        userSettings.set(namespace + '.selected', name);
+
+        $('.' + app.prefix + 'themes__item')
+            .removeClass('active')
+            .filter(function() {
+                return $(this).data('name') === name;
+            })
+            .addClass('active');
+    };
+
+
+    this.applyTheme = function (name) {
+        var config = that.themes[name];
+
+        $('#' + settings.themeId).remove();
+        if (config.cssUrl != '') {
+            $('<link rel="stylesheet" id="' + settings.themeId + '">').attr('href', config.cssUrl).appendTo($('head'));
+        } else { //resets to default theme
+            that.setTheme(userSettings.getDefault(namespace + '.selected'))
         }
 
-        var __slice = Array.prototype.slice;
-        var usersWithCap = __slice.call($("#userlist .userlist_item")).map(function (elem) {
-            return elem.children[1].innerHTML;
-        });
-        var users = __slice.call(usersWithCap).map(function (user) {
-            return user.toLowerCase();
-        }).filter(function (name) {
-            return name.indexOf(current) === 0;
-        });
-
-        // users now contains a list of names that start with current word
-
-        if (users.length === 0) {
-            return;
+        if (typeof config.jsUrl !== 'undefined' && config.jsUrl !== '') {
+            $.getScript(config.jsUrl);
         }
+    };
 
-        // trim possible names to the shortest possible completion
-        var min = Math.min.apply(Math, users.map(function (name) {
-            return name.length;
-        }));
-        users = users.map(function (name) {
-            return name.substring(0, min);
-        });
 
-        // continually trim off letters until all prefixes are the same
-        var changed = true;
-        var iter = 21;
-        while (changed) {
-            changed = false;
-            var first = users[0];
-            for (i = 1; i < users.length; i++) {
-                if (users[i] !== first) {
-                    changed = true;
-                    break;
-                }
-            }
+    this.addMarkup = function (config) {
+        var $moduleInfo = $('<div class="' + app.prefix + 'themes__item">').data('name', config.name).on('click', function () {
+            var name = $(this).data('name');
 
-            if (changed) {
-                users = users.map(function (name) {
-                    return name.substring(0, name.length - 1);
+            if (name !== userSettings.get(namespace + '.selected')) {
+                app.UI.createConfirmWindow('Изменить тему на выбранную?', function () {
+                    that.setTheme(name);
                 });
             }
+        });
 
-            // In the event something above doesn't generate a break condition, limit
-            // the maximum number of repetitions
-            if (--iter < 0) {
-                break;
-            }
+
+        var $title = $('<div class="' + app.prefix + 'themes__item__title">').text(config.title).appendTo($moduleInfo);
+
+        if (typeof config.pictureUrl !== 'undefined' && (config.pictureUrl = config.pictureUrl.trim()) !== '') {
+            $('<div class="' + app.prefix + 'themes__item__picture">').appendTo($moduleInfo).css('background-image', 'url("' + config.pictureUrl + '")');
         }
 
-        current = users[0].substring(0, min);
-        for (i = 0; i < usersWithCap.length; i++) {
-            if (usersWithCap[i].toLowerCase() === current) {
-                current = usersWithCap[i];
-                break;
-            }
+
+        return $moduleInfo;
+    };
+
+
+    this.sort = function () {
+        var themesArray = [];
+        for (var theme in that.themes) {
+            themesArray.push(that.themes[theme]);
         }
 
-        if (users.length === 1) {
-            if (words.length === 1) {
-                current += ":";
+        themesArray = themesArray.sort(function (a, b) {
+            if (a.title.toLowerCase() > b.title.toLowerCase()) {
+                return 1;
+            } else if (a.title.toLowerCase() < b.title.toLowerCase()) {
+                return -1;
+            } else {
+                return 0;
             }
-            current += " ";
+        });
+
+        for (var themeIndex = 0, themesLength = themesArray.length; themeIndex < themesLength; themeIndex++) {
+            themesArray[themeIndex].$el.detach().appendTo($tabContent);
         }
-        words[words.length - 1] = current;
-        $("#chatline").val(words.join(" "));
     };
 
 
     /**
-     * Adds the text to chat input
-     * @param message The text to add.
-     * @param position The position of the adding. It can be 'begin' or 'end'.
+     * Saving and applying settings
      */
-    this.addMessageToChatInput = function (message, position) {
-        position = position || 'end';
-
-        if (position === 'begin') {
-            message = message + $("#chatline").val();
-        } else {
-            message = $("#chatline").val() + message;
+    app.Settings.onSave(function (settings) {
+        if (settings.isDirty(namespace + '.selected')) {
+            app.Settings.requestPageReload();
         }
-
-        $('#chatline').val(message).focus();
-    };
-
-
-    if (settings.insertUsernameOnClick) {
-        $('#messagebuffer').on('click', '.username', function() {
-            that.addMessageToChatInput($(this).text(), 'begin');
-        });
-        $('#messagebuffer').on('click', '.chat-avatar', function() {
-            that.addMessageToChatInput($(this).parent().find('.username').text(), 'begin');
-        });
-    }
-
-
-
-    if (settings.unfixedTopNavbar) {
-        $('#wrap').children('.navbar-fixed-top').removeClass('navbar-fixed-top');
-    }
-
-    if (settings.showScriptInfo) {
-        $('#footer').children('.container').append('<p class="text-muted credit">CyTube Enhanced (<a href="https://github.com/kaba99/cytube-enhanced">GitHub</a>)</p>');
-    }
-
-    setTimeout(function () {
-        window.handleWindowResize(); //chat height fix
-    }, 3000);
-    setTimeout(function () {
-        window.handleWindowResize(); //chat height fix
-    }, 10000);
-
-
-
-
-
-    window.addUserDropdown = (function (oldAddUserDropdown) {
-        return function (entry) {
-            var functionResponse = oldAddUserDropdown(entry);
-
-            entry.find('.user-dropdown>strong').click(function () {
-                $(chatline).val($(this).text() + ": " + $(chatline).val());
-            });
-
-            return functionResponse;
-        };
-    })(window.addUserDropdown);
-
-    $('.user-dropdown>strong').click(function () {
-        $('#chatline').val($(this).text() + ": " + $(chatline).val()).focus();
     });
-
-
-
-
-
-
-
-    $('#queue').sortable("option", "axis", "y");
 });
 
 },{}],32:[function(require,module,exports){
+window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
+    'use strict';
+    var that = this;
+
+    if (app.storage.get('language') !== 'ru') {
+        return;
+    }
+
+
+    if ($('#newpollbtn').length !== 0) {
+        $('#newpollbtn').text(app.t('standardUI[.]Create a poll'));
+    }
+
+    if ($('.navbar-brand').length !== 0) {
+        $('.navbar-brand').text(app.channelName);
+    }
+
+    if ($('#usercount').length !== 0) {
+        $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
+        window.socket.on('usercount', function () {
+            $('#usercount').text($('#usercount').text().replace('connected users', app.t('standardUI[.]connected users')).replace('connected user', app.t('standardUI[.]connected user')));
+        });
+    }
+    window.calcUserBreakdown = (function (oldCalcUserBreakdown) {
+        return function () {
+            var chatInfo = oldCalcUserBreakdown();
+            var translatedChatInfo = {};
+
+            var chatInfoTranslateMap = {
+                AFK: app.t('standardUI[.]AFK'),
+                Anonymous: app.t('standardUI[.]Anonymous'),
+                'Channel Admins': app.t('standardUI[.]Channel Admins'),
+                Guests: app.t('standardUI[.]Guests'),
+                Moderators: app.t('standardUI[.]Moderators'),
+                'Regular Users': app.t('standardUI[.]Regular Users'),
+                'Site Admins': app.t('standardUI[.]Site Admins')
+            };
+
+            for (var chatInfoElement in chatInfo) {
+                if (chatInfo.hasOwnProperty(chatInfoElement) && typeof chatInfoTranslateMap[chatInfoElement] !== 'undefined') {
+                    translatedChatInfo[chatInfoTranslateMap[chatInfoElement]] = chatInfo[chatInfoElement];
+                }
+            }
+
+            return translatedChatInfo;
+        };
+    })(window.calcUserBreakdown);
+
+    if ($('#welcome').length !== 0) {
+        $('#welcome').text(app.t('standardUI[.]Welcome, ') + window.CLIENT.name);
+    }
+    if ($('#logout').length !== 0) {
+        $('#logout').text(app.t('standardUI[.]Log out'));
+    }
+    if ($('#username').length !== 0) {
+        $('#username').attr({placeholder: app.t('standardUI[.]Login')});
+    }
+    if ($('#password').length !== 0) {
+        $('#password').attr({placeholder: app.t('standardUI[.]Password')});
+    }
+    if ($('#loginform').find('.checkbox').find('.navbar-text-nofloat').length !== 0) {
+        $('#loginform').find('.checkbox').find('.navbar-text-nofloat').text(app.t('standardUI[.]Remember me'));
+    }
+    if ($('#login').length !== 0) {
+        $('#login').text(app.t('standardUI[.]Site login'));
+    }
+
+    var menuTranslateMap = {
+        Home: app.t('standardUI[.]Home'),
+        Account: app.t('standardUI[.]Account'),
+        Logout: app.t('standardUI[.]Logout'),
+        Channels: app.t('standardUI[.]Channels'),
+        Profile: app.t('standardUI[.]Profile'),
+        'Change Password/Email': app.t('standardUI[.]Change Password/Email'),
+        Login: app.t('standardUI[.]Log in'),
+        Register: app.t('standardUI[.]Register'),
+        Options: app.t('standardUI[.]Options'),
+        'Channel Settings': app.t('standardUI[.]Channel Settings'),
+        Layout: app.t('standardUI[.]Layout'),
+        'Chat Only': app.t('standardUI[.]Chat Only'),
+        'Remove Video': app.t('standardUI[.]Remove Video')
+    };
+    $('.navbar').find('.navbar-nav').children().each(function () {
+        $(this).find('a').each(function () {
+            for (var elementToTranslate in menuTranslateMap) {
+                if (menuTranslateMap.hasOwnProperty(elementToTranslate)) {
+                    $(this).html($(this).html().replace(elementToTranslate, menuTranslateMap[elementToTranslate]));
+                }
+            }
+        });
+    });
+
+    if ($('#mediaurl').length !== 0) {
+        $('#mediaurl').attr('placeholder', app.t('standardUI[.]Video url'));
+    }
+    if ($('#queue_next').length !== 0) {
+        $('#queue_next').text(app.t('standardUI[.]Next'));
+    }
+    if ($('#queue_end').length !== 0) {
+        $('#queue_end').text(app.t('standardUI[.]At end'));
+    }
+
+    $('.qbtn-play').each(function () {
+        $(this).html($(this).html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
+    });
+    $('.qbtn-next').each(function () {
+        $(this).html($(this).html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
+    });
+    $('.qbtn-tmp').each(function () {
+        $(this).html($(this).html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
+    });
+    $('.qbtn-delete').each(function () {
+        $(this).html($(this).html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
+    });
+    window.addQueueButtons = (function (oldAddQueueButtons) {
+        return function (li) {
+            var result = oldAddQueueButtons(li);
+
+            if (li.find('.qbtn-play').length !== 0) {
+                li.find('.qbtn-play').html(li.find('.qbtn-play').html().replace(/\s*Play/, ' ' + app.t('standardUI[.]Play')));
+            }
+            if (li.find('.qbtn-next').length !== 0) {
+                li.find('.qbtn-next').html(li.find('.qbtn-next').html().replace(/\s*Queue Next/, ' ' + app.t('standardUI[.]Queue Next')));
+            }
+            if (li.find('.qbtn-tmp').length !== 0) {
+                li.find('.qbtn-tmp').html(li.find('.qbtn-tmp').html().replace(/\s*Make Temporary/, ' ' + app.t('standardUI[.]Make Temporary')).replace(/\s*Make Permanent/, ' ' + app.t('standardUI[.]Make Permanent')));
+            }
+            if (li.find('.qbtn-delete').length !== 0) {
+                li.find('.qbtn-delete').html(li.find('.qbtn-delete').html().replace(/\s*Delete/, ' ' + app.t('standardUI[.]Delete')));
+            }
+
+            return result;
+        };
+    })(window.addQueueButtons);
+
+    this.handleTemp = function (data) {
+        var tmpBtn = $(".pluid-" + data.uid).find(".qbtn-tmp");
+
+        if(tmpBtn.length !== 0) {
+            if(data.temp) {
+                tmpBtn.html(tmpBtn.html().replace('Сделать временным', app.t('standardUI[.]Make Temporary')));
+            }
+            else {
+                tmpBtn.html(tmpBtn.html().replace('Сделать постоянным', app.t('standardUI[.]Make Permanent')));
+            }
+        }
+    };
+    window.socket.on('setTemp', function (data) {
+        that.handleTemp(data);
+    });
+
+    if ($('#guestname').length !== 0) {
+        $('#guestname').attr('placeholder', app.t('standardUI[.]Name'));
+    }
+    if ($('#guestlogin')) {
+        $('#guestlogin').find('.input-group-addon').text(app.t('standardUI[.]Guest login'));
+    }
+
+    if ($('#chatbtn').length !== 0) {
+        $('#chatbtn').text('Отправить');
+    }
+});
+
+},{}],33:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -18711,6 +19083,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
 
 
     this.showVideoContributorsList = function () {
+        var $header = $('<h3 class="modal-title">').text(app.t('video[.]Contributors\' list'));
         var $bodyWrapper = $('<div>');
 
         var contributorsList = {};
@@ -18734,9 +19107,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
         }
         $contributorsListOl.appendTo($bodyWrapper);
 
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.createModalWindow(app.t('video[.]Contributors\' list'), $bodyWrapper);
-        });
+        app.UI.createModalWindow('video-contributors-list', $header, $bodyWrapper);
     };
     this.$videoContributorsBtn = $('<button id="video-contributors-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Contributors\' list') + '">')
         .append('<span class="glyphicon glyphicon-user">')
@@ -18749,7 +19120,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -18828,7 +19199,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
                         num2 = self.COLCOUNT - num;
                     var next = $('#' + self.PREFIX + 'wrap').next();
 
-                    app.userConfig.set('videoResizeColumnNumber', num);
+                    app.storage.set('chatWidthInColumns', num);
 
                     next.attr('class', 'col-lg-'+num+' col-md-'+num);
                     next = next.next();
@@ -18846,7 +19217,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
         };
 
         self.loadPosition = function () {
-            var columnNumber = app.userConfig.get('videoResizeColumnNumber');
+            var columnNumber = app.storage.get('chatWidthInColumns');
             if (columnNumber) {
                 $('#' + q.PREFIX + 'arrow-' + columnNumber).trigger('click').load(function () {
                     $(this).trigger('click');
@@ -18868,14 +19239,14 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
 
 
     if (settings.turnedOn) {
-        var width = app.userConfig.get('chatCol') || 0;
+        app.storage.setDefault('chatWidthInColumns', 5);
 
         var q = new setWight();
         q.create();
     }
 });
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -18936,4 +19307,24 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}]},{},[8,9,10,11,12,14,13,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,1,2,3,4]);
+},{}],36:[function(require,module,exports){
+cytubeEnhanced.getModule('themes').done(function (extraModules) {
+    extraModules.add({
+        title: 'Стандартная тема',
+        name: 'default',
+        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.css',
+        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.js',
+        pictureUrl: 'http://i.imgur.com/GFqNMYC.png'
+    });
+});
+},{}],37:[function(require,module,exports){
+cytubeEnhanced.getModule('themes').done(function (extraModules) {
+    extraModules.add({
+        title: 'Новогодняя тема',
+        name: 'new-year',
+        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.css',
+        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.js',
+        pictureUrl: 'http://i.imgur.com/N9JOTno.png'
+    });
+});
+},{}]},{},[8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,1,2,3,4,36,37]);
