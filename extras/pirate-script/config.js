@@ -1,4 +1,4 @@
-cytubeEnhanced.getModule('extras').done(function (extraModules) {
+window.cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
         title: 'Скрипт пирата',
         name: 'pirate-script',
