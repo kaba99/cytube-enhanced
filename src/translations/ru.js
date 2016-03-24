@@ -91,8 +91,10 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'No': 'Нет'
     },
     general: {
+        'General': 'Общее',
         'Smiles and pictures together': 'Смайлики и картинки вместе',
-        'Show emotes and favorite images': 'Показать смайлики и избранные изображения'
+        'Show emotes and favorite images': 'Показать смайлики и избранные изображения',
+        'Interface language': 'Язык интерфейса'
     },
     chatAvatars: {
         'Chat avatars': 'Аватарки в чате',
@@ -169,6 +171,14 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'Reset history': 'Сбросить историю',
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'
+    },
+    extras: {
+        'Extras': 'Сторонние модули',
+        'Extras for additional functionality': 'Сторонние модули для дополнительного функционала.'
+    },
+    themes: {
+        'Themes': 'Темы',
+        'Theme settings': 'Настройка темы'
     },
     'Help': 'Помощь',
     'Close': 'Закрыть',

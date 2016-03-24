@@ -15645,7 +15645,7 @@ window.CytubeEnhancedUISettings = function (app) {
     }
 
     this.themeTabName = 'theme-settings';
-    this.themeTabTitle = 'Настройка темы';
+    this.themeTabTitle = app.t('themes[.]Theme settings');
 
 
     /**
@@ -16802,7 +16802,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
     var userSettings = app.Settings.storage;
     var appSettings = app.storage;
 
@@ -17547,7 +17547,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
+    var tab = app.Settings.getTab('extras', app.t('extras[.]Extras'), 400);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
     var userSettings = app.Settings.storage;
 
@@ -17560,7 +17560,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
     this.add = function (config) {
-        $modulesInfoMessage.text('Сторонние модули от других пользователей.');
+        $modulesInfoMessage.text(app.t('extras[.]Extras for additional functionality'));
 
         that.extraModules[config.name] = config;
         that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
@@ -18070,7 +18070,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
 
 
     var availableLanguages = ['en'];
@@ -18088,7 +18088,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     }
 
 
-    tab.addControl('select', 'horizontal', 'Язык интерфейса', 'language', options, null, 20000);
+    tab.addControl('select', 'horizontal', app.t('general[.]Interface language'), 'language', options, null, 20000);
 
 
     app.Settings.onSave(function (settings) {
@@ -18429,7 +18429,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
     var userSettings = app.Settings.storage;
 
 
@@ -18621,7 +18621,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     }
 
 
-    var tab = app.Settings.getTab('themes', 'Темы', 500);
+    var tab = app.Settings.getTab('themes', app.t('themes[.]Themes'), 500);
     var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
     var userSettings = app.Settings.storage;
 

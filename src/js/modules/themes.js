@@ -16,7 +16,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     }
 
 
-    var tab = app.Settings.getTab('themes', 'Темы', 500);
+    var tab = app.Settings.getTab('themes', app.t('themes[.]Themes'), 500);
     var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
     var userSettings = app.Settings.storage;
 

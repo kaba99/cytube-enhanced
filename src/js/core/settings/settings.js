@@ -26,7 +26,7 @@ window.CytubeEnhancedUISettings = function (app) {
     }
 
     this.themeTabName = 'theme-settings';
-    this.themeTabTitle = 'Настройка темы';
+    this.themeTabTitle = app.t('themes[.]Theme settings');
 
 
     /**

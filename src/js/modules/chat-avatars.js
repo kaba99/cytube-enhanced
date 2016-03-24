@@ -2,7 +2,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
     var userSettings = app.Settings.storage;
     var appSettings = app.storage;
 

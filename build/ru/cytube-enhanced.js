@@ -15645,7 +15645,7 @@ window.CytubeEnhancedUISettings = function (app) {
     }
 
     this.themeTabName = 'theme-settings';
-    this.themeTabTitle = 'Настройка темы';
+    this.themeTabTitle = app.t('themes[.]Theme settings');
 
 
     /**
@@ -16803,7 +16803,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
     var userSettings = app.Settings.storage;
     var appSettings = app.storage;
 
@@ -17548,7 +17548,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
+    var tab = app.Settings.getTab('extras', app.t('extras[.]Extras'), 400);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
     var userSettings = app.Settings.storage;
 
@@ -17561,7 +17561,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
     this.add = function (config) {
-        $modulesInfoMessage.text('Сторонние модули от других пользователей.');
+        $modulesInfoMessage.text(app.t('extras[.]Extras for additional functionality'));
 
         that.extraModules[config.name] = config;
         that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
@@ -18071,7 +18071,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
 
 
     var availableLanguages = ['en'];
@@ -18089,7 +18089,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     }
 
 
-    tab.addControl('select', 'horizontal', 'Язык интерфейса', 'language', options, null, 20000);
+    tab.addControl('select', 'horizontal', app.t('general[.]Interface language'), 'language', options, null, 20000);
 
 
     app.Settings.onSave(function (settings) {
@@ -18430,7 +18430,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
     var userSettings = app.Settings.storage;
 
 
@@ -18622,7 +18622,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     }
 
 
-    var tab = app.Settings.getTab('themes', 'Темы', 500);
+    var tab = app.Settings.getTab('themes', app.t('themes[.]Themes'), 500);
     var $tabContent = $('<div class="' + app.prefix + 'themes">').appendTo(tab.$content);
     var userSettings = app.Settings.storage;
 
@@ -19405,8 +19405,10 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'No': 'Нет'
     },
     general: {
+        'General': 'Общее',
         'Smiles and pictures together': 'Смайлики и картинки вместе',
-        'Show emotes and favorite images': 'Показать смайлики и избранные изображения'
+        'Show emotes and favorite images': 'Показать смайлики и избранные изображения',
+        'Interface language': 'Язык интерфейса'
     },
     chatAvatars: {
         'Chat avatars': 'Аватарки в чате',
@@ -19483,6 +19485,14 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'Reset history': 'Сбросить историю',
         'Are you sure, that you want to clear messages history?': 'Вы уверены, что хотите сбросить историю сообщений?',
         'Exit': 'Выход'
+    },
+    extras: {
+        'Extras': 'Сторонние модули',
+        'Extras for additional functionality': 'Сторонние модули для дополнительного функционала.'
+    },
+    themes: {
+        'Themes': 'Темы',
+        'Theme settings': 'Настройка темы'
     },
     'Help': 'Помощь',
     'Close': 'Закрыть',

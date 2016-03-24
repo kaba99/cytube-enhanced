@@ -2,7 +2,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     'use strict';
     var that = this;
 
-    var tab = app.Settings.getTab('general', 'Общее', 100);
+    var tab = app.Settings.getTab('general', app.t('general[.]General'), 100);
 
 
     var availableLanguages = ['en'];
@@ -20,7 +20,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
     }
 
 
-    tab.addControl('select', 'horizontal', 'Язык интерфейса', 'language', options, null, 20000);
+    tab.addControl('select', 'horizontal', app.t('general[.]Interface language'), 'language', options, null, 20000);
 
 
     app.Settings.onSave(function (settings) {

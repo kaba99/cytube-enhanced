@@ -9,7 +9,7 @@ Also, you should import chat filters from `src/filters.txt` for some modules.
 
 [Русская версия](https://github.com/kaba99/cytube-enhanced/tree/master/docs/ru/start.md)
 
-[Английская версия](https://github.com/kaba99/cytube-enhanced/tree/master/docs/en/start.md)
+[English version](https://github.com/kaba99/cytube-enhanced/tree/master/docs/en/start.md)
 
 
 ## License

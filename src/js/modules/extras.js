@@ -7,7 +7,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-    var tab = app.Settings.getTab('extra', 'Сторонние модули', 400);
+    var tab = app.Settings.getTab('extras', app.t('extras[.]Extras'), 400);
     var $tabContent = $('<div class="row">').appendTo(tab.$content).wrap('<div class="' + app.prefix + 'extras">');
     var userSettings = app.Settings.storage;
 
@@ -20,7 +20,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
     this.add = function (config) {
-        $modulesInfoMessage.text('Сторонние модули от других пользователей.');
+        $modulesInfoMessage.text(app.t('extras[.]Extras for additional functionality'));
 
         that.extraModules[config.name] = config;
         that.extraModules[config.name].$el = that.addMarkup(config).appendTo($tabContent);
