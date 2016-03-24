@@ -1,4 +1,4 @@
-cytubeEnhanced.getModule('themes').done(function (extraModules) {
+window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Стандартная тема',
         name: 'default',

@@ -19492,7 +19492,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     'Cancel': 'Отмена'
 };
 },{}],36:[function(require,module,exports){
-cytubeEnhanced.getModule('themes').done(function (extraModules) {
+window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Стандартная тема',
         name: 'default',
@@ -19502,7 +19502,7 @@ cytubeEnhanced.getModule('themes').done(function (extraModules) {
     });
 });
 },{}],37:[function(require,module,exports){
-cytubeEnhanced.getModule('themes').done(function (extraModules) {
+window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Новогодняя тема',
         name: 'new-year',

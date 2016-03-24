@@ -1,4 +1,4 @@
-cytubeEnhanced.getModule('themes').done(function (extraModules) {
+window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Новогодняя тема',
         name: 'new-year',

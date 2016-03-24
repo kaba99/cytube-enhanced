@@ -1,4 +1,4 @@
-cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
+window.cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
     'use strict';
 
 
