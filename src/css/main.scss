@@ -253,7 +253,13 @@ code {
         border-top: 1px solid #555;
         &__title {
             font-size: 16px;
-            color: #ffffff;
+            display: block;
+            &_link {
+                text-decoration: underline;
+                &:hover {
+                    text-decoration: none;
+                }
+            }
         }
         &__description {
             color: #ccc;

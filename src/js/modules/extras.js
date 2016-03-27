@@ -52,8 +52,14 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
         var $moduleInfo = $('<div class="' + app.prefix + 'extras__item">');
         $moduleInfo.data('name', config.name);
 
-        var $title = $('<div class="' + app.prefix + 'extras__item__title">').text(config.title).appendTo($moduleInfo);
+
+        config.authorUrl = _.trim(config.authorUrl);
+        var $title = (config.authorUrl != '')
+            ? $('<a class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_link" target="_blank">').attr('href', config.authorUrl).text(config.title).appendTo($moduleInfo)
+            : $('<div class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_text">').text(config.title).appendTo($moduleInfo);
+
         var $description = $('<div class="' + app.prefix + 'extras__item__description">').text(config.description || 'Нет описания').appendTo($moduleInfo);
+
         var $toggleModuleButton = $('<div class="' + app.prefix + 'extras__item__button btn btn-xs">').appendTo($moduleInfo).data('enabled', that.enabledModules.indexOf(config.name) != -1).on('click', function () {
             if ($(this).data('enabled')) {
                 $(this).data('enabled', false);

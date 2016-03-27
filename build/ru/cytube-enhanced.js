@@ -21,8 +21,9 @@ window.cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
         title: 'Скрипт пирата',
         name: 'pirate-script',
-        description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: '//cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js'
+        description: "Ну, в общем, скриптец вот, всякие плюшки прикрутил. Теперь можно срать в чат еще эффективнее, раздражать модераторов еще больше и многое другое.",
+        authorUrl: "https://github.com/Pirate505/animach-xtra",
+        url: '//cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.user.js'
     });
 });
 },{}],4:[function(require,module,exports){
@@ -17593,8 +17594,14 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
         var $moduleInfo = $('<div class="' + app.prefix + 'extras__item">');
         $moduleInfo.data('name', config.name);
 
-        var $title = $('<div class="' + app.prefix + 'extras__item__title">').text(config.title).appendTo($moduleInfo);
+
+        config.authorUrl = _.trim(config.authorUrl);
+        var $title = (config.authorUrl != '')
+            ? $('<a class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_link" target="_blank">').attr('href', config.authorUrl).text(config.title).appendTo($moduleInfo)
+            : $('<div class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_text">').text(config.title).appendTo($moduleInfo);
+
         var $description = $('<div class="' + app.prefix + 'extras__item__description">').text(config.description || 'Нет описания').appendTo($moduleInfo);
+
         var $toggleModuleButton = $('<div class="' + app.prefix + 'extras__item__button btn btn-xs">').appendTo($moduleInfo).data('enabled', that.enabledModules.indexOf(config.name) != -1).on('click', function () {
             if ($(this).data('enabled')) {
                 $(this).data('enabled', false);
@@ -19488,7 +19495,8 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     },
     extras: {
         'Extras': 'Сторонние модули',
-        'Extras for additional functionality': 'Сторонние модули для дополнительного функционала.'
+        'Extras for additional functionality': 'Сторонние модули для дополнительного функционала.',
+        'Source': 'Источник'
     },
     themes: {
         'Themes': 'Темы',

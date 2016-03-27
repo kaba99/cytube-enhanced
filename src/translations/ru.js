@@ -174,7 +174,8 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     },
     extras: {
         'Extras': 'Сторонние модули',
-        'Extras for additional functionality': 'Сторонние модули для дополнительного функционала.'
+        'Extras for additional functionality': 'Сторонние модули для дополнительного функционала.',
+        'Source': 'Источник'
     },
     themes: {
         'Themes': 'Темы',

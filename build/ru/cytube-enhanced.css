@@ -204,7 +204,11 @@ code {
     border-top: 1px solid #555; }
     .ce-extras__item__title {
       font-size: 16px;
-      color: #ffffff; }
+      display: block; }
+      .ce-extras__item__title_link {
+        text-decoration: underline; }
+        .ce-extras__item__title_link:hover {
+          text-decoration: none; }
     .ce-extras__item__description {
       color: #ccc; }
     .ce-extras__item__button {

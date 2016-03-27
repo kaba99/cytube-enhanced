@@ -2,7 +2,8 @@ window.cytubeEnhanced.getModule('extras').done(function (extraModules) {
     extraModules.add({
         title: 'Скрипт пирата',
         name: 'pirate-script',
-        description: 'Все на данный момент доступные функции реализованы в виде дополнительного блока настроек под чатом. Также доступны команды "!baka" и "!raep ник".',
-        url: '//cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.js'
+        description: "Ну, в общем, скриптец вот, всякие плюшки прикрутил. Теперь можно срать в чат еще эффективнее, раздражать модераторов еще больше и многое другое.",
+        authorUrl: "https://github.com/Pirate505/animach-xtra",
+        url: '//cdn.rawgit.com/Pirate505/animach-xtra/master/src/animachxtra.user.js'
     });
 });
