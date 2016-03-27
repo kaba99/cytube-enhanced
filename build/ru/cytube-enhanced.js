@@ -16346,6 +16346,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         permittedCommands: ['*']
     };
     settings = $.extend({}, defaultSettings, settings);
+    settings.permittedCommands = _.isArray(settings.permittedCommands) ? settings.permittedCommands : [];
+    settings.permittedCommands = _.map(settings.permittedCommands, function (value) { return _.toLower(value); });
 
 
     this.isCommandPermitted = function (commandName) {
@@ -16583,8 +16585,9 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         that.IS_COMMAND = false;
 
         for (var command in that.commandsList) {
-            console.log(command);
-            if (this.commandsList.hasOwnProperty(command) && msg.indexOf(command) === 0) {
+            console.log(_.trim(msg));
+            console.log(_.trim(msg).indexOf(command));
+            if (this.commandsList.hasOwnProperty(command) && _.toLower(_.trim(msg)).indexOf(command) === 0) {
                 if (that.isCommandPermitted(command) && (that.commandsList[command].isAvailable ? that.commandsList[command].isAvailable() : true)) {
                     that.IS_COMMAND = true;
 
