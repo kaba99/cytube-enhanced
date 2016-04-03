@@ -75,22 +75,19 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
         }
 
 
-        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger">' + app.t('pmHistory[.]Reset history') + '</button>')
+        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger" data-dismiss="modal">' + app.t('pmHistory[.]Reset history') + '</button>')
             .on('click', function () {
                 if (window.confirm(app.t('pmHistory[.]Are you sure, that you want to clear messages history?'))) {
-                    that.resetChatHistory($modalWindow);
+                    that.resetChatHistory();
                 }
             });
-        var $exitChatHistoryBtn = $('<button type="button" id="pm-history-exit-btn" class="btn btn-info">' + app.t('pmHistory[.]Exit') + '</button>')
-            .on('click', function () {
-                $modalWindow.modal('hide');
-            });
+        var $exitChatHistoryBtn = $('<button type="button" id="pm-history-exit-btn" class="btn btn-default" data-dismiss="modal">' + app.t('pmHistory[.]Exit') + '</button>');
         var $footer = $('<div class="pm-history-footer">');
         $footer.append($resetChatHistoryBtn);
         $footer.append($exitChatHistoryBtn);
 
 
-        $modalWindow = app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
+        return app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
     };
 
     this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
@@ -102,11 +99,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
 
 
 
-    this.resetChatHistory = function ($modalWindow) {
+    this.resetChatHistory = function () {
         app.storage.set('pmHistory', app.storage.getDefault('pmHistory'));
-
-        if ($modalWindow != null) {
-            $modalWindow.modal('hide');
-        }
     };
 });

@@ -3,8 +3,20 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
     autoSave = (typeof autoSave !== 'undefined') ? autoSave : false;
 
+    /**
+     * Default data (set up by setDefault method)
+     * @type {{}}
+     */
     var defaultData = {};
+    /**
+     * Not dirty data
+     * @type {{}}
+     */
     var initialData = {};
+    /**
+     * Data
+     * @type {{}}
+     */
     var data = {};
 
     try {
@@ -17,7 +29,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
 
 
     this.getDefault = function (name) {
-        return initialData[name];
+        return defaultData[name];
     };
 
 

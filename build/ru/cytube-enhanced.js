@@ -15513,8 +15513,20 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
     autoSave = (typeof autoSave !== 'undefined') ? autoSave : false;
 
+    /**
+     * Default data (set up by setDefault method)
+     * @type {{}}
+     */
     var defaultData = {};
+    /**
+     * Not dirty data
+     * @type {{}}
+     */
     var initialData = {};
+    /**
+     * Data
+     * @type {{}}
+     */
     var data = {};
 
     try {
@@ -15527,7 +15539,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
 
 
     this.getDefault = function (name) {
-        return initialData[name];
+        return defaultData[name];
     };
 
 
@@ -17177,22 +17189,19 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
         }
 
 
-        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger">' + app.t('pmHistory[.]Reset history') + '</button>')
+        var $resetChatHistoryBtn = $('<button type="button" id="pm-history-reset-btn" class="btn btn-danger" data-dismiss="modal">' + app.t('pmHistory[.]Reset history') + '</button>')
             .on('click', function () {
                 if (window.confirm(app.t('pmHistory[.]Are you sure, that you want to clear messages history?'))) {
-                    that.resetChatHistory($modalWindow);
+                    that.resetChatHistory();
                 }
             });
-        var $exitChatHistoryBtn = $('<button type="button" id="pm-history-exit-btn" class="btn btn-info">' + app.t('pmHistory[.]Exit') + '</button>')
-            .on('click', function () {
-                $modalWindow.modal('hide');
-            });
+        var $exitChatHistoryBtn = $('<button type="button" id="pm-history-exit-btn" class="btn btn-default" data-dismiss="modal">' + app.t('pmHistory[.]Exit') + '</button>');
         var $footer = $('<div class="pm-history-footer">');
         $footer.append($resetChatHistoryBtn);
         $footer.append($exitChatHistoryBtn);
 
 
-        $modalWindow = app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
+        return app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
     };
 
     this.$showChatHistoryBtn = $('<span id="pm-history-btn" class="label label-default pull-right pointer">')
@@ -17204,12 +17213,8 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
 
 
 
-    this.resetChatHistory = function ($modalWindow) {
+    this.resetChatHistory = function () {
         app.storage.set('pmHistory', app.storage.getDefault('pmHistory'));
-
-        if ($modalWindow != null) {
-            $modalWindow.modal('hide');
-        }
     };
 });
 },{}],19:[function(require,module,exports){
@@ -17847,27 +17852,19 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.showHelp = function () {
-        var $modalWindow;
-
+        var $header = $('<div class="modal-header__inner">');
+        $header.append($('<h3 class="modal-title">').text(app.t('Help')));
 
         var $wrapper = $('<div class="help-pictures-content">');
         $wrapper.append($('<p>' + app.t('favPics[.]<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>') + '</p>'));
 
 
-        var $exitPicturesHelpBtn = $('<button type="button" id="help-pictures-exit-btn" class="btn btn-info">' + app.t('favPics[.]Exit') + '</button>')
-            .on('click', function () {
-                $modalWindow.modal('hide');
-            });
+        var $exitPicturesHelpBtn = $('<button type="button" id="help-pictures-exit-btn" class="btn btn-info" data-dismiss="modal">' + app.t('favPics[.]Exit') + '</button>');
         var $footer = $('<div class="help-pictures-footer">');
         $footer.append($exitPicturesHelpBtn);
 
 
-        app.getModule('utils').done(function (utilsModule) {
-            $modalWindow = utilsModule.createModalWindow(app.t('Help'), $wrapper, $footer);
-        });
-
-
-        return $modalWindow;
+        return app.UI.createModalWindow('chat-history', $header, $wrapper, $footer);
     };
     $('#help-pictures-btn').on('click', function (e) {
         e.preventDefault();
