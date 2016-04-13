@@ -43,7 +43,7 @@
         "name": "cirno",
         "source": "^Сырно: (.+?)$",
         "flags": "",
-        "replace": "<span style=\"color:#37B1E6\"><b>Сырно:</b> \\1</span>",
+        "replace": "<span class=\"cirno\"><b>Сырно:</b> \\1</span>",
         "active": true,
         "filterlinks": false
     },
@@ -51,7 +51,7 @@
         "name": "partial quote",
         "source": "&gt;(.+?)$",
         "flags": "g",
-        "replace": "<span style=\"color:#6F8F23\">&gt;\\1 </span>",
+        "replace": "<span class=\"quote\">&gt;\\1 </span>",
         "active": true,
         "filterlinks": false
     },
@@ -64,34 +64,10 @@
         "filterlinks": true
     },
     {
-        "name": "short spoiler",
-        "source": "\\[sp\\]",
-        "flags": "g",
-        "replace": "<span class=\"spoiler\">",
-        "active": true,
-        "filterlinks": false
-    },
-    {
-        "name": "closing font style",
-        "source": "\\[\\/\\]",
-        "flags": "g",
-        "replace": "<span>",
-        "active": true,
-        "filterlinks": false
-    },
-    {
         "name": "italic text",
         "source": "\\[i\\](.+?)\\[\\/i\\]",
         "flags": "g",
         "replace": "<em>\\1</em>",
-        "active": true,
-        "filterlinks": false
-    },
-    {
-        "name": "fire text",
-        "source": "\\[f\\]",
-        "flags": "g",
-        "replace": "<span style=\"color:#FFFFFF; font-family:impact, sans-serif; padding-top:20px; text-shadow:0px 0px 4px #000000, 0px -5px 4px #FFFF33, 2px -8px 6px #FFDD33, -2px -15px 10px #FF8800, 2px -20px 18px #FF2200; letter-spacing:2px\">",
         "active": true,
         "filterlinks": false
     },
