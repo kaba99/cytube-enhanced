@@ -94,5 +94,21 @@
         "replace": "<s>\\1</s>",
         "active": true,
         "filterlinks": false
+    },
+    {
+        "name": "short spoiler",
+        "source": "\\[sp\\]",
+        "flags": "g",
+        "replace": "<span class=\"spoiler\">",
+        "active": true,
+        "filterlinks": false
+    },
+    {
+        "name": "closing font style",
+        "source": "\\[\\/\\]",
+        "flags": "g",
+        "replace": "<span>",
+        "active": true,
+        "filterlinks": false
     }
 ]
