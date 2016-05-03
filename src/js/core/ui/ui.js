@@ -70,7 +70,7 @@ window.CytubeEnhancedUI = function (app) {
         $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
 
 
-        $outer.on('show.bs.modal', function () {
+        $outer.on('shown.bs.modal', function () {
             that.centerModals($(this));
         });
 
@@ -192,7 +192,7 @@ window.CytubeEnhancedUI = function (app) {
 
             $modal.css({
                 display: 'block',
-                marginTop: (Math.max(0, ($(window).height() - $modal.find('.modal-dialog').height()) / 2))
+                marginTop: (Math.max(0, ($(window).height() - $modal.outerHeight()) / 2))
             });
         });
     };
