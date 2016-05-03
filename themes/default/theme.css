@@ -4918,29 +4918,6 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     max-width: 80px;
     cursor: pointer;
 }
-#modal-picture {
-    left: 50%;
-    top: 50%;
-    z-index: 100000000;
-    box-sizing: border-box;
-}
-#modal-picture-overlay {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 99999999;
-}
-#modal-picture-options-wrapper {
-    position: relative;
-}
-#modal-picture-options {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    left: 0;
-    top: 0;
-    margin-left: -40px;
-}
 @-webkit-keyframes yoba-move {
     0%, 100% {
         -webkit-transform: rotate3d(1, 1, 1, 0deg);

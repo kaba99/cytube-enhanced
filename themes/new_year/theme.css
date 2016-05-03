@@ -1735,15 +1735,11 @@ textarea.input-lg {
     font-weight: 400;
     color: #fff;
     cursor: pointer;
-    border-radius: 0;
 }
 .btn-link, .btn-link:active, .btn-link[disabled], fieldset[disabled] .btn-link {
     background-color: transparent;
     -webkit-box-shadow: none;
     box-shadow: none;
-}
-.btn-link, .btn-link:active, .btn-link:focus, .btn-link:hover {
-    border-color: transparent;
 }
 .btn-link:focus, .btn-link:hover {
     color: #fff;
@@ -4970,29 +4966,6 @@ input.form-control[type=email], input.form-control[type=password], input.form-co
     max-height: 40px;
     max-width: 80px;
     cursor: pointer;
-}
-#modal-picture {
-    left: 50%;
-    top: 50%;
-    z-index: 100000000;
-    box-sizing: border-box;
-}
-#modal-picture-overlay {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 99999999;
-}
-#modal-picture-options-wrapper {
-    position: relative;
-}
-#modal-picture-options {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    left: 0;
-    top: 0;
-    margin-left: -40px;
 }
 @keyframes yoba-move {
     0%, 100% {

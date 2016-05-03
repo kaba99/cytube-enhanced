@@ -27,9 +27,9 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
                 var $modalPictureOptions = $('<div id="modal-picture-options">');
                 $modalPicture.append($('<div id="modal-picture-options-wrapper">').append($modalPictureOptions));
 
-                $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-eye-open"></i></button>')
+                $('<a href="' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default"><i class="glyphicon glyphicon-eye-open"></i></button>')
                     .appendTo($modalPictureOptions);
-                $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default" style="width:40px;"><i class="glyphicon glyphicon-search"></i></button>')
+                $('<a href="https://www.google.com/searchbyimage?image_url=' + $picture.prop('src') + '" target="_blank" class="btn btn-sm btn-default"><i class="glyphicon glyphicon-search"></i></button>')
                     .appendTo($modalPictureOptions);
 
 
