@@ -5,10 +5,11 @@
   "main": "gulpfile-en.js",
   "browser": {
     "jquery.selection": "./other_vendors/jquery.selection.js",
-    "lodash": "./other_vendors/lodash.js"
+    "lodash": "./other_vendors/lodash.js",
+    "jquery.ui.touch-punch": "./other_vendors/jquery.ui.touch-punch.js"
   },
   "dependencies": {
-    "jquery-mousewheel": "*"
+    "jquery-mousewheel": "^3.1.13"
   },
   "devDependencies": {
     "browserify": "^11.0.0",

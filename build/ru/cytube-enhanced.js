@@ -606,6 +606,187 @@ window.cytubeEnhanced.getModule('extras').done(function (extraModules) {
 })(jQuery, window, window.document);
 
 },{}],6:[function(require,module,exports){
+/*!
+ * jQuery UI Touch Punch 0.2.3
+ *
+ * Copyright 2011–2014, Dave Furfero
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ *
+ * Depends:
+ *  jquery.ui.widget.js
+ *  jquery.ui.mouse.js
+ */
+(function ($) {
+
+  // Detect touch support
+  $.support.touch = 'ontouchend' in document;
+
+  // Ignore browsers without touch support
+  if (!$.support.touch) {
+    return;
+  }
+
+  var mouseProto = $.ui.mouse.prototype,
+      _mouseInit = mouseProto._mouseInit,
+      _mouseDestroy = mouseProto._mouseDestroy,
+      touchHandled;
+
+  /**
+   * Simulate a mouse event based on a corresponding touch event
+   * @param {Object} event A touch event
+   * @param {String} simulatedType The corresponding mouse event
+   */
+  function simulateMouseEvent (event, simulatedType) {
+
+    // Ignore multi-touch events
+    if (event.originalEvent.touches.length > 1) {
+      return;
+    }
+
+    event.preventDefault();
+
+    var touch = event.originalEvent.changedTouches[0],
+        simulatedEvent = document.createEvent('MouseEvents');
+    
+    // Initialize the simulated mouse event using the touch event's coordinates
+    simulatedEvent.initMouseEvent(
+      simulatedType,    // type
+      true,             // bubbles                    
+      true,             // cancelable                 
+      window,           // view                       
+      1,                // detail                     
+      touch.screenX,    // screenX                    
+      touch.screenY,    // screenY                    
+      touch.clientX,    // clientX                    
+      touch.clientY,    // clientY                    
+      false,            // ctrlKey                    
+      false,            // altKey                     
+      false,            // shiftKey                   
+      false,            // metaKey                    
+      0,                // button                     
+      null              // relatedTarget              
+    );
+
+    // Dispatch the simulated event to the target element
+    event.target.dispatchEvent(simulatedEvent);
+  }
+
+  /**
+   * Handle the jQuery UI widget's touchstart events
+   * @param {Object} event The widget element's touchstart event
+   */
+  mouseProto._touchStart = function (event) {
+
+    var self = this;
+
+    // Ignore the event if another widget is already being handled
+    if (touchHandled || !self._mouseCapture(event.originalEvent.changedTouches[0])) {
+      return;
+    }
+
+    // Set the flag to prevent other widgets from inheriting the touch event
+    touchHandled = true;
+
+    // Track movement to determine if interaction was a click
+    self._touchMoved = false;
+
+    // Simulate the mouseover event
+    simulateMouseEvent(event, 'mouseover');
+
+    // Simulate the mousemove event
+    simulateMouseEvent(event, 'mousemove');
+
+    // Simulate the mousedown event
+    simulateMouseEvent(event, 'mousedown');
+  };
+
+  /**
+   * Handle the jQuery UI widget's touchmove events
+   * @param {Object} event The document's touchmove event
+   */
+  mouseProto._touchMove = function (event) {
+
+    // Ignore event if not handled
+    if (!touchHandled) {
+      return;
+    }
+
+    // Interaction was not a click
+    this._touchMoved = true;
+
+    // Simulate the mousemove event
+    simulateMouseEvent(event, 'mousemove');
+  };
+
+  /**
+   * Handle the jQuery UI widget's touchend events
+   * @param {Object} event The document's touchend event
+   */
+  mouseProto._touchEnd = function (event) {
+
+    // Ignore event if not handled
+    if (!touchHandled) {
+      return;
+    }
+
+    // Simulate the mouseup event
+    simulateMouseEvent(event, 'mouseup');
+
+    // Simulate the mouseout event
+    simulateMouseEvent(event, 'mouseout');
+
+    // If the touch interaction did not move, it should trigger a click
+    if (!this._touchMoved) {
+
+      // Simulate the click event
+      simulateMouseEvent(event, 'click');
+    }
+
+    // Unset the flag to allow other widgets to inherit the touch event
+    touchHandled = false;
+  };
+
+  /**
+   * A duck punch of the $.ui.mouse _mouseInit method to support touch events.
+   * This method extends the widget with bound touch event handlers that
+   * translate touch events to mouse events and pass them to the widget's
+   * original mouse event handling methods.
+   */
+  mouseProto._mouseInit = function () {
+    
+    var self = this;
+
+    // Delegate the touch handlers to the widget's element
+    self.element.bind({
+      touchstart: $.proxy(self, '_touchStart'),
+      touchmove: $.proxy(self, '_touchMove'),
+      touchend: $.proxy(self, '_touchEnd')
+    });
+
+    // Call the original $.ui.mouse init method
+    _mouseInit.call(self);
+  };
+
+  /**
+   * Remove the touch event handlers
+   */
+  mouseProto._mouseDestroy = function () {
+    
+    var self = this;
+
+    // Delegate the touch handlers to the widget's element
+    self.element.unbind({
+      touchstart: $.proxy(self, '_touchStart'),
+      touchmove: $.proxy(self, '_touchMove'),
+      touchend: $.proxy(self, '_touchEnd')
+    });
+
+    // Call the original $.ui.mouse destroy method
+    _mouseDestroy.call(self);
+  };
+
+})(jQuery);
+},{}],7:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -16757,7 +16938,7 @@ window.cytubeEnhanced.getModule('extras').done(function (extraModules) {
   }
 }.call(this));
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 window.CytubeEnhancedHelpers = function (app) {
     var that = this;
 
@@ -16771,7 +16952,7 @@ window.CytubeEnhancedHelpers = function (app) {
         };
     }
 };
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     var that = this;
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
@@ -16893,7 +17074,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
         }
     };
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.CytubeEnhancedUISettings = function (app) {
     'use strict';
     var that = this;
@@ -17112,7 +17293,7 @@ window.CytubeEnhancedUISettings = function (app) {
         pageReloadRequested = true;
     };
 };
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 window.CytubeEnhancedUITab = function (app, name, title, sort) {
     'use strict';
     var that = this;
@@ -17218,7 +17399,7 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
         that.$content.empty();
     }
 };
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 window.CytubeEnhancedUI = function (app) {
     var that = this;
 
@@ -17421,14 +17602,14 @@ window.CytubeEnhancedUI = function (app) {
         that.centerModals();
     });
 };
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'ru') : 'ru'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {}),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesExtends || {}) : {})
 );
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 require('lodash');
 window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
     'use strict';
@@ -17613,7 +17794,7 @@ window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
     this.Settings = new window.CytubeEnhancedUISettings(this);
 };
 
-},{"lodash":6}],14:[function(require,module,exports){
+},{"lodash":7}],15:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
     var that = this;
@@ -17958,7 +18139,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     });
 });
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
@@ -18078,7 +18259,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     });
 });
 
-},{"jquery.selection":5}],16:[function(require,module,exports){
+},{"jquery.selection":5}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
@@ -18228,7 +18409,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
         });
     }
 });
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app, settings) {
     'use strict';
     var that = this;
@@ -18295,7 +18476,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app, settings) {
         });
 });
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -18375,7 +18556,7 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*
 TODO: keep pm messages, add ability to user to specify settings, ignore users
  */
@@ -18486,7 +18667,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
         app.storage.set('pmHistory', app.storage.getDefault('pmHistory'));
     };
 });
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -18636,7 +18817,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('#queue').sortable("option", "axis", "y");
 });
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     'use strict';
     var that = this;
@@ -18727,7 +18908,7 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     this.applyUserCss(app.Settings.storage.get(namespace + '.css'))
 });
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     'use strict';
     var that = this;
@@ -18816,7 +18997,7 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     this.applyUserJs(app.Settings.storage.get(namespace + '.js'))
 });
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
     var that = this;
@@ -18945,7 +19126,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     });
 });
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -19226,8 +19407,9 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 require('jquery-mousewheel')($);
+require('jquery.ui.touch-punch');
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     'use strict';
@@ -19342,7 +19524,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":4}],26:[function(require,module,exports){
+},{"jquery-mousewheel":4,"jquery.ui.touch-punch":6}],27:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -19376,7 +19558,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
         }
     });
 });
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
 
@@ -19664,7 +19846,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         that.$htmlToTabs.addClass('btn-success');
     });
 });
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -19701,7 +19883,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -19789,7 +19971,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
             });
     }
 });
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
     var that = this;
@@ -19883,7 +20065,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     };
 });
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 window.cytubeEnhanced.addModule('themes', function (app, settings) {
     'use strict';
     var that = this;
@@ -20024,7 +20206,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     });
 });
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     'use strict';
     var that = this;
@@ -20184,7 +20366,7 @@ window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -20404,7 +20586,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -20530,7 +20712,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -20591,7 +20773,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 window.cytubeEnhancedDefaultTranslates = window.cytubeEnhancedDefaultTranslates || {};
 window.cytubeEnhancedDefaultTranslates['ru'] = {
     qCommands: {
@@ -20782,7 +20964,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
     'Confirm': 'Подтвердить',
     'Cancel': 'Отмена'
 };
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Стандартная тема',
@@ -20792,7 +20974,7 @@ window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
         pictureUrl: 'http://i.imgur.com/GFqNMYC.png'
     });
 });
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Новогодняя тема',
@@ -20802,4 +20984,4 @@ window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
         pictureUrl: 'http://i.imgur.com/N9JOTno.png'
     });
 });
-},{}]},{},[36,7,8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,1,2,3,37,38]);
+},{}]},{},[37,8,9,10,11,12,14,13,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,1,2,3,38,39]);

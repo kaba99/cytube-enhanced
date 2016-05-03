@@ -1,4 +1,5 @@
 require('jquery-mousewheel')($);
+require('jquery.ui.touch-punch');
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     'use strict';
