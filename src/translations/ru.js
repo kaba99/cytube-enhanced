@@ -102,7 +102,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'Small': 'Маленькие',
         'Big': 'Большие'
     },
-    standardUI: {   //app.t('standardUI[.]')
+    standardUI: {
         'Create a poll': 'Создать опрос',
         'Add video': 'Добавить видео',
         'Add video from url': 'Добавить видео по ссылке',

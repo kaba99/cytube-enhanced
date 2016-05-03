@@ -17112,11 +17112,17 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
 });
 
 },{}],18:[function(require,module,exports){
-window.cytubeEnhanced.addModule('chatHistory', function (app) {
+/*
+TODO: keep pm messages, add ability to user to specify settings
+ */
+window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
     'use strict';
     var that = this;
-    var $modalWindow;
 
+    var defaultSettings = {
+        itemsInHistory: 50
+    };
+    settings = $.extend({}, defaultSettings, settings);
     app.storage.setDefault('pmHistory', []);
 
     window.socket.on('chatMsg', function (data) {
@@ -17126,12 +17132,12 @@ window.cytubeEnhanced.addModule('chatHistory', function (app) {
                 pmHistory = [];
             }
 
-            if (pmHistory.length >= 50) {
-                pmHistory = pmHistory.slice(0, 49);
+            if (pmHistory.length >= settings.itemsInHistory) {
+                pmHistory = pmHistory.slice(0, settings.itemsInHistory - 1);
             }
 
             pmHistory.unshift({
-                username: data.username.replace(/[^\w-]/g, '\\$'),
+                username: data.username,
                 msg: data.msg,
                 time: data.time
             });
@@ -19423,7 +19429,7 @@ window.cytubeEnhancedDefaultTranslates['ru'] = {
         'Small': 'Маленькие',
         'Big': 'Большие'
     },
-    standardUI: {   //app.t('standardUI[.]')
+    standardUI: {
         'Create a poll': 'Создать опрос',
         'Add video': 'Добавить видео',
         'Add video from url': 'Добавить видео по ссылке',
