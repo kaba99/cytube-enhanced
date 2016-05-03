@@ -17617,6 +17617,7 @@ window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
 
     this.translations = {};
     this.prefix = 'ce-';
+    this.version = '2.4.3';
 
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
