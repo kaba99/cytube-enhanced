@@ -1714,14 +1714,10 @@ textarea.input-lg {
     font-weight: 400;
     color: #fff;
     cursor: pointer;
-    border-radius: 0;
 }
 .btn-link, .btn-link:active, .btn-link[disabled], fieldset[disabled] .btn-link {
     background-color: transparent;
     box-shadow: none;
-}
-.btn-link, .btn-link:active, .btn-link:focus, .btn-link:hover {
-    border-color: transparent;
 }
 .btn-link:focus, .btn-link:hover {
     color: #fff;
@@ -4687,9 +4683,6 @@ td.hidden-lg, th.hidden-lg {
     background-image: linear-gradient(#484e55, #3a3f44 60%, #313539);
     -webkit-filter: none;
     filter: none;
-}
-.btn-link, .btn-link:hover {
-    border-color: transparent;
 }
 h1, h2, h3, h4, h5, h6 {
     text-shadow: -1px -1px 0 rgba(0, 0, 0, .3);

@@ -24,7 +24,8 @@
 #motd-channel-description {
   margin-bottom: 35px; }
   #motd-channel-description h1 {
-    margin: 0 0 15px 0; }
+    margin: 0 0 15px 0;
+    word-wrap: break-word; }
 
 #currenttitle {
   border: none;
@@ -179,6 +180,8 @@ code {
 
 #motd-tabs {
   text-align: center; }
+  #motd-tabs > * {
+    margin-bottom: 5px; }
 
 .ce-custom-editor-textarea {
   width: 100%;
@@ -330,3 +333,19 @@ code {
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg); } }
+
+#emotelist table {
+  width: 100% !important; }
+
+.emote-preview-container {
+  width: 20% !important;
+  height: 50px !important;
+  margin: 0 !important;
+  padding: 5px !important; }
+
+.emote-preview {
+  max-width: 100% !important;
+  max-height: 100% !important; }
+
+.profile-box, .user-dropdown, #emotelist td {
+  background-color: transparent !important; }

@@ -178,6 +178,6 @@ window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
     this.storage.setDefault('language', language);
 
     this.UI = new window.CytubeEnhancedUI(this);
-
+    this.Helpers = new window.CytubeEnhancedHelpers(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
 };

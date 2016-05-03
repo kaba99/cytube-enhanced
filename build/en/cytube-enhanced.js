@@ -15508,6 +15508,20 @@ window.cytubeEnhanced.getModule('extras').done(function (extraModules) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],7:[function(require,module,exports){
+window.CytubeEnhancedHelpers = function (app) {
+    var that = this;
+
+    this.getViewportSize = function () {
+        var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        return {
+            width: width,
+            height: height
+        };
+    }
+};
+},{}],8:[function(require,module,exports){
 window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
     var that = this;
     isGlobal = (typeof isGlobal !== 'undefined') ? isGlobal : true;
@@ -15629,7 +15643,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
         }
     };
 };
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 window.CytubeEnhancedUISettings = function (app) {
     'use strict';
     var that = this;
@@ -15848,7 +15862,7 @@ window.CytubeEnhancedUISettings = function (app) {
         pageReloadRequested = true;
     };
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.CytubeEnhancedUITab = function (app, name, title, sort) {
     'use strict';
     var that = this;
@@ -15954,7 +15968,7 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
         that.$content.empty();
     }
 };
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 window.CytubeEnhancedUI = function (app) {
     var that = this;
 
@@ -16157,13 +16171,13 @@ window.CytubeEnhancedUI = function (app) {
         that.centerModals();
     });
 };
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 window.cytubeEnhanced = new window.CytubeEnhanced(
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.language || 'en') : 'en'),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesSettings || {}) : {}),
     (window.cytubeEnhancedSettings ? (window.cytubeEnhancedSettings.modulesExtends || {}) : {})
 );
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 require('lodash');
 window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
     'use strict';
@@ -16344,11 +16358,11 @@ window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
     this.storage.setDefault('language', language);
 
     this.UI = new window.CytubeEnhancedUI(this);
-
+    this.Helpers = new window.CytubeEnhancedHelpers(this);
     this.Settings = new window.CytubeEnhancedUISettings(this);
 };
 
-},{"lodash":6}],13:[function(require,module,exports){
+},{"lodash":6}],14:[function(require,module,exports){
 window.cytubeEnhanced.addModule('additionalChatCommands', function (app, settings) {
     'use strict';
     var that = this;
@@ -16693,7 +16707,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     });
 });
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 require('jquery.selection');
 
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
@@ -16813,7 +16827,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     });
 });
 
-},{"jquery.selection":5}],15:[function(require,module,exports){
+},{"jquery.selection":5}],16:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     'use strict';
     var that = this;
@@ -16963,7 +16977,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
         });
     }
 });
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatCommandsHelp', function (app, settings) {
     'use strict';
     var that = this;
@@ -17030,7 +17044,7 @@ window.cytubeEnhanced.addModule('chatCommandsHelp', function (app, settings) {
         });
 });
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
 
@@ -17110,9 +17124,9 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     });
 });
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*
-TODO: keep pm messages, add ability to user to specify settings
+TODO: keep pm messages, add ability to user to specify settings, ignore users
  */
 window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
     'use strict';
@@ -17123,6 +17137,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
     app.storage.setDefault('pmHistory', []);
+
 
     window.socket.on('chatMsg', function (data) {
         if (window.CLIENT.name && data.msg.toLowerCase().indexOf(window.CLIENT.name.toLowerCase()) != -1) {
@@ -17144,7 +17159,6 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
             app.storage.set('pmHistory', pmHistory);
         }
     });
-
 
 
     this.formatHistoryMessage = function (data) {
@@ -17217,12 +17231,11 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
         });
 
 
-
     this.resetChatHistory = function () {
         app.storage.set('pmHistory', app.storage.getDefault('pmHistory'));
     };
 });
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 window.cytubeEnhanced.addModule('utils', function (app, settings) {
     'use strict';
 
@@ -17372,7 +17385,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     $('#queue').sortable("option", "axis", "y");
 });
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     'use strict';
     var that = this;
@@ -17463,7 +17476,7 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
     this.applyUserCss(app.Settings.storage.get(namespace + '.css'))
 });
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     'use strict';
     var that = this;
@@ -17552,7 +17565,7 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
     this.applyUserJs(app.Settings.storage.get(namespace + '.js'))
 });
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 window.cytubeEnhanced.addModule('extras', function (app, settings) {
     'use strict';
     var that = this;
@@ -17681,7 +17694,7 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
     });
 });
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
 
@@ -17962,7 +17975,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     });
 });
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 require('jquery-mousewheel')($);
 
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
@@ -18078,7 +18091,7 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     });
 });
 
-},{"jquery-mousewheel":4}],25:[function(require,module,exports){
+},{"jquery-mousewheel":4}],26:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -18112,7 +18125,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
         }
     });
 });
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
 
@@ -18400,7 +18413,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
         that.$htmlToTabs.addClass('btn-success');
     });
 });
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     'use strict';
 
@@ -18437,7 +18450,7 @@ window.cytubeEnhanced.addModule('showVideoInfo', function (app) {
     });
 });
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
     'use strict';
     var that = this;
@@ -18525,24 +18538,18 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
             });
     }
 });
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 window.cytubeEnhanced.addModule('smiles', function (app) {
     'use strict';
-
     var that = this;
 
-
+    $('#emotelistbtn').hide();
     if ($('#chat-panel').length === 0) {
         $('<div id="chat-panel" class="row">').insertAfter("#main");
     }
-
     if ($('#chat-controls').length === 0) {
         $('<div id="chat-controls" class="btn-group">').appendTo("#chatwrap");
     }
-
-
-    $('#emotelistbtn').hide();
-
 
     this.$smilesBtn = $('<button id="smiles-btn" class="btn btn-sm btn-default" title="' + app.t('emotes[.]Show emotes') + '">')
         .html('<i class="glyphicon glyphicon-picture"></i>')
@@ -18575,32 +18582,46 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
     });
 
 
-    this.handleSmileBtn = function ($smilesBtn) {
-        var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
-
-        if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
-            $('#favourite-pictures-panel').hide();
+    $(window).on('resize', function () {
+        if (app.Helpers.getViewportSize().width < 992) {
+            that.$smilesPanel.empty();
         }
+    });
+    this.showSmilesPanel = function () {
+        if (app.Helpers.getViewportSize().width < 992) {
+            that.$smilesPanel.empty();
+            $('#emotelistbtn').click();
+        } else {
+            if (that.$smilesPanel.html() == '') {
+                that.renderSmiles();
+            }
 
-        this.$smilesPanel.toggle();
+            var smilesAndPicturesTogether = this.smilesAndPicturesTogether || false; //setted up by userConfig module
 
-        if (!smilesAndPicturesTogether) {
-            if ($smilesBtn.hasClass('btn-default')) {
-                if ($('#favourite-pictures-btn').length !== 0 && $('#favourite-pictures-btn').hasClass('btn-success')) {
-                    $('#favourite-pictures-btn').removeClass('btn-success');
-                    $('#favourite-pictures-btn').addClass('btn-default');
+            if ($('#favourite-pictures-panel').length !== 0 && !smilesAndPicturesTogether) {
+                $('#favourite-pictures-panel').hide();
+            }
+
+            that.$smilesPanel.toggle();
+
+            if (!smilesAndPicturesTogether) {
+                if (that.$smilesBtn.hasClass('btn-default')) {
+                    if ($('#favourite-pictures-btn').length !== 0 && $('#favourite-pictures-btn').hasClass('btn-success')) {
+                        $('#favourite-pictures-btn').removeClass('btn-success');
+                        $('#favourite-pictures-btn').addClass('btn-default');
+                    }
+
+                    that.$smilesBtn.removeClass('btn-default');
+                    that.$smilesBtn.addClass('btn-success');
+                } else {
+                    that.$smilesBtn.removeClass('btn-success');
+                    that.$smilesBtn.addClass('btn-default');
                 }
-
-                $smilesBtn.removeClass('btn-default');
-                $smilesBtn.addClass('btn-success');
-            } else {
-                $smilesBtn.removeClass('btn-success');
-                $smilesBtn.addClass('btn-default');
             }
         }
     };
     this.$smilesBtn.on('click', function() {
-        that.handleSmileBtn($(this));
+        that.showSmilesPanel();
     });
 
 
@@ -18609,13 +18630,9 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
         that.$smilesBtn.hide();
         that.$smilesPanel.hide();
     };
-
-
-
-    this.renderSmiles();
 });
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 window.cytubeEnhanced.addModule('themes', function (app, settings) {
     'use strict';
     var that = this;
@@ -18756,7 +18773,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     });
 });
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     'use strict';
     var that = this;
@@ -18916,7 +18933,7 @@ window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     }
 });
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
 
@@ -19136,7 +19153,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     }
 });
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
 
@@ -19262,7 +19279,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     }
 });
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /**
  * Fork of https://github.com/mickey/videojs-progressTips
  */
@@ -19323,7 +19340,7 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
     });
 });
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Стандартная тема',
@@ -19333,7 +19350,7 @@ window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
         pictureUrl: 'http://i.imgur.com/GFqNMYC.png'
     });
 });
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
     extraModules.add({
         title: 'Новогодняя тема',
@@ -19343,4 +19360,4 @@ window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
         pictureUrl: 'http://i.imgur.com/N9JOTno.png'
     });
 });
-},{}]},{},[7,8,9,10,12,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,1,2,3,35,36]);
+},{}]},{},[7,8,9,10,11,13,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,1,2,3,36,37]);

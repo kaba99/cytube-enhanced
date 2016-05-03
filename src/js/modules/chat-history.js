@@ -1,5 +1,5 @@
 /*
-TODO: keep pm messages, add ability to user to specify settings
+TODO: keep pm messages, add ability to user to specify settings, ignore users
  */
 window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
     'use strict';
@@ -10,6 +10,7 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
     app.storage.setDefault('pmHistory', []);
+
 
     window.socket.on('chatMsg', function (data) {
         if (window.CLIENT.name && data.msg.toLowerCase().indexOf(window.CLIENT.name.toLowerCase()) != -1) {
@@ -31,7 +32,6 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
             app.storage.set('pmHistory', pmHistory);
         }
     });
-
 
 
     this.formatHistoryMessage = function (data) {
@@ -102,7 +102,6 @@ window.cytubeEnhanced.addModule('chatHistory', function (app, settings) {
         .on('click', function () {
             that.showChatHistory();
         });
-
 
 
     this.resetChatHistory = function () {
