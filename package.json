@@ -8,8 +8,7 @@
     "lodash": "./other_vendors/lodash.js"
   },
   "dependencies": {
-    "jquery-mousewheel": "^3.1.13",
-    "js-beautify": "^1.6.2"
+    "jquery-mousewheel": "*"
   },
   "devDependencies": {
     "browserify": "^11.0.0",
