@@ -351,3 +351,6 @@ code {
 
 .profile-box, .user-dropdown, #emotelist td {
   background-color: transparent !important; }
+
+body.modal-open {
+  overflow: visible !important; }

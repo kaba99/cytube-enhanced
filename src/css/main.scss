@@ -435,3 +435,9 @@ code {
 .profile-box, .user-dropdown, #emotelist td {
     background-color: transparent !important;
 }
+
+
+//Bootstrap modal jumps to the top of the page on open fix
+body.modal-open {
+    overflow: visible !important;
+}
