@@ -797,7 +797,7 @@
 
 	    this.translations = {};
 	    this.prefix = 'ce-';
-	    this.version = '2.5.0';
+	    this.version = '2.5.1';
 
 	    var modules = {};
 	    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
@@ -19199,7 +19199,7 @@
 	        var pictureMarginLeft = parseInt($modalPicture.css('marginLeft'), 10);
 	        var pictureMarginTop = parseInt($modalPicture.css('marginTop'), 10);
 
-	        if (e.deltaY > 0) { //up
+	        if (e.originalEvent.deltaY > 0) { //up
 	            $modalPicture.css({
 	                width: pictureWidth * (1 + settings.zoom),
 	                height: pictureHeight * (1 + settings.zoom),

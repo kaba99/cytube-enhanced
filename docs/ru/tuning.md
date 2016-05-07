@@ -9,6 +9,7 @@ window.cytubeEnhancedSettings = {
     language: 'en', //необязательный параметр
     modulesSettings: { //необязательный параметр
         additionalChatCommands: {
+            enabled: true, //включен ли модуль, необязательный параметр, есть у всех модулей
             permittedCommands: ['!pick', '!q']
         },
         chatControls: {

@@ -1,3 +1,7 @@
+v2.5.1
+======
+ImagePreview module hotfix. Documentation update.
+
 v2.5.0
 ======
 bbCodesHelper module: settings param templateButtonsOrder was renamed to templateButtons.
