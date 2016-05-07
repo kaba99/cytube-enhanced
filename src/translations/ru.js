@@ -1,5 +1,5 @@
 window.cytubeEnhancedDefaultTranslates = window.cytubeEnhancedDefaultTranslates || {};
-window.cytubeEnhancedDefaultTranslates['ru'] = {
+window.cytubeEnhancedDefaultTranslates.ru = {
     qCommands: {
         'of course': 'определенно да',
         'yes': 'да',

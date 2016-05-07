@@ -85,5 +85,5 @@ window.cytubeEnhanced.addModule('customCss', function (app, settings) {
 
         that.applyUserCss(settings.get(namespace + '.css'));
     });
-    this.applyUserCss(app.Settings.storage.get(namespace + '.css'))
+    this.applyUserCss(app.Settings.storage.get(namespace + '.css'));
 });

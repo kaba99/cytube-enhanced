@@ -1,6 +1,5 @@
-window.cytubeEnhanced.addModule('utils', function (app, settings) {
+window.cytubeEnhanced.addModule('common', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -8,17 +7,20 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
+    this.$chatline = $("#chatline");
+    this.$userlist = $("#userlist");
+
 
     window.chatTabComplete = function () {
         var i;
-        var words = $("#chatline").val().split(" ");
+        var words = that.$chatline.val().split(" ");
         var current = words[words.length - 1].toLowerCase();
         if (!current.match(/^[\wа-яА-ЯёЁ-]{1,20}$/)) {
             return;
         }
 
         var __slice = Array.prototype.slice;
-        var usersWithCap = __slice.call($("#userlist .userlist_item")).map(function (elem) {
+        var usersWithCap = __slice.call(that.$userlist.find('.userlist_item')).map(function (elem) {
             return elem.children[1].innerHTML;
         });
         var users = __slice.call(usersWithCap).map(function (user) {
@@ -82,35 +84,18 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
             current += " ";
         }
         words[words.length - 1] = current;
-        $("#chatline").val(words.join(" "));
-    };
-
-
-    /**
-     * Adds the text to chat input
-     * @param message The text to add.
-     * @param position The position of the adding. It can be 'begin' or 'end'.
-     */
-    this.addMessageToChatInput = function (message, position) {
-        position = position || 'end';
-
-        if (position === 'begin') {
-            message = message + $("#chatline").val();
-        } else {
-            message = $("#chatline").val() + message;
-        }
-
-        $('#chatline').val(message).focus();
+        that.$chatline.val(words.join(" "));
     };
 
 
     if (settings.insertUsernameOnClick) {
-        $('#messagebuffer').on('click', '.username', function() {
-            that.addMessageToChatInput($(this).text(), 'begin');
-        });
-        $('#messagebuffer').on('click', '.chat-avatar', function() {
-            that.addMessageToChatInput($(this).parent().find('.username').text(), 'begin');
-        });
+        $('#messagebuffer')
+            .on('click', '.username', function() {
+                app.Helpers.addMessageToChatInput($(this).text(), 'begin');
+            })
+            .on('click', '.chat-avatar', function() {
+                app.Helpers.addMessageToChatInput($(this).parent().find('.username').text(), 'begin');
+            });
     }
 
 
@@ -132,7 +117,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
             var functionResponse = oldAddUserDropdown(entry);
 
             entry.find('.user-dropdown>strong').click(function () {
-                $(chatline).val($(this).text() + ": " + $(chatline).val());
+                that.$chatline.val($(this).text() + ": " + that.$chatline.val());
             });
 
             return functionResponse;
@@ -140,7 +125,7 @@ window.cytubeEnhanced.addModule('utils', function (app, settings) {
     })(window.addUserDropdown);
 
     $('.user-dropdown>strong').click(function () {
-        $('#chatline').val($(this).text() + ": " + $(chatline).val()).focus();
+        that.$chatline.val($(this).text() + ": " + that.$chatline.val()).focus();
     });
 
 

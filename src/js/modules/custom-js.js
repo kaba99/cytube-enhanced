@@ -83,5 +83,5 @@ window.cytubeEnhanced.addModule('customJs', function (app, settings) {
 
         that.applyUserJs(settings.get(namespace + '.js'));
     });
-    this.applyUserJs(app.Settings.storage.get(namespace + '.js'))
+    this.applyUserJs(app.Settings.storage.get(namespace + '.js'));
 });

@@ -101,5 +101,5 @@ window.CytubeEnhancedUITab = function (app, name, title, sort) {
     this.remove = function () {
         that.$button.empty();
         that.$content.empty();
-    }
+    };
 };

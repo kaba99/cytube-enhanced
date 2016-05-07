@@ -1,11 +1,10 @@
 require('jquery.selection');
-
 window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     'use strict';
     var that = this;
 
     var defaultSettings = {
-        templateButtonsOrder: ['b', 'i', 'sp', 'code', 's'],
+        templateButtons: ['b', 'i', 'sp', 'code', 's'],
         templateButtonsAnimationSpeed: 150
     };
     settings = $.extend({}, defaultSettings, settings);
@@ -60,7 +59,7 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     /**
      * Markdown templates
      *
-     * To add your template you need to also add your template key into settings.templateButtonsOrder
+     * To add your template you need to also add your template key into settings.templateButtons
      * @type {object}
      */
     this.markdownTemplates = {
@@ -87,8 +86,8 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
     };
 
     var template;
-    for (var templateIndex = 0, templatesLength = settings.templateButtonsOrder.length; templateIndex < templatesLength; templateIndex++) {
-        template = settings.templateButtonsOrder[templateIndex];
+    for (var templateIndex = 0, templatesLength = settings.templateButtons.length; templateIndex < templatesLength; templateIndex++) {
+        template = settings.templateButtons[templateIndex];
 
         $('<button type="button" class="btn btn-sm btn-default" title="' + this.markdownTemplates[template].title + '">')
             .html(this.markdownTemplates[template].text)
@@ -99,15 +98,15 @@ window.cytubeEnhanced.addModule('bbCodesHelper', function (app, settings) {
 
     this.handleMarkdown = function (templateType) {
         if (this.markdownTemplates.hasOwnProperty(templateType)) {
-            $('#chatline').selection('insert', {
-                text: '[' + templateType + ']',
-                mode: 'before'
-            });
-
-            $('#chatline').selection('insert', {
-                text: '[/' + templateType + ']',
-                mode: 'after'
-            });
+            $('#chatline')
+                .selection('insert', {
+                    text: '[' + templateType + ']',
+                    mode: 'before'
+                })
+                .selection('insert', {
+                    text: '[/' + templateType + ']',
+                    mode: 'after'
+                });
         }
     };
     this.$markdownTemplatesWrapper.on('click', 'button', function () {

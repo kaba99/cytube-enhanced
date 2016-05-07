@@ -45,7 +45,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
     };
 
     this.getAvatarFromCache = function (username) {
-        var cachedAvatar = _.findLast(appSettings.get(namespace + '.cache'), function (o) { return o.username == username });
+        var cachedAvatar = _.findLast(appSettings.get(namespace + '.cache'), function (o) { return o.username == username; });
         cachedAvatar = cachedAvatar ? cachedAvatar.avatar : null;
 
         return cachedAvatar;
@@ -66,7 +66,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
                 that.cacheAvatar(username, newAvatar);
             }
 
-            if ($messageBlock.find('.' + settings.avatarClass).length == 0) {
+            if ($messageBlock.find('.' + settings.avatarClass).length === 0) {
                 var $avatar = $("<img>").attr("src", newAvatar || cachedAvatar)
                     .addClass(settings.avatarClass + ' ' + ((userSettings.get(namespace + '.avatars-mode') == 'big') ? settings.bigAvatarClass : settings.smallAvatarClass))
                     .prependTo($messageBlock);
@@ -96,7 +96,7 @@ window.cytubeEnhanced.addModule('chatAvatars', function (app, settings) {
 
         if (userSettings.get(namespace + '.' + itemName)) {
             for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
+                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value);
             }
         }
 

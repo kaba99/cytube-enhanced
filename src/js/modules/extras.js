@@ -54,9 +54,9 @@ window.cytubeEnhanced.addModule('extras', function (app, settings) {
 
 
         config.authorUrl = _.trim(config.authorUrl);
-        var $title = (config.authorUrl != '')
-            ? $('<a class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_link" target="_blank">').attr('href', config.authorUrl).text(config.title).appendTo($moduleInfo)
-            : $('<div class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_text">').text(config.title).appendTo($moduleInfo);
+        var $title = config.authorUrl ?
+            $('<a class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_link" target="_blank">').attr('href', config.authorUrl).text(config.title).appendTo($moduleInfo) :
+            $('<div class="' + app.prefix + 'extras__item__title ' + app.prefix + 'extras__item__title_text">').text(config.title).appendTo($moduleInfo);
 
         var $description = $('<div class="' + app.prefix + 'extras__item__description">').text(config.description || 'Нет описания').appendTo($moduleInfo);
 

@@ -1,4 +1,4 @@
-window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (app) {
+window.cytubeEnhanced.addModule('languageSwitcher', function (app) {
     'use strict';
     var that = this;
 

@@ -9,6 +9,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     settings.permittedCommands = _.isArray(settings.permittedCommands) ? settings.permittedCommands : [];
     settings.permittedCommands = _.map(settings.permittedCommands, function (value) { return _.toLower(value); });
 
+    this.$chatline = $('#chatline');
+
 
     this.isCommandPermitted = function (commandName) {
         if (that.commandsList[commandName]) {
@@ -26,6 +28,10 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     this.askAnswers = ["100%", app.t('qCommands[.]of course'), app.t('qCommands[.]yes'), app.t('qCommands[.]maybe'), app.t('qCommands[.]impossible'), app.t('qCommands[.]no way'), app.t('qCommands[.]don\'t think so'), app.t('qCommands[.]no'), "50/50", app.t('qCommands[.]cirno is busy'), app.t('qCommands[.]I regret to inform you')];
 
 
+    /**
+     * Quotes for !q command
+     * @type {Array}
+     */
     this.randomQuotes = [];
 
 
@@ -43,8 +49,8 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             value: function (msg) {
                 var formattedMsg = _.trim(msg.replace('!pick', ''));
 
-                if (formattedMsg == '') {
-                    return app.t('chatCommands[.]Use !pick variant1, variant2')
+                if (formattedMsg === '') {
+                    return app.t('chatCommands[.]Use !pick variant1, variant2');
                 } else {
                     var variants = formattedMsg.split(',');
                     return _.trim(variants[Math.floor(Math.random() * variants.length)]);
@@ -200,39 +206,6 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 IMBA.volume = 0.6;
                 IMBA.play();
 
-                //var BGCHANGE = 0;
-                //var inbix = setInterval(function() {
-                //    $('#userlist').css('background', 'rgba(0, 10, 20, 0) none repeat scroll 0% 0%');
-                //    $('#chatline').css('background', 'rgba(0, 10, 20, 0.15) !important');
-                //    BGCHANGE++;
-                //
-                //    if (BGCHANGE % 2 === 0) {
-                //        $("body").css('background', '#663939 url("http://i.imgur.com/BWdf3Jv.png")');
-                //        $('#messagebuffer').css('color', 'black');
-                //        $('#messagebuffer').css('background-image', 'url("http://i.imgur.com/vWFTejN.png")');
-                //        $('#userlist').css('color', 'black');
-                //        $('body').css('color', 'black');
-                //    } else {
-                //        $("body").css('background', '#663939 url("http://i.imgur.com/MVfHhI5.png")');
-                //        $('#messagebuffer').css('color', 'white');
-                //        $('#messagebuffer').css('background', 'none');
-                //        $('#userlist').css('color', 'white');
-                //        $('body').css('color', 'white');
-                //    }
-                //}, 150);
-                //
-                //setTimeout(function() {
-                //    BGCHANGE = 0;
-                //    clearInterval(inbix);
-                //    $("body").css({'background-image':'', 'background-color':''});
-                //    $('#messagebuffer').css('color', '#cccccc');
-                //    $('body').css('font-color', '#EFEFEF');
-                //    $('#messagebuffer').css('background', '');
-                //    $('#userlist').css('background', 'rgba(0, 10, 20, 0.8) none repeat scroll 0% 0%');
-                //    $('#chatline').css('background', 'rgba(0, 10, 20, 0.75) !important');
-                //    $('#userlist').css('color', '#C2C2C2');
-                //}, 27000);
-
                 return ' :dance: ';
             },
             canBeOmitted: true
@@ -245,8 +218,6 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         that.IS_COMMAND = false;
 
         for (var command in that.commandsList) {
-            console.log(_.trim(msg));
-            console.log(_.trim(msg).indexOf(command));
             if (this.commandsList.hasOwnProperty(command) && _.toLower(_.trim(msg)).indexOf(command) === 0) {
                 if (that.isCommandPermitted(command) && (that.commandsList[command].isAvailable ? that.commandsList[command].isAvailable() : true)) {
                     that.IS_COMMAND = true;
@@ -268,7 +239,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 return;
             }
 
-            var msg = $("#chatline").val().trim();
+            var msg = that.$chatline.val().trim();
 
             if(msg !== '') {
                 var meta = {};
@@ -298,9 +269,9 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
                 }
 
 
-                window.CHATHIST.push($("#chatline").val());
+                window.CHATHIST.push(that.$chatline.val());
                 window.CHATHISTIDX = window.CHATHIST.length;
-                $("#chatline").val('');
+                that.$chatline.val('');
             }
 
             return;
@@ -310,11 +281,11 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
             return false;
         } else if(e.keyCode === 38) { // Up arrow (input history)
             if(window.CHATHISTIDX === window.CHATHIST.length) {
-                window.CHATHIST.push($("#chatline").val());
+                window.CHATHIST.push(that.$chatline.val());
             }
             if(window.CHATHISTIDX > 0) {
                 window.CHATHISTIDX--;
-                $("#chatline").val(window.CHATHIST[window.CHATHISTIDX]);
+                that.$chatline.val(window.CHATHIST[window.CHATHISTIDX]);
             }
 
             e.preventDefault();
@@ -322,7 +293,7 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
         } else if(e.keyCode === 40) { // Down arrow (input history)
             if(window.CHATHISTIDX < window.CHATHIST.length - 1) {
                 window.CHATHISTIDX++;
-                $("#chatline").val(window.CHATHIST[window.CHATHISTIDX]);
+                that.$chatline.val(window.CHATHIST[window.CHATHISTIDX]);
             }
 
             e.preventDefault();
@@ -331,13 +302,11 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
     };
 
 
-    $('#chatline, #chatbtn').off();
-
-    $('#chatline').on('keydown', function (e) {
+    that.$chatline.off().on('keydown', function (e) {
         that.sendUserChatMessage(e);
     });
 
-    $('#chatbtn').on('click', function (e) {
+    $('#chatbtn').off().on('click', function (e) {
         that.sendUserChatMessage(e);
     });
 });

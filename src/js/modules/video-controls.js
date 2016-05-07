@@ -1,6 +1,5 @@
 window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -35,15 +34,14 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
 
             $('<div id="player-overlay">').appendTo($playerWindow);
 
-            $hidePlayerBtn.html('<i class="glyphicon glyphicon-film">');
-            $hidePlayerBtn.removeClass('btn-default');
-            $hidePlayerBtn.addClass('btn-success');
+            $hidePlayerBtn.html('<i class="glyphicon glyphicon-film">')
+                .removeClass('btn-default')
+                .addClass('btn-success');
         } else { //video hidden
             $('#player-overlay').remove();
 
-            $hidePlayerBtn.html('<i class="glyphicon glyphicon-ban-circle">');
-            $hidePlayerBtn.removeClass('btn-success');
-            $hidePlayerBtn.addClass('btn-default');
+            $hidePlayerBtn.html('<i class="glyphicon glyphicon-ban-circle">')
+                .removeClass('btn-success').addClass('btn-default');
         }
     };
     this.$hidePlayerBtn = $('<button id="hide-player-btn" class="btn btn-sm btn-default" title="' + app.t('video[.]Hide video') + '">')
@@ -184,7 +182,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
         var $bodyWrapper = $('<div>');
 
         var contributorsList = {};
-        $("#queue .queue_entry").each(function () {
+        $('#queue').find('.queue_entry').each(function () {
             var username = $(this).attr('title').replace('Added by: ', '');
 
             if (contributorsList[username] === undefined) {
@@ -194,7 +192,7 @@ window.cytubeEnhanced.addModule('videoControls', function (app, settings) {
             }
         });
 
-        $bodyWrapper.append($('<p>' + app.t('video[.]Video\'s count') + ': ' + ($("#queue .queue_entry").length + 1) + '</p>'));
+        $bodyWrapper.append($('<p>' + app.t('video[.]Video\'s count') + ': ' + ($('#queue').find('.queue_entry').length + 1) + '</p>'));
 
         var $contributorsListOl = $('<ol>');
         for (var contributor in contributorsList) {

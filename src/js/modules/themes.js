@@ -9,8 +9,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     settings = $.extend({}, defaultSettings, settings);
 
 
-    $('#us-theme').closest('.form-group').hide();
-    $("#us-theme").val('/css/themes/slate.css');
+    $('#us-theme').closest('.form-group').hide().val('/css/themes/slate.css');
     if (window.createCookie) {
         window.createCookie('cytube-theme', '/css/themes/slate.css', 1000);
     }
@@ -71,13 +70,13 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         var config = that.themes[name];
 
         $('#' + settings.themeId).remove();
-        if (config.cssUrl != '') {
+        if (config.cssUrl) {
             $('<link rel="stylesheet" id="' + settings.themeId + '">').attr('href', config.cssUrl).appendTo($('head'));
         } else { //resets to default theme
-            that.setTheme(userSettings.getDefault(namespace + '.selected'))
+            that.setTheme(userSettings.getDefault(namespace + '.selected'));
         }
 
-        if (typeof config.jsUrl !== 'undefined' && config.jsUrl !== '') {
+        if (config.jsUrl) {
             $.getScript(config.jsUrl);
         }
     };

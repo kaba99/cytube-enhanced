@@ -1,9 +1,7 @@
-require('jquery-mousewheel')($);
+require('jquery-mousewheel');
 require('jquery.ui.touch-punch');
-
 window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -67,20 +65,21 @@ window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
 
 
     this.handleModalPictureMouseWheel = function (e) {
-        var pictureWidth = parseInt($('#modal-picture').css('width'), 10);
-        var pictureHeight = parseInt($('#modal-picture').css('height'), 10);
-        var pictureMarginLeft = parseInt($('#modal-picture').css('marginLeft'), 10);
-        var pictureMarginTop = parseInt($('#modal-picture').css('marginTop'), 10);
+        var $modalPicture = $('#modal-picture');
+        var pictureWidth = parseInt($modalPicture.css('width'), 10);
+        var pictureHeight = parseInt($modalPicture.css('height'), 10);
+        var pictureMarginLeft = parseInt($modalPicture.css('marginLeft'), 10);
+        var pictureMarginTop = parseInt($modalPicture.css('marginTop'), 10);
 
         if (e.deltaY > 0) { //up
-            $('#modal-picture').css({
+            $modalPicture.css({
                 width: pictureWidth * (1 + settings.zoom),
                 height: pictureHeight * (1 + settings.zoom),
                 marginLeft: pictureMarginLeft + (-pictureWidth * settings.zoom / 2),
                 marginTop: pictureMarginTop + (-pictureHeight * settings.zoom / 2)
             });
         } else { //down
-            $('#modal-picture').css({
+            $modalPicture.css({
                 width: pictureWidth * (1 - settings.zoom),
                 height: pictureHeight * (1 - settings.zoom),
                 marginLeft: pictureMarginLeft + (pictureWidth * settings.zoom / 2),

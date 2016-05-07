@@ -1,6 +1,5 @@
 window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -8,7 +7,6 @@ window.cytubeEnhanced.addModule('chatControls', function (app, settings) {
         clearChatButton: true
     };
     settings = $.extend({}, defaultSettings, settings);
-
 
 
 

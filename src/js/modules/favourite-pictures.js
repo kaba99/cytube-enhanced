@@ -1,6 +1,5 @@
 window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     'use strict';
-
     var that = this;
 
     var favouritePicturesFromV1 = app.parseJSON(window.localStorage.getItem('favouritePictures'), []);
@@ -100,9 +99,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.insertFavouritePicture = function (address) {
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.addMessageToChatInput(' ' + address + ' ', 'end');
-        });
+        app.Helpers.addMessageToChatInput(' ' + address + ' ', 'end');
     };
     $(document.body).on('click', '.favourite-picture-on-panel', function () {
         that.insertFavouritePicture($(this).attr('src'));
@@ -155,7 +152,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
             }
             $('#picture-address').val('');
 
-            app.storage.set('favouritePictures', favouritePictures)
+            app.storage.set('favouritePictures', favouritePictures);
 
             this.renderFavouritePictures();
         }

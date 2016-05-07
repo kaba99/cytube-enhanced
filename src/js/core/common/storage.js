@@ -99,7 +99,7 @@ window.CytubeEnhancedStorage = function (storageName, isGlobal, autoSave) {
 
     this.save = function () {
         try {
-            return window.localStorage.setItem(storageName + '-' + (isGlobal ? '' : CHANNEL.name) + storageName, JSON.stringify(data))
+            return window.localStorage.setItem(storageName + '-' + (isGlobal ? '' : CHANNEL.name) + storageName, JSON.stringify(data));
         } catch (error) {
             return false;
         }

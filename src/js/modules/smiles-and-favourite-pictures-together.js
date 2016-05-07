@@ -36,7 +36,7 @@ window.cytubeEnhanced.addModule('smilesAndFavouritePicturesTogether', function (
 
         if (userSettings.get(namespace + '.' + itemName)) {
             for (option in schemeItem.options) {
-                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value)
+                schemeItem.options[option].selected = (userSettings.get(namespace + '.' + itemName) == schemeItem.options[option].value);
             }
         }
 

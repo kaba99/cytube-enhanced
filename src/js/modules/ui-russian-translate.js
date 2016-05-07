@@ -155,4 +155,8 @@ window.cytubeEnhanced.addModule('uiRussianTranslate', function (app) {
     if ($('#chatbtn').length !== 0) {
         $('#chatbtn').text('Отправить');
     }
+
+    if ($('#modflair').length !== 0) {
+        $('#modflair').text('Цветной ник');
+    }
 });

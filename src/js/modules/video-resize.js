@@ -1,6 +1,5 @@
 window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     'use strict';
-
     var that = this;
 
     var defaultSettings = {
@@ -8,7 +7,7 @@ window.cytubeEnhanced.addModule('videoResize', function (app, settings) {
     };
     settings = $.extend({}, defaultSettings, settings);
 
-
+    
     function setWight() {
         var self = this;
 

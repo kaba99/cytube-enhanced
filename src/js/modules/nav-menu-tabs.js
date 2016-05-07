@@ -1,6 +1,5 @@
 window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
     'use strict';
-
     var that = this;
 
 
@@ -239,8 +238,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
             $('.motd-tab-content').hide();
             $tabContent.show();
 
-            $('.motd-tab-btn').removeClass('btn-success');
-            $('.motd-tab-btn').addClass('btn-default');
+            $('.motd-tab-btn').removeClass('btn-success').addClass('btn-default');
 
             $tabBtn.removeClass('btn-default');
             $tabBtn.addClass('btn-success');
@@ -257,9 +255,7 @@ window.cytubeEnhanced.addModule('navMenuTabs', function (app) {
 
 
     this.motdHandleDropdown = function () {
-        $('.motd-tab-btn').removeClass('btn-success');
-        $('.motd-tab-btn').addClass('btn-default');
-
+        $('.motd-tab-btn').removeClass('btn-success').addClass('btn-default');
         $('.motd-tab-content').hide();
     };
     $(document.body).on('click', '#motd-tabs .dropdown-toggle', function () {

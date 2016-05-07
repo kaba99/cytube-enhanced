@@ -32,9 +32,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
 
 
     this.insertSmile = function (smileName) {
-        app.getModule('utils').done(function (utilsModule) {
-            utilsModule.addMessageToChatInput(' ' + smileName + ' ', 'end');
-        });
+        app.Helpers.addMessageToChatInput(' ' + smileName + ' ', 'end');
     };
     $(document.body).on('click', '.smile-on-panel', function () {
         that.insertSmile($(this).data('name'));
@@ -51,7 +49,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
             that.$smilesPanel.empty();
             $('#emotelistbtn').click();
         } else {
-            if (that.$smilesPanel.html() == '') {
+            if (that.$smilesPanel.html() === '') {
                 that.renderSmiles();
             }
 
@@ -66,8 +64,7 @@ window.cytubeEnhanced.addModule('smiles', function (app) {
             if (!smilesAndPicturesTogether) {
                 if (that.$smilesBtn.hasClass('btn-default')) {
                     if ($('#favourite-pictures-btn').length !== 0 && $('#favourite-pictures-btn').hasClass('btn-success')) {
-                        $('#favourite-pictures-btn').removeClass('btn-success');
-                        $('#favourite-pictures-btn').addClass('btn-default');
+                        $('#favourite-pictures-btn').removeClass('btn-success').addClass('btn-default');
                     }
 
                     that.$smilesBtn.removeClass('btn-default');

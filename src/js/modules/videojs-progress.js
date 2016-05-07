@@ -3,7 +3,6 @@
  */
 window.cytubeEnhanced.addModule('videojsProgress', function () {
     'use strict';
-
     var that = this;
 
     this.handleProgress = function () {
@@ -40,8 +39,9 @@ window.cytubeEnhanced.addModule('videojsProgress', function () {
                         $tipInner.text(minutes + ":" + seconds);
                     }
 
-                    $tipWrapper.css('top', -($('.vjs-control-bar').height() + $('.vjs-progress-control').height()) + 'px')
-                        .css('left', (e.pageX - $('.vjs-control-bar').offset().left - $tipInner.outerWidth() / 2)+ 'px')
+                    var $controlBar = $('.vjs-control-bar');
+                    $tipWrapper.css('top', -($controlBar.height() + $('.vjs-progress-control').height()) + 'px')
+                        .css('left', (e.pageX - $controlBar.offset().left - $tipInner.outerWidth() / 2)+ 'px')
                         .show();
                 });
 
