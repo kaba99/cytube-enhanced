@@ -5398,8 +5398,8 @@ body {
 }
 
 #messagebuffer {
-    background: rgba(0, 0, 0, 0.79) no-repeat scroll 0% 0% / cover !important;
-    font: 16px !important;
+    background: rgba(0, 0, 0, 0.79) no-repeat scroll 0 0 / cover !important;
+    font-size: 16px !important;
 }
 
 div#player-overlay {
