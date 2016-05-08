@@ -1,9 +1,11 @@
 # CyTube-Enhanced plugin
 
-## Quick start
+## Installation
 
-Just download `./build/your-language/cytube-enhanced.min.js` and `./build/your-language/cytube-enhanced.min.css` and assign them as external stuff in channel settings panel of the channel.
-Also, you should import chat filters from `src/filters.txt` for some modules.
+Just download ./build/your-language/cytube-enhanced.min.js and ./build/your-language/cytube-enhanced.min.css and assign them as external stuff in channel settings panel of the channel.
+Also, you should import chat filters from src/filters.txt for some modules.
+
+[Подробнее](https://github.com/kaba99/cytube-enhanced/tree/master/docs/ru/install.md)
 
 ## Documentation
 

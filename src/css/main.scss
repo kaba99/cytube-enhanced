@@ -432,7 +432,7 @@ code {
     max-height: 100% !important;
 }
 
-.profile-box, .user-dropdown, #emotelist td {
+#emotelist td {
     background-color: transparent !important;
 }
 
@@ -441,4 +441,5 @@ code {
 //Bootstrap modal jumps to the top of the page on open fix
 body.modal-open {
     overflow: visible !important;
+    padding: 0 !important;
 }

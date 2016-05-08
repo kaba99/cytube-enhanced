@@ -78,7 +78,8 @@
 	__webpack_require__(37);
 	__webpack_require__(38);
 	__webpack_require__(39);
-	module.exports = __webpack_require__(40);
+	__webpack_require__(40);
+	module.exports = __webpack_require__(41);
 
 
 /***/ },
@@ -266,7 +267,9 @@
 	    },
 	    themes: {
 	        'Themes': 'Темы',
-	        'Theme settings': 'Настройка темы'
+	        'Theme settings': 'Настройка темы',
+	        'Apply this theme?': 'Изменить тему на выбранную?',
+	        'Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)': 'Тема по умолчанию была измена администратором на "%themeTitle%". Вы хотите попробовать её? (Не забывайте, что вы можете поменять свою тему в расширенных настройках в любое время.)'
 	    },
 	    'Help': 'Помощь',
 	    'Close': 'Закрыть',
@@ -444,6 +447,213 @@
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	window.CytubeEnhancedUI = function (app) {
+	    var that = this;
+
+
+	    /**
+	     * Creates modal window
+	     * @param id Modal id
+	     * @param $headerContent Modal header (optional)
+	     * @param $bodyContent Modal body (optional)
+	     * @param $footerContent Modal footer (optional)
+	     * @param [cache] Don't remove modal dom after close
+	     * @returns {jQuery} Modal window
+	     */
+	    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
+	        $('.modal').modal('hide');
+	        id = app.prefix + 'modal-' + id;
+
+	        var $cachedOuter = $('#' + id);
+	        if (cache) {
+	            if ($cachedOuter.length) {
+	                $cachedOuter.modal('show');
+	                return $cachedOuter;
+	            }
+	        } else {
+	            $cachedOuter.remove();
+	        }
+
+
+	        var $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
+	        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
+	        var $content = $('<div class="modal-content">').appendTo($modal);
+
+	        if ($headerContent) {
+	            var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
+
+	            $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
+	        }
+
+	        if ($bodyContent) {
+	            $('<div class="modal-body">').append($bodyContent).appendTo($content);
+	        }
+
+	        if ($footerContent) {
+	            $('<div class="modal-footer">').append($footerContent).appendTo($content);
+	        }
+
+	        if (!cache) {
+	            $outer.on('hidden.bs.modal', function () {
+	                $(this).remove();
+	            });
+	        }
+
+	        $outer.modal({keyboard: true});
+
+	        return $outer;
+	    };
+
+
+	    this.createConfirmWindow = function (message, callback) {
+	        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
+	        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
+	        var $content = $('<div class="modal-content">').appendTo($modal);
+
+	        $('<div class="modal-header">').html($('<h3 class="modal-title">').text(message)).appendTo($content);
+
+	        var $footer = $('<div class="modal-footer">').appendTo($content);
+	        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
+	            callback();
+	        });
+	        $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
+
+
+	        $outer.on('shown.bs.modal', function () {
+	            that.centerModals($(this));
+	        });
+
+	        $outer.on('hidden.bs.modal', function () {
+	            $(this).remove();
+	        });
+
+
+	        $outer.modal({keyboard: true});
+	    };
+
+
+	    /**
+	     * Creates wrapper for control elements.
+	     * @param type Type of wrapper (default, horizontal, inline).
+	     * @returns {jQuery}
+	     */
+	    this.createControlsWrapper = function (type) {
+	        type = (['default', 'horizontal', 'inline'].indexOf(type) != -1) ? type : 'default';
+
+	        return $('<div class="form-' + type + '">');
+	    };
+
+
+	    /**
+	     * Creates select with bootstrap markup
+	     * @param {String} type Control's type (default, horizontal, inline)
+	     * @param {String} title Label's title
+	     * @param {String} name Name of the select
+	     * @param {Object} [options] Options for the select. An example of options: [{value: 'value 1', title: 'title 1', selected: true}, {value: 'value 2', title: 'title 2'}]
+	     * @param {Function} [handler] Callback, which is calling on every select's change.
+	     * @returns {jQuery}
+	     */
+	    this.createSelectControl = function (type, title, name, options, handler) {
+	        options = options || [];
+	        var $wrapper = $('<div class="form-group">');
+	        var $select;
+
+	        if (type == 'horizontal') {
+	            $('<label for="' + app.prefix + name + '" class="control-label col-sm-4">' + title + '</label>').appendTo($wrapper);
+	            var $selectWrapper = $('<div class="col-sm-8">').appendTo($wrapper);
+	            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($selectWrapper);
+	        } else { //inline or default
+	            $('<label for="' + app.prefix + name + '">' + title + '</label>').appendTo($wrapper);
+	            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($wrapper);
+	        }
+
+	        if (handler) {
+	            $select.on('change', handler);
+	        }
+
+	        var selected;
+	        for (var optionIndex = 0, optionsLength = options.length; optionIndex < optionsLength; optionIndex++) {
+	            selected = options[optionIndex].selected ? 'selected' : '';
+	            $select.append('<option value="' + options[optionIndex].value + '" ' + selected + '>' + options[optionIndex].title + '</option>');
+	        }
+
+	        return $wrapper;
+	    };
+
+
+	    /**
+	     * Creates button
+	     * @param {String} [type] Bootstrap button's type (default, primary, success, danger, alert, info, link, etc)
+	     * @param {String} title Button's title
+	     * @param {Function} [handler] Callback, which is calling on every button's click.
+	     */
+	    this.createButton = function (type, title, handler) {
+	        var $button = $('<button type="button" class="btn btn-' + type + '">' + title + '</button>');
+
+	        if (handler) {
+	            $button.on('click', handler);
+	        }
+
+	        return $button;
+	    };
+
+
+	    /**
+	     * Controls loading spinner
+	     * @param {jQuery} $node Node to append loader
+	     * @param {String} [mode] Forces mode (on|off)
+	     * @returns {jQuery} Spinner
+	     */
+	    this.toggleLoader = function ($node, mode) {
+	        $node.each(function () {
+	            if (typeof mode === 'undefined') {
+	                mode = $node.hasClass('loading-spinner__loading') ? 'off' : 'on';
+	            }
+
+	            $(this).removeClass('loading-spinner__loading');
+	            $('.loading-spinner__overlay').remove();
+	            $(this).css('height', 'auto');
+	            $(this).css('width', 'auto');
+
+	            if (mode === 'on') {
+	                $(this).addClass('loading-spinner__loading');
+	                $(this).css('height', $(this).outerHeight());
+	                $(this).css('width', $(this).outerWidth());
+
+	                $('<div class="loading-spinner__overlay">')
+	                    .append($('<div class="loading-spinner__wrapper">').append('<div class="loading-spinner">'))
+	                    .appendTo($(this));
+	            }
+	        });
+	    };
+	    $.fn.toggleLoader = function (mode) {
+	        that.toggleLoader($(this), mode);
+	    };
+
+
+	    this.centerModals = function ($outer) {
+	        if (typeof $outer === 'undefined') {
+	            $outer = $('.modal-centered');
+	        }
+
+	        $outer.each(function () {
+	            var $modal = $outer.find('.modal-dialog');
+
+	            $modal.css({
+	                display: 'block',
+	                marginTop: (Math.max(0, ($(window).height() - $modal.outerHeight()) / 2))
+	            });
+	        });
+	    };
+	    $(window).resize(function () {
+	        that.centerModals();
+	    });
+	};
+
+/***/ },
+/* 5 */
 /***/ function(module, exports) {
 
 	window.CytubeEnhancedUISettings = function (app) {
@@ -666,7 +876,7 @@
 	};
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	window.CytubeEnhancedUITab = function (app, name, title, sort) {
@@ -776,213 +986,6 @@
 	};
 
 /***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	window.CytubeEnhancedUI = function (app) {
-	    var that = this;
-
-
-	    /**
-	     * Creates modal window
-	     * @param id Modal id
-	     * @param $headerContent Modal header (optional)
-	     * @param $bodyContent Modal body (optional)
-	     * @param $footerContent Modal footer (optional)
-	     * @param [cache] Don't remove modal dom after close
-	     * @returns {jQuery} Modal window
-	     */
-	    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
-	        $('.modal').modal('hide');
-	        id = app.prefix + 'modal-' + id;
-
-	        var $cachedOuter = $('#' + id);
-	        if (cache) {
-	            if ($cachedOuter.length) {
-	                $cachedOuter.modal('show');
-	                return $cachedOuter;
-	            }
-	        } else {
-	            $cachedOuter.remove();
-	        }
-
-
-	        var $outer = $('<div class="modal fade" id="' + id + '" role="dialog" tabindex="-1">').appendTo($("body"));
-	        var $modal = $('<div class="modal-dialog modal-lg">').appendTo($outer);
-	        var $content = $('<div class="modal-content">').appendTo($modal);
-
-	        if ($headerContent) {
-	            var $header = $('<div class="modal-header">').append($headerContent).appendTo($content);
-
-	            $('<button type="button" class="close" data-dismiss="modal" aria-label="' + app.t('Close') + '">').html('<span aria-hidden="true">&times;</span>').prependTo($header);
-	        }
-
-	        if ($bodyContent) {
-	            $('<div class="modal-body">').append($bodyContent).appendTo($content);
-	        }
-
-	        if ($footerContent) {
-	            $('<div class="modal-footer">').append($footerContent).appendTo($content);
-	        }
-
-	        if (!cache) {
-	            $outer.on('hidden.bs.modal', function () {
-	                $(this).remove();
-	            });
-	        }
-
-	        $outer.modal({keyboard: true});
-
-	        return $outer;
-	    };
-
-
-	    this.createConfirmWindow = function (message, callback) {
-	        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
-	        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
-	        var $content = $('<div class="modal-content">').appendTo($modal);
-
-	        $('<div class="modal-header">').html($('<h3 class="modal-title">').text(message)).appendTo($content);
-
-	        var $footer = $('<div class="modal-footer">').appendTo($content);
-	        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
-	            callback();
-	        });
-	        $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
-
-
-	        $outer.on('shown.bs.modal', function () {
-	            that.centerModals($(this));
-	        });
-
-	        $outer.on('hidden.bs.modal', function () {
-	            $(this).remove();
-	        });
-
-
-	        $outer.modal({keyboard: true});
-	    };
-
-
-	    /**
-	     * Creates wrapper for control elements.
-	     * @param type Type of wrapper (default, horizontal, inline).
-	     * @returns {jQuery}
-	     */
-	    this.createControlsWrapper = function (type) {
-	        type = (['default', 'horizontal', 'inline'].indexOf(type) != -1) ? type : 'default';
-
-	        return $('<div class="form-' + type + '">');
-	    };
-
-
-	    /**
-	     * Creates select with bootstrap markup
-	     * @param {String} type Control's type (default, horizontal, inline)
-	     * @param {String} title Label's title
-	     * @param {String} name Name of the select
-	     * @param {Object} [options] Options for the select. An example of options: [{value: 'value 1', title: 'title 1', selected: true}, {value: 'value 2', title: 'title 2'}]
-	     * @param {Function} [handler] Callback, which is calling on every select's change.
-	     * @returns {jQuery}
-	     */
-	    this.createSelectControl = function (type, title, name, options, handler) {
-	        options = options || [];
-	        var $wrapper = $('<div class="form-group">');
-	        var $select;
-
-	        if (type == 'horizontal') {
-	            $('<label for="' + app.prefix + name + '" class="control-label col-sm-4">' + title + '</label>').appendTo($wrapper);
-	            var $selectWrapper = $('<div class="col-sm-8">').appendTo($wrapper);
-	            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($selectWrapper);
-	        } else { //inline or default
-	            $('<label for="' + app.prefix + name + '">' + title + '</label>').appendTo($wrapper);
-	            $select = $('<select id="' + app.prefix + name + '" class="form-control">').appendTo($wrapper);
-	        }
-
-	        if (handler) {
-	            $select.on('change', handler);
-	        }
-
-	        var selected;
-	        for (var optionIndex = 0, optionsLength = options.length; optionIndex < optionsLength; optionIndex++) {
-	            selected = options[optionIndex].selected ? 'selected' : '';
-	            $select.append('<option value="' + options[optionIndex].value + '" ' + selected + '>' + options[optionIndex].title + '</option>');
-	        }
-
-	        return $wrapper;
-	    };
-
-
-	    /**
-	     * Creates button
-	     * @param {String} [type] Bootstrap button's type (default, primary, success, danger, alert, info, link, etc)
-	     * @param {String} title Button's title
-	     * @param {Function} [handler] Callback, which is calling on every button's click.
-	     */
-	    this.createButton = function (type, title, handler) {
-	        var $button = $('<button type="button" class="btn btn-' + type + '">' + title + '</button>');
-
-	        if (handler) {
-	            $button.on('click', handler);
-	        }
-
-	        return $button;
-	    };
-
-
-	    /**
-	     * Controls loading spinner
-	     * @param {jQuery} $node Node to append loader
-	     * @param {String} [mode] Forces mode (on|off)
-	     * @returns {jQuery} Spinner
-	     */
-	    this.toggleLoader = function ($node, mode) {
-	        $node.each(function () {
-	            if (typeof mode === 'undefined') {
-	                mode = $node.hasClass('loading-spinner__loading') ? 'off' : 'on';
-	            }
-
-	            $(this).removeClass('loading-spinner__loading');
-	            $('.loading-spinner__overlay').remove();
-	            $(this).css('height', 'auto');
-	            $(this).css('width', 'auto');
-
-	            if (mode === 'on') {
-	                $(this).addClass('loading-spinner__loading');
-	                $(this).css('height', $(this).outerHeight());
-	                $(this).css('width', $(this).outerWidth());
-
-	                $('<div class="loading-spinner__overlay">')
-	                    .append($('<div class="loading-spinner__wrapper">').append('<div class="loading-spinner">'))
-	                    .appendTo($(this));
-	            }
-	        });
-	    };
-	    $.fn.toggleLoader = function (mode) {
-	        that.toggleLoader($(this), mode);
-	    };
-
-
-	    this.centerModals = function ($outer) {
-	        if (typeof $outer === 'undefined') {
-	            $outer = $('.modal-centered');
-	        }
-
-	        $outer.each(function () {
-	            var $modal = $outer.find('.modal-dialog');
-
-	            $modal.css({
-	                display: 'block',
-	                marginTop: (Math.max(0, ($(window).height() - $modal.outerHeight()) / 2))
-	            });
-	        });
-	    };
-	    $(window).resize(function () {
-	        that.centerModals();
-	    });
-	};
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -993,7 +996,7 @@
 
 	    this.translations = {};
 	    this.prefix = 'ce-';
-	    this.version = '2.5.1';
+	    this.version = '2.6.0';
 
 	    var modules = {};
 	    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
@@ -19396,7 +19399,7 @@
 	        var pictureMarginLeft = parseInt($modalPicture.css('marginLeft'), 10);
 	        var pictureMarginTop = parseInt($modalPicture.css('marginTop'), 10);
 
-	        if (e.originalEvent.deltaY > 0) { //up
+	        if (e.originalEvent.deltaY < 0) { //up
 	            $modalPicture.css({
 	                width: pictureWidth * (1 + settings.zoom),
 	                height: pictureHeight * (1 + settings.zoom),
@@ -20404,8 +20407,8 @@
 	    var that = this;
 
 	    var defaultSettings = {
-	        selected: 'default',
-	        themeId: 'theme-css'
+	        defaultTheme: 'default', //default theme for user (until user do not change it)
+	        themeId: 'theme-css' //node id in DOM
 	    };
 	    settings = $.extend({}, defaultSettings, settings);
 
@@ -20423,8 +20426,33 @@
 	    var $themesInfoMessage = $('<div class="' + app.prefix + 'themes__info-message">').text('Темы отсутствуют.').prependTo(tab.$content);
 
 	    var namespace = 'themes';
-	    userSettings.setDefault(namespace + '.selected', settings.selected);
+	    userSettings.setDefault(namespace + '.selected', settings.defaultTheme);
 	    this.themes = {};
+
+
+	    //if settings.defaultTheme was changed by administrator ask user if he want to switch on it
+	    this.applyNewDefaultTheme = function () {
+	        var previousDefaultTheme = userSettings.get(namespace + '.previousDefaultTheme');
+
+	        if (userSettings.get(namespace + '.selected') == previousDefaultTheme) {
+	            userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
+	            that.setTheme(settings.defaultTheme);
+	            that.applyTheme(settings.defaultTheme);
+	            userSettings.save();
+	        } else if (!previousDefaultTheme || (previousDefaultTheme && previousDefaultTheme != settings.defaultTheme)) {
+	            userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
+	            userSettings.save();
+
+	            if (settings.defaultTheme != userSettings.get(namespace + '.selected')) {
+	                var themeTitle = that.themes[settings.defaultTheme].title;
+	                app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function () {
+	                    that.setTheme(settings.defaultTheme);
+	                    that.applyTheme(settings.defaultTheme);
+	                    userSettings.save();
+	                });
+	            }
+	        }
+	    };
 
 
 	    this.add = function (config) {
@@ -20435,8 +20463,14 @@
 	        that.sort();
 
 	        if (config.name === userSettings.get(namespace + '.selected')) {
+	            if (config.name === settings.defaultTheme) {
+	                userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
+	                userSettings.save();
+	            }
 	            that.setTheme(config.name);
 	            that.applyTheme(config.name);
+	        } else if (config.name === settings.defaultTheme) {
+	            that.applyNewDefaultTheme();
 	        }
 	    };
 
@@ -20488,8 +20522,9 @@
 	            var name = $(this).data('name');
 
 	            if (name !== userSettings.get(namespace + '.selected')) {
-	                app.UI.createConfirmWindow('Изменить тему на выбранную?', function () {
+	                app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function () {
 	                    that.setTheme(name);
+	                    that.applyTheme(name);
 	                });
 	            }
 	        });
@@ -20526,16 +20561,6 @@
 	            themesArray[themeIndex].$el.detach().appendTo($tabContent);
 	        }
 	    };
-
-
-	    /**
-	     * Saving and applying settings
-	     */
-	    app.Settings.onSave(function (settings) {
-	        if (settings.isDirty(namespace + '.selected')) {
-	            app.Settings.requestPageReload();
-	        }
-	    });
 	});
 
 
@@ -21173,7 +21198,7 @@
 	        name: 'default',
 	        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.css',
 	        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/theme.js',
-	        pictureUrl: 'http://i.imgur.com/GFqNMYC.png'
+	        pictureUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/default/screenshot.png'
 	    });
 	});
 
@@ -21187,7 +21212,24 @@
 	        name: 'new-year',
 	        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.css',
 	        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.js',
-	        pictureUrl: 'http://i.imgur.com/N9JOTno.png'
+	        pictureUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/screenshot.png'
+	    });
+	});
+
+/***/ },
+/* 41 */
+/***/ function(module, exports) {
+
+	/*
+	 * Authors: RitE, Pirate505
+	 */
+	window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
+	    extraModules.add({
+	        title: 'Военная тема',
+	        name: 'war',
+	        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/war/theme.css',
+	        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/war/theme.js',
+	        pictureUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/war/screenshot.png'
 	    });
 	});
 

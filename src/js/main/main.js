@@ -5,7 +5,7 @@ window.CytubeEnhanced = function(language, modulesSettings, modulesExtends) {
 
     this.translations = {};
     this.prefix = 'ce-';
-    this.version = '2.5.1';
+    this.version = '2.6.0';
 
     var modules = {};
     var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)

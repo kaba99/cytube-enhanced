@@ -179,7 +179,9 @@ window.cytubeEnhancedDefaultTranslates.ru = {
     },
     themes: {
         'Themes': 'Темы',
-        'Theme settings': 'Настройка темы'
+        'Theme settings': 'Настройка темы',
+        'Apply this theme?': 'Изменить тему на выбранную?',
+        'Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)': 'Тема по умолчанию была измена администратором на "%themeTitle%". Вы хотите попробовать её? (Не забывайте, что вы можете поменять свою тему в расширенных настройках в любое время.)'
     },
     'Help': 'Помощь',
     'Close': 'Закрыть',

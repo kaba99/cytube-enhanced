@@ -3,8 +3,8 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        selected: 'default',
-        themeId: 'theme-css'
+        defaultTheme: 'default', //default theme for user (until user do not change it)
+        themeId: 'theme-css' //node id in DOM
     };
     settings = $.extend({}, defaultSettings, settings);
 
@@ -22,8 +22,33 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     var $themesInfoMessage = $('<div class="' + app.prefix + 'themes__info-message">').text('Темы отсутствуют.').prependTo(tab.$content);
 
     var namespace = 'themes';
-    userSettings.setDefault(namespace + '.selected', settings.selected);
+    userSettings.setDefault(namespace + '.selected', settings.defaultTheme);
     this.themes = {};
+
+
+    //if settings.defaultTheme was changed by administrator ask user if he want to switch on it
+    this.applyNewDefaultTheme = function () {
+        var previousDefaultTheme = userSettings.get(namespace + '.previousDefaultTheme');
+
+        if (userSettings.get(namespace + '.selected') == previousDefaultTheme) {
+            userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
+            that.setTheme(settings.defaultTheme);
+            that.applyTheme(settings.defaultTheme);
+            userSettings.save();
+        } else if (!previousDefaultTheme || (previousDefaultTheme && previousDefaultTheme != settings.defaultTheme)) {
+            userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
+            userSettings.save();
+
+            if (settings.defaultTheme != userSettings.get(namespace + '.selected')) {
+                var themeTitle = that.themes[settings.defaultTheme].title;
+                app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function () {
+                    that.setTheme(settings.defaultTheme);
+                    that.applyTheme(settings.defaultTheme);
+                    userSettings.save();
+                });
+            }
+        }
+    };
 
 
     this.add = function (config) {
@@ -34,8 +59,14 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         that.sort();
 
         if (config.name === userSettings.get(namespace + '.selected')) {
+            if (config.name === settings.defaultTheme) {
+                userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
+                userSettings.save();
+            }
             that.setTheme(config.name);
             that.applyTheme(config.name);
+        } else if (config.name === settings.defaultTheme) {
+            that.applyNewDefaultTheme();
         }
     };
 
@@ -87,8 +118,9 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
             var name = $(this).data('name');
 
             if (name !== userSettings.get(namespace + '.selected')) {
-                app.UI.createConfirmWindow('Изменить тему на выбранную?', function () {
+                app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function () {
                     that.setTheme(name);
+                    that.applyTheme(name);
                 });
             }
         });
@@ -125,14 +157,4 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
             themesArray[themeIndex].$el.detach().appendTo($tabContent);
         }
     };
-
-
-    /**
-     * Saving and applying settings
-     */
-    app.Settings.onSave(function (settings) {
-        if (settings.isDirty(namespace + '.selected')) {
-            app.Settings.requestPageReload();
-        }
-    });
 });

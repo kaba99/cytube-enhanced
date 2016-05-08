@@ -349,8 +349,9 @@ code {
   max-width: 100% !important;
   max-height: 100% !important; }
 
-.profile-box, .user-dropdown, #emotelist td {
+#emotelist td {
   background-color: transparent !important; }
 
 body.modal-open {
-  overflow: visible !important; }
+  overflow: visible !important;
+  padding: 0 !important; }
