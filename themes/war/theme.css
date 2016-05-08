@@ -5389,7 +5389,7 @@ footer {
 }
 
 body {
-    background: rgba(59, 56, 56, 0.70) url("https://i.imgur.com/4kwx3Qv.png") !important;
+    background: rgba(59, 56, 56, 0.70) url("https://dl.dropboxusercontent.com/s/m67fe4exaefucv7/back4.jpg") !important;
     background-size: cover !important;
 }
 
@@ -5398,7 +5398,8 @@ body {
 }
 
 #messagebuffer {
-    background: rgba(0, 0, 0, 0.75) url("https://i.imgur.com/J6gyXRX.png") no-repeat scroll 0% 0% / cover !important;
+    background: rgba(0, 0, 0, 0.79) no-repeat scroll 0% 0% / cover !important;
+    font: 16px !important;
 }
 
 div#player-overlay {
@@ -5415,4 +5416,16 @@ div#player-overlay {
     margin-right: 3px;
     margin-left: 3px;
     margin-bottom: 4px;
+}
+
+.queue_entry {
+    font-size: 10pt;
+}
+
+.queue_active {
+    background: linear-gradient(rgba(203, 108, 16, 0.8),rgba(237, 125, 0, 0.86)) !important;
+}
+
+.queue_active > .qe_title {
+    color: rgb(9, 8, 7) !important;
 }

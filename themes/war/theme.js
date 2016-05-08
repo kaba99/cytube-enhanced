@@ -153,4 +153,44 @@ window.cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
         applySettings(storage);
     });
     applySettings(storage);
+
+
+
+    $(document).ready(themeMain);
+    function themeMain() {
+        $('.queue_entry:even').css('background-color', 'rgba(182, 29, 29, 0.85) !important');
+        $('.queue_active').attr('style', 'background: linear-gradient(rgba(203, 108, 16, 0.8),rgba(237, 125, 0, 0.86)) !important;');
+
+
+        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        var que = document.querySelector('#queue');
+        var config = { attributes: true, childList: true, characterData: true };
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if(mutation.type == 'childList') {
+                    $('.queue_entry:even').css('background-color', 'rgba(182, 29, 29, 0.85) !important');
+                    $('.queue_active').attr('style', 'background: linear-gradient(rgba(203, 108, 16, 0.8),rgba(237, 125, 0, 0.86)) !important;');
+                }
+            });
+        });
+
+        observer.observe(que, config);
+
+        var nakatim = new Audio('https://dl.dropboxusercontent.com/s/0xe85lggoen3b4k/march_cut_1.mp3');
+        nakatim.volume = 0.6;
+
+
+        window.cytubeEnhanced.getModule('additionalChatCommands').done(function(commandsModule) {
+            commandsModule.commandsList['!накатим'] = {
+                description: '',
+                value: function(msg) {
+                    nakatim.play();
+                    return ' https://i.imgur.com/QgVX0XI.png ';
+                },
+                isAvailable: function() {
+                    return true;
+                }
+            }
+        });
+    }
 });
