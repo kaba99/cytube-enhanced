@@ -33,8 +33,9 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
         if (userSettings.get(namespace + '.selected') == previousDefaultTheme) {
             userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
             that.setTheme(settings.defaultTheme);
-            that.applyTheme(settings.defaultTheme);
             userSettings.save();
+            console.log('reloading');
+            window.location.reload();
         } else if (!previousDefaultTheme || (previousDefaultTheme && previousDefaultTheme != settings.defaultTheme)) {
             userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
             userSettings.save();
@@ -43,8 +44,10 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
                 var themeTitle = that.themes[settings.defaultTheme].title;
                 app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function () {
                     that.setTheme(settings.defaultTheme);
-                    that.applyTheme(settings.defaultTheme);
                     userSettings.save();
+                    app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
+                        window.location.reload();
+                    });
                 });
             }
         }
@@ -120,7 +123,6 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
             if (name !== userSettings.get(namespace + '.selected')) {
                 app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function () {
                     that.setTheme(name);
-                    that.applyTheme(name);
                 });
             }
         });
@@ -157,4 +159,14 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
             themesArray[themeIndex].$el.detach().appendTo($tabContent);
         }
     };
+
+
+    /**
+     * Saving and applying settings
+     */
+    app.Settings.onSave(function (settings) {
+        if (settings.isDirty(namespace + '.selected')) {
+            app.Settings.requestPageReload();
+        }
+    });
 });
