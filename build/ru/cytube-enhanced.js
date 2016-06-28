@@ -19326,7 +19326,7 @@
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(24);
+	__webpack_require__(24)($);
 	__webpack_require__(25);
 	window.cytubeEnhanced.addModule('imagePreview', function (app, settings) {
 	    'use strict';

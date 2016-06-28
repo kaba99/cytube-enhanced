@@ -7,7 +7,7 @@
     "jquery.selection": "./other_vendors/jquery.selection.js",
     "lodash": "./other_vendors/lodash.js",
     "jquery.ui.touch-punch": "./other_vendors/jquery.ui.touch-punch.js",
-    "jquery-mousewheel": "./other_vendors/jquery.mousewheel.js"
+    "jquery.mousewheel": "./other_vendors/jquery.mousewheel.js"
   },
   "devDependencies": {
     "cssunminifier": "0.0.2",
