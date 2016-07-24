@@ -1,5 +1,6 @@
 window.CytubeEnhancedUI = function (app) {
     var that = this;
+    var modalWindowCreated = false;
 
 
     /**
@@ -12,6 +13,11 @@ window.CytubeEnhancedUI = function (app) {
      * @returns {jQuery} Modal window
      */
     this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
+        if (modalWindowCreated) {
+            return;
+        }
+        modalWindowCreated = true;
+
         $('.modal').modal('hide');
         id = app.prefix + 'modal-' + id;
 
@@ -44,11 +50,12 @@ window.CytubeEnhancedUI = function (app) {
             $('<div class="modal-footer">').append($footerContent).appendTo($content);
         }
 
-        if (!cache) {
-            $outer.on('hidden.bs.modal', function () {
+        $outer.on('hidden.bs.modal', function () {
+            modalWindowCreated = false;
+            if (!cache) {
                 $(this).remove();
-            });
-        }
+            }
+        });
 
         $outer.modal({keyboard: true});
 
@@ -56,16 +63,28 @@ window.CytubeEnhancedUI = function (app) {
     };
 
 
+    /**
+     * Creates confirm window
+     * @param {string} message Confirm message
+     * @param {function} callback Called after user decision. It has one boolean param isConfirmed
+     */
     this.createConfirmWindow = function (message, callback) {
+        if (modalWindowCreated) {
+            return;
+        }
+        modalWindowCreated = true;
+
+        var isConfirmed = false;
         var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
         var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
         var $content = $('<div class="modal-content">').appendTo($modal);
 
-        $('<div class="modal-header">').html($('<h3 class="modal-title">').text(message)).appendTo($content);
+        $('<div class="modal-header">').html($('<h3 class="modal-title">').html(message)).appendTo($content);
 
         var $footer = $('<div class="modal-footer">').appendTo($content);
-        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
-            callback();
+        $('<button type="button" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
+            isConfirmed = true;
+            $outer.modal('hide');
         });
         $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
 
@@ -75,6 +94,48 @@ window.CytubeEnhancedUI = function (app) {
         });
 
         $outer.on('hidden.bs.modal', function () {
+            modalWindowCreated = false;
+            if (_.isFunction(callback)) {
+                callback(isConfirmed);
+            }
+            $(this).remove();
+        });
+
+
+        $outer.modal({keyboard: true});
+    };
+
+
+    /**
+     * Creates alert window
+     * @param {string} message Alert message
+     * @param {function} [callback] Called after closing alert.
+     */
+    this.createAlertWindow = function (message, callback) {
+        if (modalWindowCreated) {
+            return;
+        }
+        modalWindowCreated = true;
+
+        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
+        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
+        var $content = $('<div class="modal-content">').appendTo($modal);
+
+        $('<div class="modal-header">').html($('<h3 class="modal-title">').html(message)).appendTo($content);
+
+        var $footer = $('<div class="modal-footer">').appendTo($content);
+        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('OK') + '</button>').appendTo($footer);
+
+
+        $outer.on('shown.bs.modal', function () {
+            that.centerModals($(this));
+        });
+
+        $outer.on('hidden.bs.modal', function () {
+            modalWindowCreated = false;
+            if (_.isFunction(callback)) {
+                callback();
+            }
             $(this).remove();
         });
 

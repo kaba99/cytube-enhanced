@@ -42,12 +42,16 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
 
             if (settings.defaultTheme != userSettings.get(namespace + '.selected')) {
                 var themeTitle = that.themes[settings.defaultTheme].title;
-                app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function () {
-                    that.setTheme(settings.defaultTheme);
-                    userSettings.save();
-                    app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
-                        window.location.reload();
-                    });
+                app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function (isConfirmed) {
+                    if (isConfirmed) {
+                        that.setTheme(settings.defaultTheme);
+                        userSettings.save();
+                        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function (isConfirmed) {
+                            if (isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                    }
                 });
             }
         }
@@ -121,8 +125,10 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
             var name = $(this).data('name');
 
             if (name !== userSettings.get(namespace + '.selected')) {
-                app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function () {
-                    that.setTheme(name);
+                app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function (isConfirmed) {
+                    if (isConfirmed) {
+                        that.setTheme(name);
+                    }
                 });
             }
         });

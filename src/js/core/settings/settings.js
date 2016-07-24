@@ -65,8 +65,10 @@ window.CytubeEnhancedUISettings = function (app) {
         that.storage.save();
 
         if (pageReloadRequested) {
-            app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
-                window.location.reload();
+            app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function (isComfirmed) {
+                if (isComfirmed) {
+                    window.location.reload();
+                }
             });
         }
     };
@@ -78,8 +80,10 @@ window.CytubeEnhancedUISettings = function (app) {
     this.reset = function () {
         that.storage.reset();
 
-        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
-            window.location.reload();
+        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function (isComfirmed) {
+            if (isComfirmed) {
+                window.location.reload();
+            }
         });
     };
 

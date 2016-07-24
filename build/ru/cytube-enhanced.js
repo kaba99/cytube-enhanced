@@ -143,7 +143,9 @@
 	        'The image already exists': 'Такая картинка уже была добавлена',
 	        'Drop the picture here to remove it': 'Перетащите сюда картинку, чтобы её удалить',
 	        'Exit': 'Выход',
-	        '<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>': '<p>Избранные картинки нужны для сохранения понравившихся картинок, как закладки браузера.</p><p>Особенности:<ul><li><strong>Хранятся не картинки, а ссылки на них</strong>, другими словами если картинка по ссылке удалится, то она удалится и у вас.</li><li>Ссылки на картинки хранятся в браузере. Для того, чтобы их перемещать между браузерами имеется кнопка экспорта (вытащить) и импорт (вставка экспортированного файла).</li><li>Картинки общие для каналов сайта, но <strong>разные для http:// и https://</strong></li></ul></p>'
+	        '<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>': '<p>Избранные картинки нужны для сохранения понравившихся картинок, как закладки браузера.</p><p>Особенности:<ul><li><strong>Хранятся не картинки, а ссылки на них</strong>, другими словами если картинка по ссылке удалится, то она удалится и у вас.</li><li>Ссылки на картинки хранятся в браузере. Для того, чтобы их перемещать между браузерами имеется кнопка экспорта (вытащить) и импорт (вставка экспортированного файла).</li><li>Картинки общие для каналов сайта, но <strong>разные для http:// и https://</strong></li></ul></p>',
+	        'Your old pictures will be removed and replaced with the images from uploaded file (file must correspond to format of the file from export button of this panel).<br>Are you sure you want to continue?': 'Ваши старые картинки будут удалены, и заменены картинками из загруженного файла (поддерживаются только файлы, полученные экспортом через эту же панель).<br>Вы уверены, что хотите продолжить?',
+	        'Can\'t detect any pictures in this file.': 'Невозможно распознать картинки из файла.'
 	    },
 	    videoInfo: {
 	        'Now:': 'Сейчас:',
@@ -276,7 +278,8 @@
 	    'ru': 'Русский',
 	    'en': 'Английский',
 	    'Confirm': 'Подтвердить',
-	    'Cancel': 'Отмена'
+	    'Cancel': 'Отмена',
+	    'OK': 'OK'
 	};
 
 /***/ },
@@ -516,8 +519,10 @@
 	        that.storage.save();
 
 	        if (pageReloadRequested) {
-	            app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
-	                window.location.reload();
+	            app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function (isComfirmed) {
+	                if (isComfirmed) {
+	                    window.location.reload();
+	                }
 	            });
 	        }
 	    };
@@ -529,8 +534,10 @@
 	    this.reset = function () {
 	        that.storage.reset();
 
-	        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
-	            window.location.reload();
+	        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function (isComfirmed) {
+	            if (isComfirmed) {
+	                window.location.reload();
+	            }
 	        });
 	    };
 
@@ -784,6 +791,7 @@
 
 	window.CytubeEnhancedUI = function (app) {
 	    var that = this;
+	    var modalWindowCreated = false;
 
 
 	    /**
@@ -796,6 +804,11 @@
 	     * @returns {jQuery} Modal window
 	     */
 	    this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
+	        if (modalWindowCreated) {
+	            return;
+	        }
+	        modalWindowCreated = true;
+
 	        $('.modal').modal('hide');
 	        id = app.prefix + 'modal-' + id;
 
@@ -828,11 +841,12 @@
 	            $('<div class="modal-footer">').append($footerContent).appendTo($content);
 	        }
 
-	        if (!cache) {
-	            $outer.on('hidden.bs.modal', function () {
+	        $outer.on('hidden.bs.modal', function () {
+	            modalWindowCreated = false;
+	            if (!cache) {
 	                $(this).remove();
-	            });
-	        }
+	            }
+	        });
 
 	        $outer.modal({keyboard: true});
 
@@ -840,16 +854,28 @@
 	    };
 
 
+	    /**
+	     * Creates confirm window
+	     * @param {string} message Confirm message
+	     * @param {function} callback Called after user decision. It has one boolean param isConfirmed
+	     */
 	    this.createConfirmWindow = function (message, callback) {
+	        if (modalWindowCreated) {
+	            return;
+	        }
+	        modalWindowCreated = true;
+
+	        var isConfirmed = false;
 	        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
 	        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
 	        var $content = $('<div class="modal-content">').appendTo($modal);
 
-	        $('<div class="modal-header">').html($('<h3 class="modal-title">').text(message)).appendTo($content);
+	        $('<div class="modal-header">').html($('<h3 class="modal-title">').html(message)).appendTo($content);
 
 	        var $footer = $('<div class="modal-footer">').appendTo($content);
-	        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
-	            callback();
+	        $('<button type="button" class="btn btn-default">' + app.t('Confirm') + '</button>').appendTo($footer).on('click', function () {
+	            isConfirmed = true;
+	            $outer.modal('hide');
 	        });
 	        $('<button type="button" data-dismiss="modal" class="' + app.prefix + 'user-settings btn btn-default">' + app.t('Cancel') + '</button>').appendTo($footer);
 
@@ -859,6 +885,48 @@
 	        });
 
 	        $outer.on('hidden.bs.modal', function () {
+	            modalWindowCreated = false;
+	            if (_.isFunction(callback)) {
+	                callback(isConfirmed);
+	            }
+	            $(this).remove();
+	        });
+
+
+	        $outer.modal({keyboard: true});
+	    };
+
+
+	    /**
+	     * Creates alert window
+	     * @param {string} message Alert message
+	     * @param {function} [callback] Called after closing alert.
+	     */
+	    this.createAlertWindow = function (message, callback) {
+	        if (modalWindowCreated) {
+	            return;
+	        }
+	        modalWindowCreated = true;
+
+	        var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
+	        var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
+	        var $content = $('<div class="modal-content">').appendTo($modal);
+
+	        $('<div class="modal-header">').html($('<h3 class="modal-title">').html(message)).appendTo($content);
+
+	        var $footer = $('<div class="modal-footer">').appendTo($content);
+	        $('<button type="button" data-dismiss="modal" class="btn btn-default">' + app.t('OK') + '</button>').appendTo($footer);
+
+
+	        $outer.on('shown.bs.modal', function () {
+	            that.centerModals($(this));
+	        });
+
+	        $outer.on('hidden.bs.modal', function () {
+	            modalWindowCreated = false;
+	            if (_.isFunction(callback)) {
+	                callback();
+	            }
 	            $(this).remove();
 	        });
 
@@ -996,7 +1064,7 @@
 
 	    this.translations = {};
 	    this.prefix = 'ce-';
-	    this.version = '2.7.0';
+	    this.version = '2.8.0';
 
 	    var modules = {};
 	    var MODULE_LOAD_TIMEOUT = 60000; //ms (1 minute)
@@ -19132,7 +19200,7 @@
 	        return that.entityMap[symbol];
 	    };
 	    this.renderFavouritePictures = function () {
-	        var favouritePictures = app.storage.get('favouritePictures');
+	        var favouritePictures = app.storage.get('favouritePictures') || [];
 
 	        this.$favouritePicturesBodyPanel.empty();
 
@@ -19183,8 +19251,9 @@
 
 
 	    this.addFavouritePicture = function (imageUrl) {
+	        imageUrl = _.trim(imageUrl);
 	        if (imageUrl !== '') {
-	            var favouritePictures = app.storage.get('favouritePictures');
+	            var favouritePictures = app.storage.get('favouritePictures') || [];
 
 	            if (favouritePictures.indexOf(imageUrl) === -1) {
 	                if (imageUrl !== '') {
@@ -19240,7 +19309,7 @@
 	    this.exportPictures = function () {
 	        var $downloadLink = $('<a>')
 	            .attr({
-	                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(app.toJSON(app.storage.get('favouritePictures'))),
+	                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(app.toJSON(app.storage.get('favouritePictures') || [])),
 	                download: 'cytube_enhanced_favourite_images.txt'
 	            })
 	            .hide()
@@ -19259,14 +19328,23 @@
 	        var favouritePicturesAddressesReader = new FileReader();
 
 	        favouritePicturesAddressesReader.addEventListener('load', function(e) {
-	            app.storage.set('favouritePictures', app.parseJSON(e.target.result));
-
-	            that.renderFavouritePictures();
+	            var pictures = app.parseJSON(e.target.result);
+	            if (_.isArray(pictures)) {
+	                app.storage.set('favouritePictures', app.parseJSON(e.target.result));
+	                that.renderFavouritePictures();
+	            } else {
+	                app.UI.createAlertWindow(app.t('favPics[.]Can\'t detect any pictures in this file.'));
+	            }
 	        });
 	        favouritePicturesAddressesReader.readAsText(importFile);
 	    };
 	    $('#import-pictures').on('change', function () {
-	        that.importPictures($(this)[0].files[0]);
+	        var file = $(this)[0].files[0];
+	        app.UI.createConfirmWindow(app.t('favPics[.]Your old pictures will be removed and replaced with the images from uploaded file (file must correspond to format of the file from export button of this panel).<br>Are you sure you want to continue?'), function (isConfirmed) {
+	            if (isConfirmed && file) {
+	                that.importPictures(file);
+	            }
+	        });
 	    });
 
 
@@ -20446,12 +20524,16 @@
 
 	            if (settings.defaultTheme != userSettings.get(namespace + '.selected')) {
 	                var themeTitle = that.themes[settings.defaultTheme].title;
-	                app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function () {
-	                    that.setTheme(settings.defaultTheme);
-	                    userSettings.save();
-	                    app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function () {
-	                        window.location.reload();
-	                    });
+	                app.UI.createConfirmWindow(app.t('themes[.]Default theme was changed to "%themeTitle%" by administrator. Do you want to try it? (Don\'t forget, that you can switch your theme in extended settings anytime.)').replace('%themeTitle%', themeTitle), function (isConfirmed) {
+	                    if (isConfirmed) {
+	                        that.setTheme(settings.defaultTheme);
+	                        userSettings.save();
+	                        app.UI.createConfirmWindow(app.t('settings[.]Some settings need to refresh the page to get to work. Do it now?'), function (isConfirmed) {
+	                            if (isConfirmed) {
+	                                window.location.reload();
+	                            }
+	                        });
+	                    }
 	                });
 	            }
 	        }
@@ -20525,8 +20607,10 @@
 	            var name = $(this).data('name');
 
 	            if (name !== userSettings.get(namespace + '.selected')) {
-	                app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function () {
-	                    that.setTheme(name);
+	                app.UI.createConfirmWindow(app.t('themes[.]Apply this theme?'), function (isConfirmed) {
+	                    if (isConfirmed) {
+	                        that.setTheme(name);
+	                    }
 	                });
 	            }
 	        });

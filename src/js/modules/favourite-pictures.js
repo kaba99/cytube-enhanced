@@ -86,7 +86,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         return that.entityMap[symbol];
     };
     this.renderFavouritePictures = function () {
-        var favouritePictures = app.storage.get('favouritePictures');
+        var favouritePictures = app.storage.get('favouritePictures') || [];
 
         this.$favouritePicturesBodyPanel.empty();
 
@@ -137,8 +137,9 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
 
 
     this.addFavouritePicture = function (imageUrl) {
+        imageUrl = _.trim(imageUrl);
         if (imageUrl !== '') {
-            var favouritePictures = app.storage.get('favouritePictures');
+            var favouritePictures = app.storage.get('favouritePictures') || [];
 
             if (favouritePictures.indexOf(imageUrl) === -1) {
                 if (imageUrl !== '') {
@@ -194,7 +195,7 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
     this.exportPictures = function () {
         var $downloadLink = $('<a>')
             .attr({
-                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(app.toJSON(app.storage.get('favouritePictures'))),
+                href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(app.toJSON(app.storage.get('favouritePictures') || [])),
                 download: 'cytube_enhanced_favourite_images.txt'
             })
             .hide()
@@ -213,14 +214,23 @@ window.cytubeEnhanced.addModule('favouritePictures', function (app) {
         var favouritePicturesAddressesReader = new FileReader();
 
         favouritePicturesAddressesReader.addEventListener('load', function(e) {
-            app.storage.set('favouritePictures', app.parseJSON(e.target.result));
-
-            that.renderFavouritePictures();
+            var pictures = app.parseJSON(e.target.result);
+            if (_.isArray(pictures)) {
+                app.storage.set('favouritePictures', app.parseJSON(e.target.result));
+                that.renderFavouritePictures();
+            } else {
+                app.UI.createAlertWindow(app.t('favPics[.]Can\'t detect any pictures in this file.'));
+            }
         });
         favouritePicturesAddressesReader.readAsText(importFile);
     };
     $('#import-pictures').on('change', function () {
-        that.importPictures($(this)[0].files[0]);
+        var file = $(this)[0].files[0];
+        app.UI.createConfirmWindow(app.t('favPics[.]Your old pictures will be removed and replaced with the images from uploaded file (file must correspond to format of the file from export button of this panel).<br>Are you sure you want to continue?'), function (isConfirmed) {
+            if (isConfirmed && file) {
+                that.importPictures(file);
+            }
+        });
     });
 
 

@@ -1,3 +1,14 @@
+v2.8.0
+======
+Confirm window callback logic was changed. Also, it supports html message now.
+Only one modal is able to be opened per time.
+Favourite pictures critical fixes, and better ui.
+Added ability to create alert windows.
+
+v2.7.1
+======
+Minor fixes
+
 v2.7.0
 ======
 Theme's changing now reloads page (or requests to reload page), because of themes javascripts.

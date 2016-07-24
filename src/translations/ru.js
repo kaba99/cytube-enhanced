@@ -55,7 +55,9 @@ window.cytubeEnhancedDefaultTranslates.ru = {
         'The image already exists': 'Такая картинка уже была добавлена',
         'Drop the picture here to remove it': 'Перетащите сюда картинку, чтобы её удалить',
         'Exit': 'Выход',
-        '<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>': '<p>Избранные картинки нужны для сохранения понравившихся картинок, как закладки браузера.</p><p>Особенности:<ul><li><strong>Хранятся не картинки, а ссылки на них</strong>, другими словами если картинка по ссылке удалится, то она удалится и у вас.</li><li>Ссылки на картинки хранятся в браузере. Для того, чтобы их перемещать между браузерами имеется кнопка экспорта (вытащить) и импорт (вставка экспортированного файла).</li><li>Картинки общие для каналов сайта, но <strong>разные для http:// и https://</strong></li></ul></p>'
+        '<p>Favourite pictures feature if for saving favourite pictures like browser bookmarks.</p><p>Features:<ul><li><strong>Only links to images can be saved</strong>, so if image from link was removed, it also removes from your panel.</li><li>Images links are storing in browser. There are export and import buttons to share them between browsers.</li><li>Images are the same for site channels, but <strong>they are different for http:// and https://</strong></li></ul></p>': '<p>Избранные картинки нужны для сохранения понравившихся картинок, как закладки браузера.</p><p>Особенности:<ul><li><strong>Хранятся не картинки, а ссылки на них</strong>, другими словами если картинка по ссылке удалится, то она удалится и у вас.</li><li>Ссылки на картинки хранятся в браузере. Для того, чтобы их перемещать между браузерами имеется кнопка экспорта (вытащить) и импорт (вставка экспортированного файла).</li><li>Картинки общие для каналов сайта, но <strong>разные для http:// и https://</strong></li></ul></p>',
+        'Your old pictures will be removed and replaced with the images from uploaded file (file must correspond to format of the file from export button of this panel).<br>Are you sure you want to continue?': 'Ваши старые картинки будут удалены, и заменены картинками из загруженного файла (поддерживаются только файлы, полученные экспортом через эту же панель).<br>Вы уверены, что хотите продолжить?',
+        'Can\'t detect any pictures in this file.': 'Невозможно распознать картинки из файла.'
     },
     videoInfo: {
         'Now:': 'Сейчас:',
@@ -188,5 +190,6 @@ window.cytubeEnhancedDefaultTranslates.ru = {
     'ru': 'Русский',
     'en': 'Английский',
     'Confirm': 'Подтвердить',
-    'Cancel': 'Отмена'
+    'Cancel': 'Отмена',
+    'OK': 'OK'
 };
