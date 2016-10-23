@@ -1,6 +1,5 @@
 window.CytubeEnhancedUI = function (app) {
     var that = this;
-    var modalWindowCreated = false;
 
 
     /**
@@ -13,11 +12,6 @@ window.CytubeEnhancedUI = function (app) {
      * @returns {jQuery} Modal window
      */
     this.createModalWindow = function(id, $headerContent, $bodyContent, $footerContent, cache) {
-        if (modalWindowCreated) {
-            return;
-        }
-        modalWindowCreated = true;
-
         $('.modal').modal('hide');
         id = app.prefix + 'modal-' + id;
 
@@ -51,7 +45,6 @@ window.CytubeEnhancedUI = function (app) {
         }
 
         $outer.on('hidden.bs.modal', function () {
-            modalWindowCreated = false;
             if (!cache) {
                 $(this).remove();
             }
@@ -69,11 +62,6 @@ window.CytubeEnhancedUI = function (app) {
      * @param {function} callback Called after user decision. It has one boolean param isConfirmed
      */
     this.createConfirmWindow = function (message, callback) {
-        if (modalWindowCreated) {
-            return;
-        }
-        modalWindowCreated = true;
-
         var isConfirmed = false;
         var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
         var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
@@ -94,7 +82,6 @@ window.CytubeEnhancedUI = function (app) {
         });
 
         $outer.on('hidden.bs.modal', function () {
-            modalWindowCreated = false;
             if (_.isFunction(callback)) {
                 callback(isConfirmed);
             }
@@ -112,11 +99,6 @@ window.CytubeEnhancedUI = function (app) {
      * @param {function} [callback] Called after closing alert.
      */
     this.createAlertWindow = function (message, callback) {
-        if (modalWindowCreated) {
-            return;
-        }
-        modalWindowCreated = true;
-
         var $outer = $('<div class="modal fade ' + app.prefix + 'modal-confirm modal-centered" role="dialog" tabindex="-1">').appendTo($("body"));
         var $modal = $('<div class="modal-dialog modal-sm">').appendTo($outer);
         var $content = $('<div class="modal-content">').appendTo($modal);
@@ -132,7 +114,6 @@ window.CytubeEnhancedUI = function (app) {
         });
 
         $outer.on('hidden.bs.modal', function () {
-            modalWindowCreated = false;
             if (_.isFunction(callback)) {
                 callback();
             }
