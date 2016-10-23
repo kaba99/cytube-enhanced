@@ -79,7 +79,8 @@
 	__webpack_require__(38);
 	__webpack_require__(39);
 	__webpack_require__(40);
-	module.exports = __webpack_require__(41);
+	__webpack_require__(41);
+	module.exports = __webpack_require__(42);
 
 
 /***/ },
@@ -21285,6 +21286,20 @@
 
 	window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
 	    extraModules.add({
+	        title: 'Halloween',
+	        name: 'halloween',
+	        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/halloween/theme.css',
+	        jsUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/halloween/theme.js',
+	        pictureUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/halloween/screenshot.png'
+	    });
+	});
+
+/***/ },
+/* 41 */
+/***/ function(module, exports) {
+
+	window.cytubeEnhanced.getModule('themes').done(function (extraModules) {
+	    extraModules.add({
 	        title: 'Новогодняя тема',
 	        name: 'new-year',
 	        cssUrl: 'https://rawgit.com/kaba99/cytube-enhanced/master/themes/new_year/theme.css',
@@ -21294,7 +21309,7 @@
 	});
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports) {
 
 	/*
