@@ -5348,3 +5348,36 @@ canvas{
     height: 100%;
     background-size: cover;
 }
+
+
+
+
+
+
+/*
+ * Theme
+ */
+body {
+    background: url('http://tehtube.tv/img/halloween-anime-monsters-and-images.png') no-repeat center center fixed; 
+    background-size: cover;
+}
+
+#messagebuffer, #userlist, #chatheader, #mediainfo, #plmeta,
+.well, .form-control, footer, .btn-default, .queue_entry, .navbar-inverse
+input.form-control[type="email"], input.form-control[type="password"], input.form-control[type="text"], textarea.form-control {
+    background-color: rgba(0,10,20,.8) !important;
+}
+
+.modal-content, .dropdown-menu {
+	background-color: rgba(0,10,20,0.9) !important;
+}
+
+.nav .open>a, .nav .open>a:focus, .nav .open>a:hover, 
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+	background-color: rgba(30,30,30,0.7);
+}
+
+#player-overlay {
+	background: url(http://i.imgur.com/DCx3pWo.jpg) repeat;
+	background-size: cover;
+}

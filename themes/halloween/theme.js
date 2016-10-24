@@ -153,4 +153,9 @@ window.cytubeEnhanced.Settings.configureTheme(function (app, tab, storage) {
         applySettings(storage);
     });
     applySettings(storage);
+
+
+    $(document).ready(function () {
+        $('.motd-channel-description img').attr('src', 'http://tehtube.tv/img/Chibi_Citrouille_Halloween.png');
+    });
 });
