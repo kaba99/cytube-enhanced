@@ -3,7 +3,7 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     var that = this;
 
     var defaultSettings = {
-        defaultTheme: 'default', //default theme for user (until user do not change it)
+        defaultTheme: 'halloween', //default theme for user (until user do not change it)
         themeId: 'theme-css' //node id in DOM
     };
     settings = $.extend({}, defaultSettings, settings);
@@ -29,7 +29,6 @@ window.cytubeEnhanced.addModule('themes', function (app, settings) {
     //if settings.defaultTheme was changed by administrator ask user if he want to switch on it
     this.applyNewDefaultTheme = function () {
         var previousDefaultTheme = userSettings.get(namespace + '.previousDefaultTheme');
-
         if (userSettings.get(namespace + '.selected') == previousDefaultTheme) {
             userSettings.set(namespace + '.previousDefaultTheme', settings.defaultTheme);
             that.setTheme(settings.defaultTheme);
