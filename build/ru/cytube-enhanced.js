@@ -18563,7 +18563,7 @@
 
 	        var day = time.getDate();
 	        day = day < 10 ? ('0' + day) : day;
-	        var month = time.getMonth();
+	        var month = time.getMonth() + 1;
 	        month = month < 10 ? ('0' + month) : month;
 	        var year = time.getFullYear();
 	        var hours = time.getHours();
@@ -18576,11 +18576,11 @@
 	        var timeString = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
 
 
-
-	        $messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
-	        $messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
-	        $messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
-
+	        if (data.username !== "[server]") {
+            	$messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
+            	$messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
+            	$messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
+        	}
 
 	        return $messageWrapper;
 	    };
