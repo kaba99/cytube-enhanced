@@ -18577,9 +18577,9 @@
 
 
 	        if (data.username !== "[server]") {
-            	$messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
-            	$messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
-            	$messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
+            		$messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
+            		$messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
+            		$messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
         	}
 
 	        return $messageWrapper;
