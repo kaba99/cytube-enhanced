@@ -276,7 +276,11 @@ window.cytubeEnhanced.addModule('additionalChatCommands', function (app, setting
 
             return;
         } else if(e.keyCode === 9) { // Tab completion
-            window.chatTabComplete();
+            try {
+                window.chatTabComplete();
+            } catch (error) {
+                console.error(error);
+            }
             e.preventDefault();
             return false;
         } else if(e.keyCode === 38) { // Up arrow (input history)
