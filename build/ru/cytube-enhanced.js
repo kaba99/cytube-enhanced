@@ -17689,7 +17689,11 @@
 
 	            return;
 	        } else if(e.keyCode === 9) { // Tab completion
-	            window.chatTabComplete();
+                try {
+                    window.chatTabComplete();
+                } catch (error) {
+                    console.error(error);
+                }
 	            e.preventDefault();
 	            return false;
 	        } else if(e.keyCode === 38) { // Up arrow (input history)
@@ -18563,7 +18567,7 @@
 
 	        var day = time.getDate();
 	        day = day < 10 ? ('0' + day) : day;
-	        var month = time.getMonth();
+	        var month = time.getMonth() + 1;
 	        month = month < 10 ? ('0' + month) : month;
 	        var year = time.getFullYear();
 	        var hours = time.getHours();
@@ -18576,11 +18580,11 @@
 	        var timeString = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
 
 
-
-	        $messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
-	        $messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
-	        $messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
-
+	        if (data.username !== "[server]") {
+            		$messageWrapper.append($('<div class="pm-history-message-time">[' + timeString + ']</div>'));
+            		$messageWrapper.append($('<div class="pm-history-message-username">' + data.username + '</div>'));
+            		$messageWrapper.append($('<div class="pm-history-message-content">' + data.msg + '</div>'));
+        	}
 
 	        return $messageWrapper;
 	    };
@@ -18645,83 +18649,6 @@
 
 	    this.$chatline = $("#chatline");
 	    this.$userlist = $("#userlist");
-
-
-	    window.chatTabComplete = function () {
-	        var i;
-	        var words = that.$chatline.val().split(" ");
-	        var current = words[words.length - 1].toLowerCase();
-	        if (!current.match(/^[\wа-яА-ЯёЁ-]{1,20}$/)) {
-	            return;
-	        }
-
-	        var __slice = Array.prototype.slice;
-	        var usersWithCap = __slice.call(that.$userlist.find('.userlist_item')).map(function (elem) {
-	            return elem.children[1].innerHTML;
-	        });
-	        var users = __slice.call(usersWithCap).map(function (user) {
-	            return user.toLowerCase();
-	        }).filter(function (name) {
-	            return name.indexOf(current) === 0;
-	        });
-
-	        // users now contains a list of names that start with current word
-
-	        if (users.length === 0) {
-	            return;
-	        }
-
-	        // trim possible names to the shortest possible completion
-	        var min = Math.min.apply(Math, users.map(function (name) {
-	            return name.length;
-	        }));
-	        users = users.map(function (name) {
-	            return name.substring(0, min);
-	        });
-
-	        // continually trim off letters until all prefixes are the same
-	        var changed = true;
-	        var iter = 21;
-	        while (changed) {
-	            changed = false;
-	            var first = users[0];
-	            for (i = 1; i < users.length; i++) {
-	                if (users[i] !== first) {
-	                    changed = true;
-	                    break;
-	                }
-	            }
-
-	            if (changed) {
-	                users = users.map(function (name) {
-	                    return name.substring(0, name.length - 1);
-	                });
-	            }
-
-	            // In the event something above doesn't generate a break condition, limit
-	            // the maximum number of repetitions
-	            if (--iter < 0) {
-	                break;
-	            }
-	        }
-
-	        current = users[0].substring(0, min);
-	        for (i = 0; i < usersWithCap.length; i++) {
-	            if (usersWithCap[i].toLowerCase() === current) {
-	                current = usersWithCap[i];
-	                break;
-	            }
-	        }
-
-	        if (users.length === 1) {
-	            if (words.length === 1) {
-	                current += ":";
-	            }
-	            current += " ";
-	        }
-	        words[words.length - 1] = current;
-	        that.$chatline.val(words.join(" "));
-	    };
 
 
 	    if (settings.insertUsernameOnClick) {
